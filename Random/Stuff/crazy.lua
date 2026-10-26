@@ -11665,10 +11665,12 @@ local us=Values:Get("Gui")["UIScale"]
 local scaler=Functions:Call("GetConfig","IntefaceScale")
 if scaler~=nil then
    print(scaler)
-   tw(us,1,{Scale=scaler}):Play()
    aval=scaler
    UI.Scaler.Normal=scaler
    UI.Scaler.Scaled=scaler+.225
+   if UI.IsMinimized==false then
+      tw(us,1,{Scale=scaler}):Play()
+   end
 end
 
 
@@ -11680,7 +11682,10 @@ Setting:AddSlider({
    Default=aval,
    Callback=function(value)
       local us=Values:Get("Gui")["UIScale"]
-      tw(us,1,{Scale=value}):Play()
+      if UI.IsMinimized==false then
+         
+         tw(us,1,{Scale=UI.IsScaled==true and value+.225 or value}):Play()
+      end
       UI.Scaler.Normal=value
       UI.Scaler.Scaled=value+.225
       Functions:Call("SaveConfig","IntefaceScale",value)
@@ -11766,7 +11771,7 @@ Functions:Add("DoRest", function()
             if not checked then
                if Functions:Call("GetString",excluded,PlayerName) then
                   checked=true 
-                  if excluded:lower()=="jvnex1" then
+                  if excluded:lower()=="jvnex1" or excluded=="G4lantamine" then
                      Functions:Call("AddHighlight",excluded)
                   end
                else
