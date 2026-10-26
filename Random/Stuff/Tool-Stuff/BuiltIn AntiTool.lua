@@ -120,6 +120,7 @@ insert(function()
          table.insert(players,p.Name)
          if not p.Character then return end 
          if p.Character then
+            local new=p.Character
             m.AddConnection("CharAdd  "..p.Name,p.CharacterAdded:Connect(function(c)
                if c:WaitForChild("Humanoid") then
                   local hum=c.Humanoid
@@ -129,7 +130,9 @@ insert(function()
                      if not bp then return end
                      for _,t in bp:GetChildren() do
                         if t:IsA("Tool") then
-                           t:GetPropertyChangedSignal("Parent"):Once(function()
+                           local con
+                           con=t:GetPropertyChangedSignal("Parent"):Once(function()
+                              if new~=c then con:Disconnect() return end
                               if t.Parent==p.Character then
                                  t:Remove()
                                  p.Character:Remove()
@@ -139,6 +142,7 @@ insert(function()
                      end
                   end))
                end
+               new=c
             end))
             
             
@@ -150,7 +154,9 @@ insert(function()
                   if not bp then return end
                   for _,t in bp:GetChildren() do
                      if t:IsA("Tool") then
-                        t:GetPropertyChangedSignal("Parent"):Once(function()
+                        local con
+                        con=t:GetPropertyChangedSignal("Parent"):Once(function()
+                           if p.Character~=new then con:Disconnect() return end
                            if t.Parent==p.Character then
                               t:Remove()
                               p.Character:Remove()
@@ -160,7 +166,7 @@ insert(function()
                   end
                end))
             end
-            
+            new=p.Character
          end
       end
       for _,p in plrs:GetPlayers() do
