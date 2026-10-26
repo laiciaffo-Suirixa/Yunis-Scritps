@@ -11882,11 +11882,11 @@ Functions:Add("DoRest", function()
             Connections:Add("checkhealth "..i,hum:GetPropertyChangedSignal("Health"):Connect(function()
                pcall(function()
                   Health.Text="|| Health: "..this.Funcs.GetHealth()
-                  if hum.Health<=10 then
+                  if this.Funcs.GetHealth()<=10 then
                      Health.TextColor3=gp("c3")(1,0,0)
                      Username.TextColor3=gp("c3")(1,0,0)
                      DisplayName.TextColor3=gp("c3")(1,0,0)
-                    this.Skipped=true
+                     this.Skipped=true
                   end 
                end)
             end))
@@ -11901,7 +11901,7 @@ Functions:Add("DoRest", function()
                this.Skipped=false
                Health.Text="|| Health: "..hum.Health
                Connections:Add("checkhealth "..i,hum:GetPropertyChangedSignal("Health"):Connect(function()
-                  Health.Text="|| Health: "..hum.Health
+                  pcall(function() Health.Text="|| Health: "..this.Funcs.GetHealth() end)
                   if hum.Health<=10 then
                      Health.TextColor3=gp("c3")(1,0,0)
                      Username.TextColor3=gp("c3")(1,0,0)
@@ -12246,7 +12246,7 @@ Functions:Add("DoRest", function()
             template.Parent=Contents
             Connections:Add("checkhealth1 "..i,hum:GetPropertyChangedSignal("Health"):Connect(function()
                pcall(function() 
-                  Health.Text="|| Health: "..hum.Health
+                  Health.Text="|| Health: "..this.Funcs.GetHealth()
                   if hum.Health<=10 then
                      Health.TextColor3=gp("c3")(1,0,0)
                      Username.TextColor3=gp("c3")(1,0,0)
@@ -12267,13 +12267,15 @@ Functions:Add("DoRest", function()
                this.Skipped=false
                Health.Text="|| Health: "..hum.Health
                Connections:Add("checkhealth1 "..i,hum:GetPropertyChangedSignal("Health"):Connect(function()
-                  pcall(function() Health.Text="|| Health: "..hum.Health end)
-                  if hum.Health<=10 then
-                     Health.TextColor3=gp("c3")(1,0,0)
-                     Username.TextColor3=gp("c3")(1,0,0)
-                     DisplayName.TextColor3=gp("c3")(1,0,0)
-                     this.Skipped=true
-                  end 
+                  pcall(function() 
+                     Health.Text="|| Health: "..this.Funcs.GetHealth()
+                     if this.Funcs.GetHealth()<=10 then
+                        Health.TextColor3=gp("c3")(1,0,0)
+                        Username.TextColor3=gp("c3")(1,0,0)
+                        DisplayName.TextColor3=gp("c3")(1,0,0)
+                        this.Skipped=true
+                     end 
+                  end)
                end))
             end))
             
@@ -12320,9 +12322,16 @@ Functions:Add("DoRest", function()
          local hum=FindChild(char,"Humanoid")
          local elapsed=1
          local respawned=false 
+         local skipped=false
          if hum then 
             tsp(function()
                while respawned==false do 
+                  elapsed+=gp("rs")["PostSimulation"]:Wait()
+                  if elapsed>=3 then
+                     skipped=true
+                     respawned=true  -- unblock the repeat below
+                     break
+                  end
                   if respawned==true then break end
                   local c=gp("gs")("Players")[name]
                   if c.Character~=nil and c.Character then
@@ -12338,6 +12347,11 @@ Functions:Add("DoRest", function()
             end)
             local network=gp("mcl")(gp("gs")("Players").LocalPlayer:GetNetworkPing(),0,1)
             repeat wait(.85+network) until respawned==true
+            if skipped then
+               this.Looping=false
+               wait()
+               continue
+            end
             if name~=Values:Get("SSelected") then this.Looping=false Values:Change("Looping",false)  end
             local type=whattype:lower()
             if type=="void" then
@@ -12425,7 +12439,7 @@ Functions:Add("DoRest", function()
                player.Skipped=false
                Health.Text="|| Health: "..player.Funcs.GetHealth()
                Connections:Add("HealthCheck",hum:GetPropertyChangedSignal("Health"):Connect(function()
-                  Health.Text="|| Health: "..player.Funcs.GetHealth()
+                  pcall(function() Health.Text="|| Health: "..player.Funcs.GetHealth() end)
                   if this.Funcs.GetHealth()<=10 then
                      Health.TextColor3=gp("c3")(1,0,0)
                      Usr.TextColor3=gp("c3")(1,0,0)
