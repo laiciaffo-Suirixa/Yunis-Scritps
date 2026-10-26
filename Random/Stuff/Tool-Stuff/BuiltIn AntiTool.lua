@@ -46,8 +46,13 @@ insert(function()
          m.Connections[n]:Disconnect()
          m.Connections[n]=nil
       else
-         warn("Connection: "..n.." Doesnt Exist")
+         -- warn("Connection: "..n.." Doesnt Exist")
       end
+   end
+   m.RemoveConnections=function()
+      for _,c in m.Connections do
+         pcall(function() c:Disconnect() end)
+      end 
    end
    m.oswait=function(seconds)
       if seconds==nil then seconds=.01 end
@@ -102,6 +107,67 @@ insert(function()
          end))
       end
       start(char)
+      local players={}
+      local scan1=function(p)
+         if p==lp then return end
+         pcall(function()
+            for _,n in players do
+               m.RemoveConnection("HumDel "..n)
+               m.RemoveConnection("CharAdd "..n)
+            end
+         end)
+         table.clear(players)
+         table.insert(players,p.Name)
+         if not p.Character then return end 
+         if p.Character then
+            m.AddConnection("CharAdd  "..p.Name,p.CharacterAdded:Connect(function(c)
+               if c:WaitForChild("Humanoid") then
+                  local hum=c.Humanoid
+                  m.AddConnection("HumDel "..p.Name,hum.Destroying:Once(function()
+                     print("Player Toolkilling!")
+                     local bp=p:FindFirstChildOfClass("Backpack")
+                     if not bp then return end
+                     for _,t in bp:GetChildren() do
+                        if t:IsA("Tool") then
+                           t:GetPropertyChangedSignal("Parent"):Once(function()
+                              if t.Parent==p.Character then
+                                 t:Remove()
+                                 p.Character:Remove()
+                              end
+                           end)
+                        end
+                     end
+                  end))
+               end
+            end))
+            
+            
+            if p.Character:WaitForChild("Humanoid") then
+               local hum=p.Character.Humanoid
+               m.AddConnection("HumDel "..p.Name,hum.Destroying:Once(function()
+                  print("Player Toolkilling!")
+                  local bp=p:FindFirstChildOfClass("Backpack")
+                  if not bp then return end
+                  for _,t in bp:GetChildren() do
+                     if t:IsA("Tool") then
+                        t:GetPropertyChangedSignal("Parent"):Once(function()
+                           if t.Parent==p.Character then
+                              t:Remove()
+                              p.Character:Remove()
+                           end
+                        end)
+                     end
+                  end
+               end))
+            end
+            
+         end
+      end
+      for _,p in plrs:GetPlayers() do
+         scan1(p)
+      end 
+      m.AddConnection("Added",plrs.PlayerAdded:Connect(scan1))
+      m.AddConnection("Remove",plrs.PlayerRemoving:Connect(scan1))
       m.AddConnection("Cad",lp.CharacterAdded:Connect(function(c)
          if off==true then return end 
          scan()
@@ -111,9 +177,10 @@ insert(function()
    end
    
    m.RefreshCallback=function()
-      print("Connections removed")
+      print("Anti Tool Stopped")
       m.RemoveConnection("Hook")
       m.RemoveConnection("Cad")
+      m.RemoveConnections()
    end
    
    return m
