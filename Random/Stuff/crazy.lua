@@ -11654,7 +11654,7 @@ local AntiTool=Setting:AddToggle({
    end
 })
 Values:Add("AntiToolToggle", AntiTool)
-Functions:Call("Init AntiTool")
+tsp(function() Functions:Call("Init AntiTool") end)
 
 Functions:Add("DoRest", function()
    local plrs=gp("gs")("Players")
