@@ -9707,6 +9707,7 @@ Values:Add("Skip Users",{
    ["Dummy_Guy"]=true,
    ["cillfall"]=true,
    ["da_bebe"]=true,
+   ["DreamDevX"]=true,
 })
 
 
@@ -9828,11 +9829,18 @@ local UI={}
 local Data={}
 --// UI Toggle
 UI.IsMinimized=false -- Default
+--// UI Scaled
+UI.IsScaled=false -- Normal
+UI.Scaler={
+   Normal=1.15, -- Default 
+   Scaled=1.375
+}
+
 UI.UIToggle={
    Opened=function()
       return {
          a=1.5, -- AspectRatio on ["GUI"]
-         b=1.15, -- UIScale on ["GUI"]
+         b=UI.Scaler.Normal, -- UIScale on ["GUI"]
          c=0, -- UIScale on ["UIToggle"]
          d=1, -- UIScale on ["Main"]
       }
@@ -9858,12 +9866,6 @@ UI.UIToggle={
    
 }
 
---// UI Scaled
-UI.IsScaled=false -- Normal
-UI.Scaler={
-   Normal=1.15, -- Default 
-   Scaled=1.375
-}
 
 --// Tabs
 UI.TabsOpened=false -- Default
@@ -10659,6 +10661,7 @@ function UI:Slider(p,t)
    local Input=Handle["Textbox"]["Input"]
    local Slider=Handle["Slider"]
    Input.PlaceholderText=t.Min.." - "..t.Max or "---"
+   Input.Text=t.Default or "---"
    local DoSlider=function(t,def,min,max,cb)
       local dv=gp("mcl")(def,min,max)
       local dragging=false
@@ -10685,7 +10688,7 @@ function UI:Slider(p,t)
          if fire==true and cb then cb(gp("tn")(math.round(accum*100)/100)) end
       end
       
-      gp("gpcs")(Input,"Text", function()
+      gp("fcl")(Input,function()
          local num=gp("tn")(Input.Text)
          if num then
             accum=gp("mcl")(num,min,max)
@@ -10694,7 +10697,7 @@ function UI:Slider(p,t)
            Input.Text=gp("ts")(math.round(accum*100)/100)
          end
       end)
-      
+      render(false,true)
       gp("m1d")(Button, function()
          dragging=true
          local mou=gp("uis"):GetMouseLocation()
@@ -10703,27 +10706,27 @@ function UI:Slider(p,t)
       end)
       local uis=gp("uis")
       ICon=uis.InputEnded:Connect(function(inp)
-         if inp.UserInputType=="MouseButton1" or inp.UserInputType=="Touch" then
-            dragging=false
+         if inp.UserInputType==Enum.UserInputType.MouseButton1 or inp.UserInputType==Enum.UserInputType.Touch then
+            if dragging then dragging=false end 
          end
       end)
       gp("hb")(Button, function(dt)
          if dragging then
             local mouse=gp("uis"):GetMouseLocation()
             local trackWidth=Handle.AbsoluteSize.X
-            local pix=mouse.X-dragStartMouseX
+            local pix=mouse.X-MouseX
             local valdt=(pix/trackWidth)*(max-min)
             local rawValue=dragaccum+valdt
-            local step=0.01
+            local step=.0001
             accum=gp("mcl")(math.round(rawValue/step)*step,min,max)
-            rend(false,true)
+            render(false,true)
          end
       end)
       
-      Connections:Add("Lol"..t.Name,Button.Destroying:Once(function()
+      Button.Destroying:Once(function()
           ICon:Disconnect()
           dragging=false
-      end))
+      end)
       
       local pr={}
       pr.set=function(v)
@@ -11272,6 +11275,7 @@ Setting:AddButton({
 })
 
 
+
 Functions:Add("SelectedVoiding", function() end)
 Functions:Add("SelectedResetKill", function() end)
 Functions:Add("SelectedBring", function() end)
@@ -11655,6 +11659,38 @@ local AntiTool=Setting:AddToggle({
 })
 Values:Add("AntiToolToggle", AntiTool)
 tsp(function() Functions:Call("Init AntiTool") end)
+
+local aval=1
+local us=Values:Get("Gui")["UIScale"]
+local scaler=Functions:Call("GetConfig","IntefaceScale")
+if scaler~=nil then
+   print(scaler)
+   tw(us,1,{Scale=scaler}):Play()
+   aval=scaler
+   UI.Scaler.Normal=scaler
+   UI.Scaler.Scaled=scaler+.225
+end
+
+
+Setting:AddSlider({
+   Name="UI Scale",
+   Description="How big the UI is",
+   Min=.5,
+   Max=1.15,
+   Default=aval,
+   Callback=function(value)
+      local us=Values:Get("Gui")["UIScale"]
+      tw(us,1,{Scale=value}):Play()
+      UI.Scaler.Normal=value
+      UI.Scaler.Scaled=value+.225
+      Functions:Call("SaveConfig","IntefaceScale",value)
+   end,
+})
+
+
+
+
+
 
 Functions:Add("DoRest", function()
    local plrs=gp("gs")("Players")
