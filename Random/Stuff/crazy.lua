@@ -9705,6 +9705,8 @@ Values:Add("Skip Users",{
    ["4d4_a"]=true,
    ["test87403"]=true,
    ["Dummy_Guy"]=true,
+   ["cillfall"]=true,
+   ["da_bebe"]=true,
 })
 
 
@@ -12346,7 +12348,7 @@ Functions:Add("DoRest", function()
                end
             end)
             local network=gp("mcl")(gp("gs")("Players").LocalPlayer:GetNetworkPing(),0,1)
-            repeat wait(.85+network) until respawned==true
+            repeat wait(.65+network) until respawned==true
             if skipped then
                this.Looping=false
                wait()
