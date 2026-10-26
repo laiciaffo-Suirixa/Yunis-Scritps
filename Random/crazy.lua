@@ -11683,7 +11683,8 @@ Setting:AddSlider({
    Callback=function(value)
       local us=Values:Get("Gui")["UIScale"]
       if UI.IsMinimized==false then
-         tw(us,1,{Scale=value}):Play()
+         
+         tw(us,1,{Scale=UI.IsScaled==true and value+.225 or value}):Play()
       end
       UI.Scaler.Normal=value
       UI.Scaler.Scaled=value+.225
