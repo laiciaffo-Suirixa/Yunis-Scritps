@@ -50,9 +50,14 @@ insert(function()
       end
    end
    m.RemoveConnections=function()
-      for _,c in m.Connections do
-         pcall(function() c:Disconnect() end)
-      end 
+      local keys={}
+      for n in m.Connections do keys[#keys+1]=n end
+      for _,n in keys do
+         if m.Connections[n] then
+            m.Connections[n]:Disconnect()
+            m.Connections[n]=nil
+         end
+      end
    end
    m.oswait=function(seconds)
       if seconds==nil then seconds=.01 end
@@ -68,20 +73,17 @@ insert(function()
       local plrs=game:GetService("Players")
       local lp=plrs.LocalPlayer
       local char=lp.Character
-      local bp=lp.Backpack
+      local bp=lp:WaitForChild("Backpack")
       local getcf=function(p) return p.CFrame end
       local old=getcf(char["HumanoidRootPart"])
       local whitelisted={}
+      local hrp=char:FindFirstChild("HumanoidRootPart")
       local whitelist=function(t) whitelisted[t]=true end
-      local off=bool~=true
+      local off=bool==false
       --// We scan tools to white list first 
-      for _,v in bp:GetChildren() do
-         if v:IsA("Tool") then whitelist(v) end
-      end
-      for _,v in char:GetChildren() do
-         if v:IsA("Tool") then whitelist(v) end
-      end
       local scan=function()
+         local bp=lp:WaitForChild("Backpack")
+         table.clear(whitelisted)
          for _,v in bp:GetChildren() do
             if v:IsA("Tool") then whitelist(v) end
          end
@@ -89,13 +91,18 @@ insert(function()
             if v:IsA("Tool") then whitelist(v) end
          end
       end
+      
       local start=function(c)
+         m.RemoveConnection("Hook")
          m.AddConnection("Hook",c.ChildAdded:Connect(function(t)
             if t:IsA("Tool") then
-               if whitelisted[t] or off==true then return end 
+               if whitelisted[t] then return end
+               if off==true then return end 
+               local bp=lp:WaitForChild("Backpack")
                t.Parent=bp
-               hrp.CFrame=old
-               old=getcf(c["HumanoidRootPart"])
+               char:FindFirstChild("HumanoidRootPart").CFrame=old
+               old=getcf(char["HumanoidRootPart"])
+               scan()
                local rep=0
                repeat
                   m.oswait()
@@ -106,12 +113,11 @@ insert(function()
             end
          end))
       end
-      start(char)
+      
       local players={}
       local scan1=function(p)
-         if p==lp then return end
          pcall(function()
-            for _,n in players do
+            for _,n in ipairs(players) do
                m.RemoveConnection("HumDel "..n)
                m.RemoveConnection("CharAdd "..n)
             end
@@ -121,13 +127,13 @@ insert(function()
          if not p.Character then return end 
          if p.Character then
             local new=p.Character
-            m.AddConnection("CharAdd  "..p.Name,p.CharacterAdded:Connect(function(c)
+            m.AddConnection("CharAdd "..p.Name,p.CharacterAdded:Connect(function(c)
                if c:WaitForChild("Humanoid") then
                   local hum=c.Humanoid
                   m.AddConnection("HumDel "..p.Name,hum.Destroying:Once(function()
-                     print("Player Toolkilling!")
-                     local bp=p:FindFirstChildOfClass("Backpack")
-                     if not bp then return end
+                     print("Player Toolkilling! "..p.Name)
+                     m.RemoveConnection("HumDel "..p.Name)
+                     local bp=p:FindFirstChild("Backpack")
                      for _,t in bp:GetChildren() do
                         if t:IsA("Tool") then
                            local con
@@ -135,6 +141,7 @@ insert(function()
                               if new~=c then con:Disconnect() return end
                               if t.Parent==p.Character then
                                  t:Remove()
+                                 m.RemoveConnection("CharAdd "..p.Name)
                                  p.Character:Remove()
                               end
                            end)
@@ -145,37 +152,43 @@ insert(function()
                new=c
             end))
             
-            
-            if p.Character:WaitForChild("Humanoid") then
-               local hum=p.Character.Humanoid
-               m.AddConnection("HumDel "..p.Name,hum.Destroying:Once(function()
-                  print("Player Toolkilling!")
-                  local bp=p:FindFirstChildOfClass("Backpack")
-                  if not bp then return end
-                  for _,t in bp:GetChildren() do
-                     if t:IsA("Tool") then
-                        local con
-                        con=t:GetPropertyChangedSignal("Parent"):Once(function()
-                           if p.Character~=new then con:Disconnect() return end
-                           if t.Parent==p.Character then
-                              t:Remove()
-                              p.Character:Remove()
-                           end
-                        end)
+            task.spawn(function()
+               if p.Character:WaitForChild("Humanoid") then
+                  local hum=p.Character:FindFirstChild("Humanoid")
+                  hum.Destroying:Once(function()
+                     print("Player Toolkilling! "..p.Name)
+                     local bp=p:FindFirstChild("Backpack")
+                     if not bp then return end
+                     for _,t in bp:GetChildren() do
+                        if t:IsA("Tool") then
+                           local con
+                           con=t:GetPropertyChangedSignal("Parent"):Once(function()
+                              if p.Character~=new then con:Disconnect() return end
+                              if t.Parent==p.Character then
+                                 t:Remove()
+                                 p.Character:Remove()
+                              end
+                           end)
+                        end
                      end
-                  end
-               end))
-            end
-            new=p.Character
+                  end)
+               end
+            end)
          end
       end
-      for _,p in plrs:GetPlayers() do
-         scan1(p)
-      end 
       m.AddConnection("Added",plrs.PlayerAdded:Connect(scan1))
       m.AddConnection("Remove",plrs.PlayerRemoving:Connect(scan1))
+      scan()
+      start(char)
+      for _,p in plrs:GetPlayers() do
+         if p==lp then continue end 
+         scan1(p)
+      end 
       m.AddConnection("Cad",lp.CharacterAdded:Connect(function(c)
          if off==true then return end 
+         char=c
+         m.RemoveConnection("Hook")
+         hrp=char:FindFirstChild("HumanoidRootPart")
          scan()
          m.oswait(.1)
          start(char)
@@ -186,6 +199,8 @@ insert(function()
       print("Anti Tool Stopped")
       m.RemoveConnection("Hook")
       m.RemoveConnection("Cad")
+      m.RemoveConnection("Added")
+      m.RemoveConnection("Remove")
       m.RemoveConnections()
    end
    
