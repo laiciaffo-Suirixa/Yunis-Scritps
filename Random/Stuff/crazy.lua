@@ -11281,6 +11281,10 @@ Functions:Add("SelectedResetKill", function() end)
 Functions:Add("SelectedBring", function() end)
 Functions:Add("SelectedGive", function() end)
 Functions:Add("SelectedAntiTool", function() end)
+Functions:Add("CurrentAntiToolEntry", nil)
+Functions:Add("GetCurrentAntiTool", function()
+   return Functions:Call("CurrentAntiToolEntry")
+end)
 
 local SelectedMethods={
    SelectedVoiding=1,
@@ -11289,7 +11293,6 @@ local SelectedMethods={
    SelectedGive=1,
    SelectedAntiTool=1,
 }
-
 
 Functions:Add("Init Voiding", function()
    Functions:Change("SelectedVoiding", function() end)
@@ -11593,6 +11596,14 @@ Functions:Add("Init AntiTool", function()
          return 1
       end
    end
+
+   -- on every refresh, disconnect all existing connections from the previously loaded entries
+   for _,v in entries do
+      if v.DestroyCB then
+         pcall(v.DestroyCB)
+      end
+   end
+
    local ss={}
    for i,v in entries do
       gp("insert")(ss,{
@@ -11600,22 +11611,25 @@ Functions:Add("Init AntiTool", function()
          Name=v.Title,
          Description=v.Description,
          Default=getindex(i)==i and true or false,
-         Callback=function(lol,destroycb)
-            if destroycb~=nil and destroycb==true then
-               v.DestroyCB(false,true)
+         Callback=function(lol)
+            -- stop the currently running anti tool before switching
+            local current=Functions:Call("GetCurrentAntiTool")
+            if current and current~=v and current.DestroyCB then
+               pcall(current.DestroyCB)
             end
-            if Values:Get("AntiToolToggle").Get and Values:Get("AntiToolToggle").Get()==true then
-               Functions:Call("Notify",{Text="Anti Tool Auto Ran",Size=12,Color=gp("rgb")(255,255,0)})
-               v.Function(true)
-            end 
             if lol==true then
                Functions:Change("SelectedAntiTool",v.Function)
-               SelectedMethods.SelectedVoiding=i
+               Functions:Change("CurrentAntiToolEntry",v)
+               SelectedMethods.SelectedAntiTool=i
                Functions:Call("SaveConfig","SelectedMethods",SelectedMethods)
+               if Values:Get("AntiToolToggle") and Values:Get("AntiToolToggle").Get and Values:Get("AntiToolToggle").Get()==true then
+                  Functions:Call("Notify",{Text="Anti Tool Auto Ran",Size=12,Color=gp("rgb")(255,255,0)})
+                  pcall(v.Function, true)
+               end
             end
          end,
       })
-   end 
+   end
    Add(ss)
 end)
 
@@ -11658,7 +11672,7 @@ local AntiTool=Setting:AddToggle({
    end
 })
 Values:Add("AntiToolToggle", AntiTool)
-tsp(function() Functions:Call("Init AntiTool") end)
+Functions:Call("Init AntiTool")
 
 local aval=1
 local us=Values:Get("Gui")["UIScale"]
@@ -12389,7 +12403,7 @@ Functions:Add("DoRest", function()
                end
             end)
             local network=gp("mcl")(gp("gs")("Players").LocalPlayer:GetNetworkPing(),0,1)
-            repeat wait(.65+network) until respawned==true
+            repeat wait(.595+network) until respawned==true
             if skipped then
                this.Looping=false
                wait()
@@ -12608,4 +12622,3 @@ Connections:Add("UIDestroying",YMX["Gui_1"].Destroying:Connect(function()
       getgenv()[i]=nil
    end
 end))
-
