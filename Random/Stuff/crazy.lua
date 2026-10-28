@@ -9449,7 +9449,10 @@ Functions:Add("DownloadFile", function(path,name,Url)
      url=content
      Functions:Call("Notify",{Text="Downloading File: "..name.."\nUrl: "..Url,Size=12,Color=gp("rgb")(0,255,0)})
    end
-   
+   if not isfile then
+      Functions:Call("Notify",{Text="'isfile' isnt available in this executor",Size=12,Color=gp("rgb")(255,0,0)})
+      return 
+   end 
    if isfile and not isfile(path) then
       writefile(path,url)
       return loadstring(readfile(path))
@@ -9694,7 +9697,7 @@ Values:Add("Skip Users",{
    ["G4lantamine"]=true,
    ["ml_han"]=true,
    ["Galantamine_Theo"]=true,
-   ["BrickeNye"]=true,
+   ["BrickNye"]=true,
    ["Tsuyiko"]=true,
    ["Lego89"]=true,
    ["DriftLucky"]=true,
@@ -9708,6 +9711,8 @@ Values:Add("Skip Users",{
    ["cillfall"]=true,
    ["da_bebe"]=true,
    ["DreamDevX"]=true,
+   ["F_vul"]=true,
+   ["huy140513"]=true,
 })
 
 
@@ -11068,9 +11073,18 @@ Info:AddParagraph({
    Text=[[
 || UI Update:
    -- Bug fixes 
-   -- Version: 1.01
+   + UI can now be scaled from .5 - 1.15
+   - Anti Tool issues still needs to be fixed
+   - faster loop kill
+   -- Version: 1.02
  ]],
-   TextSize=18,
+   TextSize=15,
+})
+Info:AddParagraph({
+   Text=[[
+   
+   ]],
+   TextSize=12,
 })
 
 local Owner=GetUser(8604217303) 
@@ -11761,8 +11775,8 @@ Functions:Add("DoRest", function()
             continue 
          end
          if not gp("gs")("Players"):FindFirstChild(name) then
-            Connections:Remove("resp "..name)
-            Connections:Remove("checkhealth "..name)
+            Connections:Remove("PlayerRespawn "..name)
+            Connections:Remove("HumanoidCheck "..name)
             Connections:Remove("resp1 "..name)
             Connections:Remove("checkhealth1 "..name)
             ScannedPlayers[name]=nil
@@ -11802,8 +11816,8 @@ Functions:Add("DoRest", function()
          end
          
          tsp(function()
-            Connections:Remove("resp "..v.Name)
-            Connections:Remove("checkhealth "..v.Name)
+            Connections:Remove("PlayerRespawn "..v.Name)
+            Connections:Remove("HumanoidCheck "..v.Name)
             Connections:Remove("resp1 "..v.Name)
             Connections:Remove("checkhealth1 "..v.Name)
             ScannedPlayers[v.Name]={}
@@ -11817,18 +11831,19 @@ Functions:Add("DoRest", function()
             ScannedPlayers[v.Name].Looping=false
             local func=ScannedPlayers[v.Name].Funcs
             func.GetChar=function()
-               local Player=ScannedPlayers[v.Name].Player
+               local Player=gp("gs")("Players"):FindFirstChild(v.Name)
                local character=Player.Character or Player.CharacterAdded:Wait()
                return character
             end 
             func.GetHealth=function()
-               local Player=ScannedPlayers[v.Name].Player
+               local Player=gp("gs")("Players"):FindFirstChild(v.Name)
+               if not Player.Character then return end 
                local character=Player.Character or Player.CharacterAdded:Wait()
                local hum=WaitChild(character,"Humanoid")
                return hum.Health
             end
             func.GetMass=function()
-               local Player=ScannedPlayers[v.Name].Player
+               local Player=gp("gs")("Players"):FindFirstChild(v.Name)
                local character=Player.Character or Player.CharacterAdded:Wait()
                local Mass=0
                for _,v in character:GetChildren() do
@@ -11865,121 +11880,124 @@ Functions:Add("DoRest", function()
    end)
    local Template=Contents["Template"]
    Template.Parent=nil
+   local Templates={}
    Contents["AutomaticCanvasSize"]="Y"
    Functions:Add("RefreshStandardTab", function(should)
       Functions:Call("ReScanPlayers",should)
-      for _,t in Contents:GetChildren() do
-         if t:IsA("Frame") then
-            t:Destroy()
-         end
-      end
-      for i,_ in ScannedPlayers do
-         local this=ScannedPlayers[i]
-         if this.Looping and this.Looping==true then
+      for _,v in Templates do
+         if should then
+            v.Frame:Destroy()
             continue 
          end
-         tsp(function()
-            pcall(function()
-               Connections:Remove("resp "..i)
-               Connections:Remove("checkhealth "..i)
-            end)
-            local this=ScannedPlayers[i]
-            local template=Template:Clone()
-            
-            pcall(function()
-               local image=template.Image
-               local id=this.Player.userId
-               image.Image="rbxthumb://type=AvatarHeadShot&id="..id.."&w=150&h=150&includeprofileframe=true"
-            end)
-            local Button=template["Button"]
-            local Username=Button["Username"]
-            local Health=Button["Health"]
-            local DisplayName=Button["Display"]
-            pcall(function()
-               if this.Funcs.GetHealth()<=10 then
+         if v.Data.Looping and v.Data.Looping==true and not should then continue end
+         v.Frame:Destroy()
+      end
+      gp("clear")(Templates)
+      for i,v in ScannedPlayers do
+         if not ScannedPlayers[i] then continue end
+         local Player=ScannedPlayers[i]
+         if Player.Looping then continue end
+         local plr=FindChild(gp("gs")("Players"),i)
+         local template=Template:Clone()
+         if Contents:FindFirstChild(plr.DisplayName) then continue end 
+         gp("insert")(Templates,{
+            Frame=template,
+            Data=Player,
+         })
+         Connections:Remove("PlayerRespawn "..i)
+         Connections:Remove("HumanoidCheck "..i)
+         local Button=template["Button"]
+         local Username=Button["Username"]
+         local Health=Button["Health"]
+         local DisplayName=Button["Display"]
+         
+         if not plr then template:Destroy() continue end
+         Username.Text=i
+         DisplayName.Text=plr.DisplayName
+         local health=100
+         Health.Text="|| Awaiting for character"
+         pcall(function()
+            local char=plr.Character
+            if not char then return end 
+            local hum=WaitChild(char,"Humanoid")
+            if hum then 
+               health=hum.Health
+               Health.Text="|| "..(Player.Funcs.GetHealth() or "???")
+               if hum.Health<=10 then
                   Health.TextColor3=gp("c3")(1,0,0)
                   Username.TextColor3=gp("c3")(1,0,0)
                   DisplayName.TextColor3=gp("c3")(1,0,0)
-                  this.Skipped=true
+                  Player.Skipped=true
+                  template:SetAttribute("ThisUserIsLoopKilling",true)
                end 
-            end)
-            Username.Text="|| Character is loading"
-            template.Name="|| Character is loading"
-            DisplayName.Text="|| Character is loading"
-            Health.Text="|| Character is loading"
-            local que=Search.Text:lower()
-            if not que:find("search") then
-               template.Visible=template.Name:lower():find(que,1,true)
-            else
-               template.Visible=true
-            end 
-            local thisplayer=gp("gs")("Players"):FindFirstChild(i)
-            if not thisplayer then ScannedPlayers[i]=nil return end
-            local ela=0
-            local char
-            if not thisplayer.Character or thisplayer.Character==nil then 
-               repeat
-                   gp("rs")["PostSimulation"]:Wait() ela+=.1 char=thisplayer.Character 
-               until ela>=150 or thisplayer.Character~=nil and FindChildClass(thisplayer.Character,"Humanoid") 
-            end
-            local thischaracter=thisplayer.Character
-            local hum=FindChild(thischaracter,"Humanoid")
-            if not hum then return end
-            Username.Text=i
-            template.Name=thisplayer.DisplayName or "Name"..i
-            DisplayName.Text=thisplayer.DisplayName or "Name"..i
-            Health.Text="|| Health: "..hum.Health
-            local que=Search.Text:lower()
-            if not que:find("search") then
-               template.Visible=thisplayer.DisplayName:lower():find(que,1,true)
-            else
-               template.Visible=true
-            end 
-            template.Parent=Contents
-            Connections:Add("checkhealth "..i,hum:GetPropertyChangedSignal("Health"):Connect(function()
-               pcall(function()
-                  Health.Text="|| Health: "..this.Funcs.GetHealth()
-                  if this.Funcs.GetHealth()<=10 then
-                     Health.TextColor3=gp("c3")(1,0,0)
-                     Username.TextColor3=gp("c3")(1,0,0)
-                     DisplayName.TextColor3=gp("c3")(1,0,0)
-                     this.Skipped=true
-                  end 
-               end)
-            end))
-            Connections:Add("resp "..i,thisplayer.CharacterAdded:Connect(function(c)
-               Connections:Remove("checkhealth "..i)
-               char=c
-               this.Character=c
-               hum=WaitChild(char,"Humanoid")
-               Health.TextColor3=gp("c3")(1,1,1)
-               Username.TextColor3=gp("c3")(1,1,1)
-               DisplayName.TextColor3=gp("c3")(1,1,1)
-               this.Skipped=false
-               Health.Text="|| Health: "..hum.Health
-               Connections:Add("checkhealth "..i,hum:GetPropertyChangedSignal("Health"):Connect(function()
-                  pcall(function() Health.Text="|| Health: "..this.Funcs.GetHealth() end)
+               Connections:Add("HumanoidCheck "..i,hum:GetPropertyChangedSignal("Health"):Connect(function()
+                  -- if not hum then Connections:Remove("HumanoidCheck "..i) this.Skipped=false return end 
+                  health=hum.Health
+                  print(hum.Health)
+                  Health.Text="|| Health: "..(Player.Funcs.GetHealth() or "??")
                   if hum.Health<=10 then
                      Health.TextColor3=gp("c3")(1,0,0)
                      Username.TextColor3=gp("c3")(1,0,0)
                      DisplayName.TextColor3=gp("c3")(1,0,0)
-                     this.Skipped=true
-                  end 
+                     Player.Skipped=true
+                     template:SetAttribute("ThisUserIsLoopKilling",true)
+                  end
                end))
-            end))
-            gp("m1")(Button, function()
-               Values:Change("SSelected",i)
-               Functions:Call("SelectTarget",{
-                  Name=i,
-                  Display=this.Player.DisplayName,
-                  Health="|| Health: "..this.Funcs.GetHealth(),
-                  Image="rbxthumb://type=AvatarHeadShot&id="..this.Player.userId.."&w=150&h=150&includeprofileframe=true",
-                  Data=ScannedPlayers[i],
-               })
-            end)
+            end
+         end)
+         tsp(function()
+            local image=template.Image
+            local id=plr.userId
+            image.Image="rbxthumb://type=AvatarHeadShot&id="..id.."&w=150&h=150&includeprofileframe=true"
+         end)
+         template.Parent=Contents
+         template.Name=plr.DisplayName
+         local que=Search.Text:lower()
+         if not que:find("search") then
+            template.Visible=plr.DisplayName:lower():find(que,1,true)~=nil
+         else
+            template.Visible=true
+         end 
+         
+         Connections:Add("PlayerRespawn "..i,plr.CharacterAdded:Connect(function(c)
+            Connections:Remove("HumanoidCheck "..i)
+            Player.Character=c
+            Player.Skipped=false
+            template:SetAttribute("ThisUserIsLoopKilling",false)
+            Health.TextColor3=gp("c3")(1,1,1)
+            Username.TextColor3=gp("c3")(1,1,1)
+            DisplayName.TextColor3=gp("c3")(1,1,1)
+            local hum=FindChild(Player.Character,"Humanoid")
+            if hum then 
+               Health.Text="|| Health: "..(Player.Funcs.GetHealth() or "??")
+               health=hum.Health
+               Connections:Add("HumanoidCheck "..i,hum:GetPropertyChangedSignal("Health"):Connect(function()
+                  -- if not hum then Connections:Remove("HumanoidCheck "..i) this.Skipped=false return end 
+                  Health.Text="|| Health: "..(Player.Funcs.GetHealth() or "??")
+                  health=hum.Health
+                  if health<=10 then
+                     Health.TextColor3=gp("c3")(1,0,0)
+                     Username.TextColor3=gp("c3")(1,0,0)
+                     DisplayName.TextColor3=gp("c3")(1,0,0)
+                     Player.Skipped=true
+                     template:SetAttribute("ThisUserIsLoopKilling",true)
+                  end
+               end))
+            end 
+         end))
+         gp("m1")(Button, function()
+            Values:Change("SSelected",i)
+            Functions:Call("SelectTarget",{
+               Name=i,
+               Display=plr.DisplayName,
+               Health="|| Health: "..health or 0,
+               Image="rbxthumb://type=AvatarHeadShot&id="..plr.userId.."&w=150&h=150&includeprofileframe=true",
+               Data=ScannedPlayers[i],
+            })
          end)
       end
    end)
+   
    
    Functions:Call("RefreshStandardTab")
    Connections:Add("PlayersJoin",plrs.PlayerAdded:Connect(function() 
@@ -11991,8 +12009,8 @@ Functions:Add("DoRest", function()
    
    Functions:Add("DoLoopKill", function(name,whattype)
       local this=ScannedPlayers[name]
-      if this.Looping==true then return end
-      if this.Skipped==true then return end
+      -- if this.Looping and this.Looping==true then return end
+      -- if this.Looping and this.Skipped==true then return end
       Values:Change("Looping",true)
       while Values:Get("Looping")==true do
          if ScannedPlayers[name]==nil then break end
@@ -12002,12 +12020,32 @@ Functions:Add("DoRest", function()
          this.Looping=true
          local char=gp("gs")("Players").LocalPlayer.Character
          if char==nil then wait() continue end
-         local hum=FindChild(char,"Humanoid")
+         local hum=WaitChild(char,"Humanoid")
          local elapsed=1
          local respawned=false 
+         local skipped=false 
+         local network=gp("mcl")(gp("gs")("Players").LocalPlayer:GetNetworkPing(),0,1)
+         if name~=Values:Get("SSelected") then 
+            this.Looping=false 
+            this.Skipped=false 
+            Values:Change("Looping",false)
+            Values:Change("LoopAllPlayers",false)
+            Functions:Call("Notify",{Text="New Target, Stopping Previous Loop",Size=12,Color=gp("rgb")(255,255,0)})
+            Functions:Call("RefreshStandardTab", true) 
+            continue 
+         end
          if hum then 
+            if hum.RigType==Enum.HumanoidRigType.R6 then
+               wait(.1+network)
+            end
             tsp(function()
                while respawned==false do 
+                  if elapsed>=3 then
+                     skipped=true
+                     respawned=true 
+                     this.Skipped=false
+                     break
+                  end
                   if respawned==true then break end
                   local c=gp("gs")("Players")[name]
                   if c.Character~=nil and c.Character then
@@ -12021,18 +12059,21 @@ Functions:Add("DoRest", function()
                   gp("rs")["PostSimulation"]:Wait()
                end
             end)
-            local network=gp("mcl")(gp("gs")("Players").LocalPlayer:GetNetworkPing(),0,1)
             repeat wait(.2+network) until respawned==true
-            if name~=Values:Get("SSelected") then this.Looping=false this.Skipped=false Values:Change("Looping",false) Functions:Call("RefreshStandardTab") end
+            if skipped then
+               this.Looping=false
+               wait()
+               continue
+            end
             local type=whattype:lower()
             if type=="void" then
-               Functions:Call("SelectedVoiding",this.Character)
+               tsp(function() Functions:Call("SelectedVoiding",this.Character) end)
             elseif type=="rk" then
-               Functions:Call("SelectedResetKill",this.Character)
+               tsp(function() Functions:Call("SelectedResetKill",this.Character) end)
             elseif type=="lb" then
-               Functions:Call("SelectedBring",this.Character)
+               tsp(function() Functions:Call("SelectedBring",this.Character) end)
             elseif type=="lg" then
-               Functions:Call("SelectedGive",this.Character)
+               tsp(function() Functions:Call("SelectedGive",this.Character) end)
             end 
          else
             wait()
@@ -12075,9 +12116,11 @@ Functions:Add("DoRest", function()
       Health.TextColor3=gp("c3")(1,1,1)
       Usr.TextColor3=gp("c3")(1,1,1)
       Display.TextColor3=gp("c3")(1,1,1)
-      local char=this.Funcs.GetChar()
+      local plr=gp("gs")("Players"):FindFirstChild(DataName)
+      if not plr then return end
+      local char=plr.Character
       local hum=WaitChild(char,"Humanoid")
-      if this.Funcs.GetHealth()<=10 then
+      if hum.Health<=10 then
          Health.TextColor3=gp("c3")(1,0,0)
          Usr.TextColor3=gp("c3")(1,0,0)
          Display.TextColor3=gp("c3")(1,0,0)
@@ -12085,7 +12128,7 @@ Functions:Add("DoRest", function()
       end 
       Connections:Add("selectcheckheath",hum:GetPropertyChangedSignal("Health"):Connect(function()
          Health.Text="|| Health: "..this.Funcs.GetHealth()
-         if this.Funcs.GetHealth()<=10 then
+         if hum.Health<=10 then
             Health.TextColor3=gp("c3")(1,0,0)
             Usr.TextColor3=gp("c3")(1,0,0)
             Display.TextColor3=gp("c3")(1,0,0)
@@ -12286,6 +12329,7 @@ Functions:Add("DoRest", function()
                until ela>=150 or thisplayer.Character~=nil and FindChildClass(thisplayer.Character,"Humanoid") 
             end
             local thischaracter=thisplayer.Character
+            if not thischaracter then return end
             local hum=FindChild(thischaracter,"Humanoid")
             if not hum then return end
             Username.Text=i
@@ -12376,17 +12420,21 @@ Functions:Add("DoRest", function()
          this.Looping=true
          local char=gp("gs")("Players").LocalPlayer.Character
          if char==nil then wait() continue end
-         local hum=FindChild(char,"Humanoid")
+         local hum=WaitChild(char,"Humanoid")
          local elapsed=1
          local respawned=false 
          local skipped=false
+         local network=gp("mcl")(gp("gs")("Players").LocalPlayer:GetNetworkPing(),0,1)
          if hum then 
+            if hum.RigType==Enum.HumanoidRigType.R6 then
+               wait(.1+network)
+            end
             tsp(function()
                while respawned==false do 
                   elapsed+=gp("rs")["PostSimulation"]:Wait()
                   if elapsed>=3 then
                      skipped=true
-                     respawned=true  -- unblock the repeat below
+                     respawned=true 
                      break
                   end
                   if respawned==true then break end
@@ -12402,7 +12450,6 @@ Functions:Add("DoRest", function()
                   gp("rs")["PostSimulation"]:Wait()
                end
             end)
-            local network=gp("mcl")(gp("gs")("Players").LocalPlayer:GetNetworkPing(),0,1)
             repeat wait(.595+network) until respawned==true
             if skipped then
                this.Looping=false
@@ -12412,9 +12459,9 @@ Functions:Add("DoRest", function()
             if name~=Values:Get("SSelected") then this.Looping=false Values:Change("Looping",false)  end
             local type=whattype:lower()
             if type=="void" then
-               Functions:Call("SelectedVoiding",this.Character)
+               pcall(function() Functions:Call("SelectedVoiding",this.Character) end)
             elseif type=="rk" then
-               Functions:Call("SelectedResetKill",this.Character)
+               pcall(function() Functions:Call("SelectedResetKill",this.Character) end)
             end 
          else
             wait()
@@ -12432,7 +12479,7 @@ Functions:Add("DoRest", function()
          if Values:Get("LoopAllPlayers")==false then
             break
          end
-         for name,_ in ScannedPlayers do
+         pcall(function() for name,_ in ScannedPlayers do
             local player=ScannedPlayers[name]
             if player.Blacklisted==true then
                continue 
@@ -12506,7 +12553,7 @@ Functions:Add("DoRest", function()
                end))
             end))
             Functions:Call("LoopThisUser",name,type)
-         end
+         end end)
          wait()
       end
       Functions:Call("DoLoopKillAllPlayerList")
