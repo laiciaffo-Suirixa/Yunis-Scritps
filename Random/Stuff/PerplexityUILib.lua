@@ -6174,8 +6174,8 @@ Functions:Add("GetString", function(a,b)
    end 
 end)
 
-Functions:Add("GetProp", function(t)
-   return gp(t)
+Functions:Add("GetProp", function(t,..)
+   return gp(t)(...)
 end)
 
 Functions:Add("GetU2", function(f)
