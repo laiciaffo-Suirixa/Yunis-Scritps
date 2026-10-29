@@ -7855,8 +7855,9 @@ return {
       local cdat=nil
       if data~=nil then
          cdat=data
+         return cdata
       end
-      return cdat
+      return false
    end,
    Notification=function(t)
       Functions:Call("Notify",t)
