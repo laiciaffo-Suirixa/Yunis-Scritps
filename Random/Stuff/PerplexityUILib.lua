@@ -6174,6 +6174,10 @@ Functions:Add("GetString", function(a,b)
    end 
 end)
 
+Functions:Add("GetProp", function(t)
+   return gp(t)
+end)
+
 Functions:Add("GetU2", function(f)
    local xs,xo,ys,yo
    xs=f.X.Scale
@@ -7866,4 +7870,5 @@ return {
    Notification=function(t)
       Functions:Call("Notify",t)
    end,
+   gp=
 }
