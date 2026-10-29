@@ -6167,7 +6167,11 @@ Functions:Add("GetString", function(a,b)
    if not b or b=="" then return end
    a=a:lower()
    b=b:lower()
-   return string.find(a,b) or a:find("^"..b)
+   if string.find(a,b) or a:find("^"..b) then 
+      return true
+   else
+      return false
+   end 
 end)
 
 Functions:Add("GetU2", function(f)
@@ -7719,7 +7723,7 @@ function UI:InitUI(t)
                end
             end
          end
-         if not ToEncode[name] then
+         if ToEncode[name]==nil then
             ToEncode[name]=userdata
          else
             for n,_ in ToEncode do
@@ -7765,8 +7769,8 @@ function UI:InitUI(t)
             local Data=nil
             for n,_ in ToGet do
                if Functions:Call("GetString",n,name) then
-                  Data=ToGet[n] --// Overwrite it
-                  break --// Stop the loop immediately
+                  Data=ToGet[n]
+                  break
                end 
             end
             return true,Data
