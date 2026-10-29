@@ -6133,7 +6133,7 @@ end
 --// Folders
 local Folders={}
 Functions:Add("MakeFolder", function(name,data)
-   local Main="Yuni's Scripts/"..name
+   local Main=name
    if not isfolder then warn("no 'isfolder' in this executor") return end
    for n,v in data do
       if isfolder and not isfolder(Main.."/"..v) then
@@ -6151,10 +6151,6 @@ Functions:Add("GetPath", function(n)
    end
 end)
 
-
-
-
-
 --// Files
 Functions:Add("File", function(path,name,userdata)
    local path=path.."/"..name
@@ -6163,15 +6159,6 @@ Functions:Add("File", function(path,name,userdata)
       writefile(path,userdata)
    end
 end)
-
-Functions:Add("Readfile", function(path,name,...)
-   local path=path.."/"..name
-   if not readfile and not isfile then warn("no 'readfile' in this executor") return end
-   if isfile and readfile and isfile(path) then
-      return loadstring(readfile(path))(...)
-   end
-end)
-
 
 
 --// Other 
@@ -6196,8 +6183,6 @@ Functions:Add("GetU2", function(f)
       yo=yo,
    }
 end)
-
-
 
 --// Notification 
 Perplexity["Perplexity UI_1"]["Notification Frame"]["Right"]["Notifications"]["ExampleNotifcation"].Visible=false
@@ -7513,8 +7498,9 @@ function UI:Switch(dat)
    UI.CurrentTab=dat
 end
 
-
+local Initialized=false
 function UI:NewTab(name)
+   if Initialized==false then return end 
    local New=TemplateTab:Clone()
    New.Parent=Values:Get("Content")
    New.Visible=true
@@ -7796,7 +7782,7 @@ function UI:InitUI(t)
    dragify(Values:Get("Gui"))
    Values:Get("Gui").Visible=true
    Functions:Call("DoUI")
-   
+   Initialized=true
    local Info=UI:NewTab("Info")
    local Setting=UI:NewTab("UI Settings")
    Info:AddDivider({
@@ -7871,5 +7857,8 @@ return {
          cdat=data
       end
       return cdat
+   end,
+   Notification=function(t)
+      Functions:Call("Notify",t)
    end,
 }
