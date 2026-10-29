@@ -11835,8 +11835,8 @@ Functions:Add("DoRest", function()
                local character=Player.Character or Player.CharacterAdded:Wait()
                return character
             end 
-            func.GetHealth=function()
-               local Player=gp("gs")("Players"):FindFirstChild(v.Name)
+            func.GetHealth=function(plr)
+               local Player=plr
                if not Player.Character then return end 
                local character=Player.Character or Player.CharacterAdded:Wait()
                local hum=WaitChild(character,"Humanoid")
@@ -11860,7 +11860,7 @@ Functions:Add("DoRest", function()
    --// Standard Toolkill Tab
    Values:Add("SSelected","none")
    Values:Add("Looping",false)
-   Values:Add("LoopAllPlayers",false)
+   local LoopAllPlayers=false
    Values:Add("UIDestroyed",false)
    local Main=Values:Get("Content")["Main"]
    local PlayerList=Main["PlayerList"]
@@ -11884,11 +11884,12 @@ Functions:Add("DoRest", function()
    Contents["AutomaticCanvasSize"]="Y"
    Functions:Add("RefreshStandardTab", function(should)
       Functions:Call("ReScanPlayers",should)
-      for _,v in Templates do
-         if should then
-            v.Frame:Destroy()
-            continue 
+      for _,t in Contents:GetChildren() do
+         if t:IsA("Frame") and should then
+            t:Destroy()
          end
+      end
+      for _,v in Templates do
          if v.Data.Looping and v.Data.Looping==true and not should then continue end
          v.Frame:Destroy()
       end
@@ -11898,8 +11899,9 @@ Functions:Add("DoRest", function()
          local Player=ScannedPlayers[i]
          if Player.Looping then continue end
          local plr=FindChild(gp("gs")("Players"),i)
+         if ScannedPlayers[i].Skipped==true then continue end 
          local template=Template:Clone()
-         if Contents:FindFirstChild(plr.DisplayName) then continue end 
+         template.Parent=Contents
          gp("insert")(Templates,{
             Frame=template,
             Data=Player,
@@ -11911,35 +11913,34 @@ Functions:Add("DoRest", function()
          local Health=Button["Health"]
          local DisplayName=Button["Display"]
          
-         if not plr then template:Destroy() continue end
+         if not plr then continue end
          Username.Text=i
          DisplayName.Text=plr.DisplayName
          local health=100
          Health.Text="|| Awaiting for character"
          pcall(function()
             local char=plr.Character
-            if not char then return end 
-            local hum=WaitChild(char,"Humanoid")
+            if not char then repeat wait() until plr.Characte end 
+            local hum=FindChild(char,"Humanoid")
             if hum then 
                health=hum.Health
-               Health.Text="|| "..(Player.Funcs.GetHealth() or "???")
+               Health.Text="|| "..(Player.Funcs.GetHealth(plr) or "???")
                if hum.Health<=10 then
                   Health.TextColor3=gp("c3")(1,0,0)
                   Username.TextColor3=gp("c3")(1,0,0)
                   DisplayName.TextColor3=gp("c3")(1,0,0)
-                  Player.Skipped=true
+                  ScannedPlayers[i].Skipped=true
                   template:SetAttribute("ThisUserIsLoopKilling",true)
                end 
                Connections:Add("HumanoidCheck "..i,hum:GetPropertyChangedSignal("Health"):Connect(function()
                   -- if not hum then Connections:Remove("HumanoidCheck "..i) this.Skipped=false return end 
                   health=hum.Health
-                  print(hum.Health)
-                  Health.Text="|| Health: "..(Player.Funcs.GetHealth() or "??")
+                  Health.Text="|| Health: "..(Player.Funcs.GetHealth(plr) or hum.Health) or "??"
                   if hum.Health<=10 then
                      Health.TextColor3=gp("c3")(1,0,0)
                      Username.TextColor3=gp("c3")(1,0,0)
                      DisplayName.TextColor3=gp("c3")(1,0,0)
-                     Player.Skipped=true
+                     ScannedPlayers[i].Skipped=true
                      template:SetAttribute("ThisUserIsLoopKilling",true)
                   end
                end))
@@ -11950,7 +11951,6 @@ Functions:Add("DoRest", function()
             local id=plr.userId
             image.Image="rbxthumb://type=AvatarHeadShot&id="..id.."&w=150&h=150&includeprofileframe=true"
          end)
-         template.Parent=Contents
          template.Name=plr.DisplayName
          local que=Search.Text:lower()
          if not que:find("search") then
@@ -11962,24 +11962,23 @@ Functions:Add("DoRest", function()
          Connections:Add("PlayerRespawn "..i,plr.CharacterAdded:Connect(function(c)
             Connections:Remove("HumanoidCheck "..i)
             Player.Character=c
-            Player.Skipped=false
+            ScannedPlayers[i].Skipped=false
             template:SetAttribute("ThisUserIsLoopKilling",false)
             Health.TextColor3=gp("c3")(1,1,1)
             Username.TextColor3=gp("c3")(1,1,1)
             DisplayName.TextColor3=gp("c3")(1,1,1)
             local hum=FindChild(Player.Character,"Humanoid")
             if hum then 
-               Health.Text="|| Health: "..(Player.Funcs.GetHealth() or "??")
+               pcall(function() Health.Text="|| Health: "..(Player.Funcs.GetHealth(plr) or hum.Health) or "??" end)
                health=hum.Health
                Connections:Add("HumanoidCheck "..i,hum:GetPropertyChangedSignal("Health"):Connect(function()
-                  -- if not hum then Connections:Remove("HumanoidCheck "..i) this.Skipped=false return end 
-                  Health.Text="|| Health: "..(Player.Funcs.GetHealth() or "??")
+                  Health.Text="|| Health: "..(Player.Funcs.GetHealth(plr) or hum.Health) or "??"
                   health=hum.Health
                   if health<=10 then
                      Health.TextColor3=gp("c3")(1,0,0)
                      Username.TextColor3=gp("c3")(1,0,0)
                      DisplayName.TextColor3=gp("c3")(1,0,0)
-                     Player.Skipped=true
+                     ScannedPlayers[i].Skipped=true
                      template:SetAttribute("ThisUserIsLoopKilling",true)
                   end
                end))
@@ -12013,7 +12012,7 @@ Functions:Add("DoRest", function()
       -- if this.Looping and this.Skipped==true then return end
       Values:Change("Looping",true)
       while Values:Get("Looping")==true do
-         if ScannedPlayers[name]==nil then break end
+         if ScannedPlayers[name]==nil then Functions:Call("Notify",{Text="Target left, stopping loop",Size=12,Color=gp("rgb")(255,255,0)}) Functions:Call("RefreshStandardTab",true) break end
          if Values:Get("UIDestroyed")==true then break end
          this=ScannedPlayers[name]
          if this.Skipped==true then wait() continue end
@@ -12029,14 +12028,14 @@ Functions:Add("DoRest", function()
             this.Looping=false 
             this.Skipped=false 
             Values:Change("Looping",false)
-            Values:Change("LoopAllPlayers",false)
+            LoopAllPlayers=false
             Functions:Call("Notify",{Text="New Target, Stopping Previous Loop",Size=12,Color=gp("rgb")(255,255,0)})
             Functions:Call("RefreshStandardTab", true) 
             continue 
          end
          if hum then 
             if hum.RigType==Enum.HumanoidRigType.R6 then
-               wait(.1+network)
+               wait(.3+network)
             end
             tsp(function()
                while respawned==false do 
@@ -12127,7 +12126,7 @@ Functions:Add("DoRest", function()
          this.Skipped=true
       end 
       Connections:Add("selectcheckheath",hum:GetPropertyChangedSignal("Health"):Connect(function()
-         Health.Text="|| Health: "..this.Funcs.GetHealth()
+         Health.Text="|| Health: "..this.Funcs.GetHealth(this.Player)
          if hum.Health<=10 then
             Health.TextColor3=gp("c3")(1,0,0)
             Usr.TextColor3=gp("c3")(1,0,0)
@@ -12144,10 +12143,10 @@ Functions:Add("DoRest", function()
          char=c
          this.Character=c
          hum=WaitChild(char,"Humanoid")
-         Health.Text="|| Health: "..this.Funcs.GetHealth()
+         Health.Text="|| Health: "..this.Funcs.GetHealth(this.Player)
          Connections:Add("selectcheckheath",hum:GetPropertyChangedSignal("Health"):Connect(function()
-            Health.Text="|| Health: "..this.Funcs.GetHealth()
-            if this.Funcs.GetHealth()<=10 then
+            Health.Text="|| Health: "..this.Funcs.GetHealth(this.Player)
+            if this.Funcs.GetHealth(this.Player)<=10 then
                Health.TextColor3=gp("c3")(1,0,0)
                Usr.TextColor3=gp("c3")(1,0,0)
                Display.TextColor3=gp("c3")(1,0,0)
@@ -12198,40 +12197,40 @@ Functions:Add("DoRest", function()
       --// Loop
       m1(LV, function()
          if DataName~=Values:Get("SSelected") then return end
-         if this.Skipped==true then return end
+         if this.Skipped==true then this.Skipped=false end
          this.Skipped=false
          Values:Change("Looping",false)
-         Values:Change("LoopAllPlayers",false)
+         LoopAllPlayers=false
          Functions:Call("Notify",{Text="Loop Voiding",Size=12,Color=gp("rgb")(255,255,0)})
          Functions:Call("DoLoopKill",DataName,"void")
       end)
       
       m1(LRK, function()
          if DataName~=Values:Get("SSelected") then return end
-         if this.Skipped==true then return end
+         if this.Skipped==true then this.Skipped=false end
          this.Skipped=false
          Values:Change("Looping",false)
-         Values:Change("LoopAllPlayers",false)
+         LoopAllPlayers=false
          Functions:Call("Notify",{Text="Loop Killing",Size=12,Color=gp("rgb")(255,255,0)})
          Functions:Call("DoLoopKill",DataName,"rk")
       end)
       
       m1(LB, function()
          if DataName~=Values:Get("SSelected") then return end
-         if this.Skipped==true then return end
+         if this.Skipped==true then this.Skipped=false end
          this.Skipped=false
          Values:Change("Looping",false)
-         Values:Change("LoopAllPlayers",false)
+         LoopAllPlayers=false
          Functions:Call("Notify",{Text="Loop Bringing",Size=12,Color=gp("rgb")(255,255,0)})
          Functions:Call("DoLoopKill",DataName,"lb")
       end)
       
       m1(LG, function()
          if DataName~=Values:Get("SSelected") then return end
-         if this.Skipped==true then return end
+         if this.Skipped==true then this.Skipped=false end
          this.Skipped=false
          Values:Change("Looping",false)
-         Values:Change("LoopAllPlayers",false)
+         LoopAllPlayers=false
          Functions:Call("Notify",{Text="Loop Giving",Size=12,Color=gp("rgb")(255,255,0)})
          Functions:Call("DoLoopKill",DataName,"lg")
       end)
@@ -12241,7 +12240,7 @@ Functions:Add("DoRest", function()
          if Values:Get("Looping")==false then return end 
          this.Looping=false
          Values:Change("Looping",false)
-         Values:Change("LoopAllPlayers",false)
+         LoopAllPlayers=false
          Functions:Call("Notify",{Text="Stopped Looping",Size=12,Color=gp("rgb")(255,255,0)})
       end)
       
@@ -12414,7 +12413,7 @@ Functions:Add("DoRest", function()
          if ScannedPlayers[name]==nil then break end
          if ScannedPlayers[name].Blacklisted==true then break end
          if Values:Get("UIDestroyed")==true then break end
-         if Values:Get("LoopAllPlayers")==falae then break end
+         if LoopAllPlayers==false then break end
          this=ScannedPlayers[name]
          if this.Skipped==true then wait() continue end
          this.Looping=true
@@ -12474,17 +12473,17 @@ Functions:Add("DoRest", function()
    
    Functions:Add("LoopUsers", function(type)
       Values:Change("Looping",true)
-      Values:Change("LoopAllPlayers",true)
-      while Values:Get("LoopAllPlayers")==true do
-         if Values:Get("LoopAllPlayers")==false then
+      LoopAllPlayers=true 
+      while LoopAllPlayers==true do
+         if LoopAllPlayers==false then
             break
          end
-         pcall(function() for name,_ in ScannedPlayers do
+         for name,_ in ScannedPlayers do
             local player=ScannedPlayers[name]
             if player.Blacklisted==true then
                continue 
             end
-            if Values:Get("LoopAllPlayers")==false then
+            if LoopAllPlayers==false then
                break
             end
             pcall(function()
@@ -12521,10 +12520,10 @@ Functions:Add("DoRest", function()
             end)
             Usr.Text=name
             Display.Text=thisplayer.DisplayName or "Name"..i
-            Health.Text="|| Health: "..player.Funcs.GetHealth()
+            Health.Text="|| Health: "..player.Funcs.GetHealth(thisplayer)
             Connections:Add("HealthCheck",hum:GetPropertyChangedSignal("Health"):Connect(function()
-               Health.Text="|| Health: "..player.Funcs.GetHealth()
-               if player.Funcs.GetHealth()<=10 then
+               Health.Text="|| Health: "..player.Funcs.GetHealth(thisplayer)
+               if player.Funcs.GetHealth(thisplayer)<=10 then
                   Health.TextColor3=gp("c3")(1,0,0)
                   Usr.TextColor3=gp("c3")(1,0,0)
                   Display.TextColor3=gp("c3")(1,0,0)
@@ -12543,7 +12542,7 @@ Functions:Add("DoRest", function()
                player.Skipped=false
                Health.Text="|| Health: "..player.Funcs.GetHealth()
                Connections:Add("HealthCheck",hum:GetPropertyChangedSignal("Health"):Connect(function()
-                  pcall(function() Health.Text="|| Health: "..player.Funcs.GetHealth() end)
+                  pcall(function() Health.Text="|| Health: "..player.Funcs.GetHealth(thisplayer) end)
                   if this.Funcs.GetHealth()<=10 then
                      Health.TextColor3=gp("c3")(1,0,0)
                      Usr.TextColor3=gp("c3")(1,0,0)
@@ -12553,7 +12552,7 @@ Functions:Add("DoRest", function()
                end))
             end))
             Functions:Call("LoopThisUser",name,type)
-         end end)
+         end
          wait()
       end
       Functions:Call("DoLoopKillAllPlayerList")
@@ -12575,14 +12574,14 @@ Functions:Add("DoRest", function()
       
       gp("m1")(LV, function()
          Values:Change("Looping",false)
-         Values:Change("LoopAllPlayers",false)
+         LoopAllPlayers=false
          Functions:Call("Notify",{Text="Loop Voiding",Size=12,Color=gp("rgb")(255,255,0)})
          Functions:Call("LoopUsers","void")
       end)
       
       gp("m1")(LRK, function()
          Values:Change("Looping",false)
-         Values:Change("LoopAllPlayers",false)
+         LoopAllPlayers=false
          Functions:Call("Notify",{Text="Loop Killing",Size=12,Color=gp("rgb")(255,255,0)})
          Functions:Call("LoopUsers","rk")
       end)
@@ -12590,7 +12589,7 @@ Functions:Add("DoRest", function()
       gp("m1")(SL, function()
          if Values:Get("Looping")==false then return end 
          Values:Change("Looping",false)
-         Values:Change("LoopAllPlayers",false)
+         LoopAllPlayers=false
          Functions:Call("Notify",{Text="Stopped Looping",Size=12,Color=gp("rgb")(255,255,0)})
       end)
          
@@ -12622,7 +12621,7 @@ Functions:Add("DoRest", function()
    --// Kill All
    gp("m1")(Ref0, function()
       Values:Change("Looping",false)
-      Values:Change("LoopAllPlayers",false)
+      LoopAllPlayers=false
       Functions:Call("DoLoopKillAllPlayerList", true)
       Functions:Call("Notify",{Text="Re Scanned\n Looping Stopped",Size=18,Color=gp("rgb")(0,255,0)})
    end)
@@ -12644,7 +12643,7 @@ Functions:Add("DoRest", function()
       print("stopped")
       Values:Change("Looping",false)
       Values:Change("UIDestroyed",true)
-      Values:Change("LoopAllPlayers",true)
+      LoopAllPlayers=true 
       for i,_ in ScannedPlayers do
          ScannedPlayers[i]=nil
       end
