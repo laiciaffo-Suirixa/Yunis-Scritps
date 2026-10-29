@@ -7685,15 +7685,15 @@ end
 function UI:InitUI(t)
    --[[
      Name
-     Configuration(table)
+     Folders(table)
    ]]
    local t=t or {}
    --// UI Configs and folder
    local Folders={
       Configs="Configs",
    }
-   if t.ConfigsSaving then
-      for name,value do
+   if t.Folders then
+      for name,value in t.Folders do
          Folders[name]=value
       end 
    end
