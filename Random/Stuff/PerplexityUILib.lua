@@ -7870,5 +7870,4 @@ return {
    Notification=function(t)
       Functions:Call("Notify",t)
    end,
-   gp=
 }
