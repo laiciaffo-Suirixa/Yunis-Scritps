@@ -11073,10 +11073,8 @@ Info:AddParagraph({
    Text=[[
 || UI Update:
    -- Bug fixes 
-   + UI can now be scaled from .5 - 1.15
-   - Anti Tool issues still needs to be fixed
-   - faster loop kill
-   -- Version: 1.02
+   + Ping checker
+   -- Version: 1.03
  ]],
    TextSize=15,
 })
@@ -11720,6 +11718,15 @@ Setting:AddSlider({
    end,
 })
 
+Setting:AddButton({
+   Name="Check Ping",
+   Description="Checks your ping",
+   Text="|| Check",
+   Callback=function()
+      Functions:Call("CheckPing")
+   end
+})
+
 
 
 
@@ -11728,6 +11735,17 @@ Setting:AddSlider({
 Functions:Add("DoRest", function()
    local plrs=gp("gs")("Players")
    local lp=plrs.LocalPlayer
+   Functions:Add("CheckPing", function()
+      local network=math.round(lp:GetNetworkPing()*1000)
+      if network>=300 then
+        Functions:Call("Notify",{Text="Horrible server to use this script:\nPing: ".. network,Size=18,Color=gp("rgb")(255,255,0)})
+      elseif network>=100 and network<=300 then
+        Functions:Call("Notify",{Text="Mid server to use this script:\nPing: ".. network,Size=18,Color=gp("rgb")(255,255,0)})
+      elseif network<=100 then
+        Functions:Call("Notify",{Text="Best server to use this script:\nPing: ".. network,Size=188,Color=gp("rgb")(255,255,0)})
+      end
+   end)
+   Functions:Call("CheckPing")
    local ScannedPlayers={}
    local ButtonConnections={}
    local NormalTabTemplates={}
@@ -11972,7 +11990,7 @@ Functions:Add("DoRest", function()
                pcall(function() Health.Text="|| Health: "..(Player.Funcs.GetHealth(plr) or hum.Health) or "??" end)
                health=hum.Health
                Connections:Add("HumanoidCheck "..i,hum:GetPropertyChangedSignal("Health"):Connect(function()
-                  Health.Text="|| Health: "..(Player.Funcs.GetHealth(plr) or hum.Health) or "??"
+                  Health.Text="|| Health: ".."??" or (Player.Funcs.GetHealth(plr) or hum.Health)
                   health=hum.Health
                   if health<=10 then
                      Health.TextColor3=gp("c3")(1,0,0)
