@@ -6382,18 +6382,18 @@ Functions:Add("DoUI", function()
    Values:Get("Content")["Template"]["Contents"]["Scroll"].ZIndex=1
    Values:Get("Content")["Template"].Visible=false
    
-   local UIPos=Functions:Call("GetConfig","MinimizedPosition")
-   local UIPos1=Functions:Call("GetConfig","OpenedPosition")
-   local IsMinimized=Functions:Call("GetConfig","UIMinimized")
-   local IsScaled=Functions:Call("GetConfig","UIScaled")
-   if UIPos then
+   local ok,UIPos=Functions:Call("GetConfig","MinimizedPosition")
+   local ok1,UIPos1=Functions:Call("GetConfig","OpenedPosition")
+   local ok2,IsMinimized=Functions:Call("GetConfig","UIMinimized")
+   local ok3,IsScaled=Functions:Call("GetConfig","UIScaled")
+   if ok then
       local t=UIPos
       local xs,xo,ys,yo=t["XScale"],t["XOffset"],t["YScale"],t["YOffset"]
       local pos=gp("u2")(xs,xo,ys,yo)
       UI.MinimizedPosition=pos
    end 
    
-   if UIPos1 then
+   if ok1 then
       local t=UIPos1
       local xs,xo,ys,yo=t["XScale"],t["XOffset"],t["YScale"],t["YOffset"]
       local pos=gp("u2")(xs,xo,ys,yo)
@@ -6491,14 +6491,14 @@ Functions:Add("DoUI", function()
       Functions:Call("SaveConfig","UIScaled",UI.IsScaled)
    end
    
-   if IsScaled~=nil then
+   if ok2 then
       local data=IsScaled
       if data==true then 
          DoResize(data)
       end
    end 
    
-   if IsMinimized~=nil then
+   if ok3 then
       local data=not IsMinimized
       if data==true then
          DoMinimize(true)
@@ -7769,10 +7769,10 @@ function UI:InitUI(t)
                   break --// Stop the loop immediately
                end 
             end
-            return Data
+            return true,Data
          else
             warn("The Config: "..name.." Doesnt Exist")
-            return nil
+            return false,nil
          end
       else
          Functions:Call("Notify",{Text="Configs File Doesnt Exist!!",Size=12,Color=gp("rgb")(255,255,0)})
@@ -7808,8 +7808,8 @@ function UI:InitUI(t)
    
    local aval=1
    local us=Values:Get("Gui")["UIScale"]
-   local scaler=Functions:Call("GetConfig","IntefaceScale")
-   if scaler~=nil then
+   local ok,scaler=Functions:Call("GetConfig","IntefaceScale")
+   if ok then
       aval=scaler
       UI.Scaler.Normal=scaler
       UI.Scaler.Scaled=scaler+.225
@@ -7851,9 +7851,9 @@ return {
       Functions:Call("SaveConfig",n,userdata)
    end,
    GetConfig=function(n)
-      local data=Functions:Call("GetConfig",n)
+      local ok,data=Functions:Call("GetConfig",n)
       local cdat=nil
-      if data~=nil then
+      if ok then
          cdat=data
          return true,cdat
       end
