@@ -7857,7 +7857,7 @@ return {
          cdat=data
          return cdata
       end
-      return false
+      return nil
    end,
    Notification=function(t)
       Functions:Call("Notify",t)
