@@ -6191,6 +6191,9 @@ Functions:Add("GetU2", function(f)
       yo=yo,
    }
 end)
+Functions:Add("NewInstance", function(c,p,p1)
+   return New(c,p,p1)
+end)
 
 --// Notification 
 Perplexity["Perplexity UI_1"]["Notification Frame"]["Right"]["Notifications"]["ExampleNotifcation"].Visible=false
@@ -7076,11 +7079,13 @@ function UI:Dropdown(p,t)
             if not first then
                first=true
             else 
+               if t.FireOnLoad==false then return end
                p.setState(false,true)
             end 
          end 
       end
       if t.EnforceTrue and not first then
+         if t.FireOnLoad==false then return end
          Prox[1].setState(false,true)
       end 
       for _,p in Prox do
@@ -7177,7 +7182,7 @@ function UI:Slider(p,t)
             accum=gp("mcl")(num,min,max)
             render(false,true)
          else
-           Input.Text=gp("ts")(math.round(accum*100)/100)
+            Input.Text=gp("ts")(math.round(accum*100)/100)
          end
       end)
       render(false,true)
@@ -7686,6 +7691,11 @@ function UI:NewTab(name)
    end
    return Entry
 end
+
+function UI:GetUI()
+  if Initialized==false then return end 
+  return PerplexityUILibrary
+end 
 
 
 
