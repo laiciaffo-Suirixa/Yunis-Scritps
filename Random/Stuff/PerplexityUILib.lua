@@ -6582,7 +6582,14 @@ function UI:Button(p,t)
    gp("m1")(Button, function()
       t.Callback()
    end)
-   return Template
+   local p={}
+   function p:FireCallback()
+      t.Callback()
+   end
+   function p:GetTemplate()
+      return Template
+   end
+   return p
 end
 
 function UI:Divider(p,t)
@@ -6595,7 +6602,12 @@ function UI:Divider(p,t)
    local TextHandler=Template["Texts"]
    local Title=TextHandler["Title"]
    Title.Text=t.Text~=nil and "|| "..t.Text or "|| Description"
-   return Template
+   local p={}
+   function p:SetText(t) Title.Text="|| "..t end 
+   function p:GetTemplate()
+      return Template
+   end
+   return p
 end
 
 function UI:Dropdown(p,t)
@@ -6682,13 +6694,13 @@ function UI:Dropdown(p,t)
       local pos=(state==true and gp("u2")(1,0,0,0) or gp("u2")(0,0,0,0))
       tw(k,.5,{Position=pos,AnchorPoint=ap}):Play()
    end
-   local Prox={}
+   local Proxies={}
    local EnforceToggle=function(active,new)
       if t.MultiToggle==true then return end
       if not new then return end
-      for _,p in ipairs(Prox) do
+      for _,p in ipairs(Proxies) do
          if p.Name~=active then
-            p.SetValue(false,true,true)
+            p:SetState(false,true,true)
          end
       end
    end
@@ -6761,13 +6773,13 @@ function UI:Dropdown(p,t)
           dragging=false
       end))
       slind+=1
-      local pr={}
-      pr.set=function(v)
+      local p={}
+      function p:SetValue(v)
          accum=gp("mcl")(v,min,max)
          render(false,true)
       end
-      pr.get=function() return accum end
-      return pr
+      function p:GetValue() return accum end 
+      return p
    end
    
    
@@ -6796,7 +6808,6 @@ function UI:Dropdown(p,t)
             gp("m1")(Button, function()
                t.Callback()
             end)
-            Query[#Query+1]={Frame=tem,Title=t.Name}
             tem.ZIndex=3
             for _,v in tem:GetDescendants() do
                if v:IsA("Frame") or v:IsA("TextLabel") then
@@ -6805,6 +6816,15 @@ function UI:Dropdown(p,t)
                   v.ZIndex=4
                end 
             end
+            local p={}
+            function p:FireCallback()
+               t.Callback()
+            end
+            function p:GetTemplate()
+               return tem
+            end
+            Proxies[#Proxies+1]=p
+            Query[#Query+1]={Frame=tem,Title=t.Name}
          elseif tl=="divider" then
             --[[
                Text
@@ -6818,8 +6838,6 @@ function UI:Dropdown(p,t)
             Title.Text="|| "..t.Text or "|| Description"
             local prox={}
             prox.setText=function(t) Title.Text=t end
-            Prox[#Prox+1]=prox
-            Query[#Query+1]={Frame=tem,Title=t.Name}
             tem.ZIndex=3
             for _,v in tem:GetDescendants() do
                if v:IsA("Frame") or v:IsA("TextLabel") then
@@ -6828,6 +6846,15 @@ function UI:Dropdown(p,t)
                   v.ZIndex=4
                end 
             end
+            local p={}
+            function p:SetText(t)
+               Title.Text="|| "..t
+            end
+            function p:GetTemplate()
+               return tem
+            end
+            Proxies[#Proxies+1]=p
+            Query[#Query+1]={Frame=tem,Title=t.Name}
          elseif tl=="paragraph" then
             --[[
                Text
@@ -6845,11 +6872,6 @@ function UI:Dropdown(p,t)
             Title.RichText=true
             Title.TextSize=t.TextSize or 24
             local prox={}
-            prox.setText=function(t) Title.Text=t end
-            prox.setTextSize=function(t) Title.TextSize=t end
-            prox.setSize=function(v) local size=gp("v2")(999,50 or v) Cons.MaxSize=size end
-            Prox[#Prox+1]=prox
-            Query[#Query+1]={Frame=tem,Title=t.Name}
             tem.ZIndex=3
             for _,v in tem:GetDescendants() do
                if v:IsA("Frame") or v:IsA("TextLabel") then
@@ -6858,11 +6880,28 @@ function UI:Dropdown(p,t)
                   v.ZIndex=4
                end 
             end
+            local p={}
+            function p:SetText(t)
+               Title.Text="|| "..t
+            end
+            function p:SetTextSize(s)
+               Title.TextSize=s
+            end
+            function p:SetSize(s)
+               local size=gp("v2")(999,50 or v) 
+               Cons.MaxSize=size
+            end
+            function p:GetTemplate()
+               return tem
+            end
+            Proxies[#Proxies+1]=p
+            Query[#Query+1]={Frame=tem,Title=t.Name}
          elseif tl=="textbox" then
             --[[
                Title
                Description 
                Placeholder 
+               Callback
             ]]
             local tem=Canvas["Textbox"]:Clone()
             tem.Parent=Canvas
@@ -6875,10 +6914,6 @@ function UI:Dropdown(p,t)
             Title.Text=t.Name or "Title"
             Description.Text=t.Description or "Description"
             Input.PlaceholderText=t.Placeholder "---"
-            local prox={}
-            prox.getText=function() return Input.Text end
-            Prox[#Prox+1]=prox
-            Query[#Query+1]={Frame=tem,Title=t.Name}
             tem.ZIndex=3
             for _,v in tem:GetDescendants() do
                if v:IsA("Frame") or v:IsA("TextLabel") then
@@ -6887,6 +6922,22 @@ function UI:Dropdown(p,t)
                   v.ZIndex=4
                end 
             end
+            local p={}
+            function p:SetText(t)
+               Input.Text=t
+               t.Callback()
+            end
+            function p:GetText()
+               return Input.Text
+            end
+            function p:FireCallback()
+               t.Callback()
+            end
+            function p:GetTemplate()
+               return tem
+            end
+            Proxies[#Proxies+1]=p
+            Query[#Query+1]={Frame=tem,Title=t.Name}
          elseif tl=="slider" then
             --[[
                Title
@@ -6916,11 +6967,6 @@ function UI:Dropdown(p,t)
                Knob=Slider["Knob"],
                Button=Slider["Button"],
             },t.Default,t.Min,t.Max,t.Callback)
-            local prox={}
-            prox.set=function(v) Slidy.set(v) end
-            prox.get=function() return Slidy.get() end
-            Prox[#Prox+1]=prox
-            Query[#Query+1]={Frame=tem,Title=t.Name}
             tem.ZIndex=3
             for _,v in tem:GetDescendants() do
                if v:IsA("Frame") or v:IsA("TextLabel") then
@@ -6929,6 +6975,21 @@ function UI:Dropdown(p,t)
                   v.ZIndex=4
                end 
             end
+            local p={}
+            function p:SetValue(t)
+               Slidy:SetValue(t)
+            end
+            function p:GetValue()
+               return Slidy:GetValue()
+            end
+            function p:FireCallback()
+               t.Callback()
+            end
+            function p:GetTemplate()
+               return tem
+            end
+            Proxies[#Proxies+1]=p
+            Query[#Query+1]={Frame=tem,Title=t.Name}
          elseif tl=="toggle" then
             --[[
                Name
@@ -6962,19 +7023,15 @@ function UI:Dropdown(p,t)
                end
             end
             sb(stRef,true)
-            local pr={}
             tem.Destroying:Once(function()
                sb(false,true)
                t.Callback(false,true)
             end)
-            pr.Name=t.Name
-            pr.getState=function() return stRef end
-            pr.fireSync=function() if t.Callback then t.Callback(stRef) end end
-            pr.SetValue=function(state,fire,_internal) sb(state, fire, _internal) end
-            pr.GetValue=pr.getState
-            Prox[#Prox+1]=pr
-            Query[#Query+1]={Frame=tem,Title=t.Name or "Toggle"}
-            if Button then gp("m1")(Button,function() sb(not stRef,true) end) end
+            if Button then 
+               gp("m1")(Button,function() 
+                  sb(not stRef,true) 
+               end) 
+            end
             tem.ZIndex=3
             for _,v in tem:GetDescendants() do
                if v:IsA("Frame") or v:IsA("TextLabel") then
@@ -6983,6 +7040,21 @@ function UI:Dropdown(p,t)
                   v.ZIndex=4
                end 
             end
+            local p={}
+            function p:SetState(s,f,int)
+               sb(s,f,int)
+            end
+            function p:GetState()
+               return stRef
+            end
+            function p:FireCallback()
+               t.Callback(stRef)
+            end
+            function p:GetTemplate()
+               return tem
+            end
+            Proxies[#Proxies+1]=p
+            Query[#Query+1]={Frame=tem,Title=t.Name}
          elseif tl=="togglevalue" then
             --[[
                Name
@@ -7043,19 +7115,6 @@ function UI:Dropdown(p,t)
                sb(false,true)
                t.Callback(false,true)
             end)
-            local pr={}
-            pr.Name=t.Name or "ToggleValue"
-            pr.setState=sb
-            pr.getState=function() return stRef end
-            pr.fireSync=function() if t.Callback then t.Callback(stRef,val) end end
-            pr.getText=function() return Input and Input.Text end
-            pr.setNumber=function(v) val=gp("mcl")(v,minV,maxV) if Input then Input.Text=gp("ts")(math.round(val*100)/100) end end
-            pr.SetValue=function(state,fire,_internal) sb(state, fire, _internal) end
-            pr.GetValue=pr.getState
-            pr.GetText=pr.getText
-            pr.SetText=function(txt) if Input then Input.Text=txt end end
-            Prox[#Prox+1]=pr
-            Query[#Query+1]={Frame=tem,Title=t.Name or "ToggleValue"}
             tem.ZIndex=3
             for _,v in tem:GetDescendants() do
                if v:IsA("Frame") or v:IsA("TextLabel") then
@@ -7064,6 +7123,28 @@ function UI:Dropdown(p,t)
                   v.ZIndex=4
                end 
             end
+            local p={}
+            function p:SetState(s,f,int)
+               sb(s,f,int)
+            end
+            function p:SetValue(num)
+               val=gp("mcl")(num,minV,maxV) 
+               Input.Text=gp("ts")(math.round(val*100)/100)
+            end
+            function p:GetValue()
+               return val
+            end
+            function p:GetState()
+               return stRef
+            end
+            function p:FireCallback()
+               t.Callback(val,stRef)
+            end
+            function p:GetTemplate()
+               return tem
+            end
+            Proxies[#Proxies+1]=p
+            Query[#Query+1]={Frame=tem,Title=t.Name}
          end
       end
    end
@@ -7074,57 +7155,50 @@ function UI:Dropdown(p,t)
    
    if t.MultiToggle==false then
       local first=false
-      for _,p in Prox do
-         if p.getState and p.getState() then
+      for _,p in Proxies do
+         if p:GetState() then
             if not first then
                first=true
             else 
                if t.FireOnLoad==false then return end
-               p.setState(false,true)
+               p:SetState(false,true)
             end 
          end 
       end
       if t.EnforceTrue and not first then
          if t.FireOnLoad==false then return end
-         Prox[1].setState(false,true)
+         Proxies[1]:SetState(false,true)
       end 
-      for _,p in Prox do
-         if p.fireSync then p.fireSync() end
+      for _,p in Proxies do
+         if p:FireCallback() end
       end
    end 
    
-   local prx={}
-   prx.GetOptions=function() return Prox end
-   prx.GetOption=function(name)
-      for _,p in ipairs(Prox) do
-         if p.Name==name then return p end
+   local p={}
+   function p:GetOptions()
+      return Proxies
+   end
+   function p:GetOption(n)
+      for _,p in Proxies do
+         if p.Name==n then
+            return p
+         end 
       end
    end
-   prx.AddOption=function(v) InitOptions(v) end
-   prx.SetOption=function(name,state,fire,bypassEnforceTrue)
-      local opt=prx.GetOption(name)
-      if opt then opt.setState(state, fire, bypassEnforceTrue) end
+   function p:AddOption(v)
+      InitOptions(v)
    end
-   prx.FireOption=function(name)
-      local opt=prx.GetOption(name)
-      if opt and opt.fireSync then opt.fireSync() end
-   end
-   prx.GetValues=function()
-      local out={}
-      for _,p in ipairs(Prox) do
-         if p.getState then out[p.Name]=p.getState() end
-      end
-      return out
-   end
-   prx.Clear=function() 
+   function p:ClearList()
       for _,v in Query do
-         pcall(function() v.Frame:Destroy() end)
+         pcall(function()
+            v.Frame:Destroy()
+         end)
       end
    end
-   prx.Open=function() if not CanvasOpened then ToggleCanvas() end end
-   prx.Close=function() if CanvasOpened then ToggleCanvas() end end
-   prx.Template=Template
-   return prx
+   function p:GetTemplate()
+      return Template 
+   end
+   return p
 end
 
 function UI:Slider(p,t)
@@ -7216,14 +7290,13 @@ function UI:Slider(p,t)
           dragging=false
       end)
       
-      local pr={}
-      pr.set=function(v)
-         gp("tn")(v)
+      local p={}
+      function p:SetValue(v)
          accum=gp("mcl")(v,min,max)
          render(false,true)
       end
-      pr.get=function() return accum end
-      return pr
+      function p:GetValue() return accum end 
+      return p
    end
    local lol=DoSlider({
       Handle=Slider,
@@ -7231,11 +7304,17 @@ function UI:Slider(p,t)
       Knob=Slider["Knob"],
       Button=Slider["Button"],
    },t.Default,t.Min,t.Max,t.Callback)
-   local pr={}
-   pr.get=lol.get
-   pr.set=lol.set
-   pr.Template=Template
-   return pr
+   local p={}
+   function p:SetValue(v)
+      lol:SetValue(v)
+   end
+   function p:GetValue() 
+      return lol:GetValue()
+   end
+   function p:GetTemplate()
+      return Template
+   end
+   return p
 end 
 
 
@@ -7259,11 +7338,21 @@ function UI:Textbox(p,t)
    local Input=Handle["Textbox"]["Input"]
    Input.PlaceholderText=t.Placeholder or "---"
    gp("gpcs")(Input,"Text", t.Callback)
-   local prx={}
-   prx.Get=function() return Input.Text end
-   prx.Set=function(v) Input.Text=v t.Callback(v) end
-   prx.Template=Template
-   return prx
+   local p={}
+   function p:SetText(t)
+      Input.Text=t
+      t.Callback()
+   end
+   function p:GetText()
+      return Input.Text
+   end
+   function p:FireCallback()
+      t.Callback()
+   end
+   function p:GetTemplate()
+      return Template
+   end
+   return p
 end 
 
 function UI:Toggle(p,t)
@@ -7300,11 +7389,20 @@ function UI:Toggle(p,t)
    gp("m1")(Button, function()
       render(not bool,true)
    end)
-   local prx={}
-   prx.Set=function(v) render(v,true) end
-   prx.Get=function() return bool end
-   prx.Template=Template
-   return prx
+   local p={}
+    function p:SetState(s,f)
+       render(s,f)
+    end
+    function p:GetState()
+       return bool
+    end
+    function p:FireCallback()
+       t.Callback(bool)
+    end
+    function p:GetTemplate()
+       return Template
+    end
+    return p
 end 
 
 function UI:ToggleTextbox(p,t)
@@ -7334,7 +7432,8 @@ function UI:ToggleTextbox(p,t)
    
    Input.PlaceholderText=t.Placeholder or (t.Min or "??").." - "..(t.Max or "??")
    local bool=t.Default or false
-   local dp=gp("mcl")(t.DefaultValue or 0,t.Min or 0,t.Max or 1)
+   local min,max=(t.Min or -1),(t.Max or 1)
+   local dp=gp("mcl")(t.DefaultValue or 0,min,max)
    local acc=0
    local DoToggle=function(k,state)
       local ap=(state==true and gp("v2")(1,0) or gp("v2")(0,0))
@@ -7347,24 +7446,38 @@ function UI:ToggleTextbox(p,t)
       if fire then t.Callback(bool,acc) end
    end
    render(bool,true)
-   gp("gpcs")(Input,"Text", function()
+   gp("fcl")(Input, function()
       local tek=gp("tn")(Input.Text)
       if tek then
-         acc=gp("mcl")(tek,t.Min,t.Max)
+         acc=gp("mcl")(tek,min,max)
       else
-         acc=gp("mcl")(t.DefaultValue or 0,t.Min,t.Max)
+         acc=gp("mcl")(t.DefaultValue or 0,min,max)
       end 
    end)
    gp("m1")(Button, function()
       render(not bool,true)
    end)
-   local prx={}
-   prx.Set=function(v) render(v,true) end
-   prx.SetVal=function(v) acc=gp("mcl")(v,t.Min,t.Max) Input.Text=acc end
-   prx.GetVal=function() return acc end
-   prx.Get=function() return bool end
-   prx.Template=Template 
-   return prx
+   local p={}
+   function p:SetState(s,f,int)
+      sb(s,f,int)
+   end
+   function p:SetValue(num)
+      acc=gp("mcl")(num,min,max) 
+      Input.Text=gp("ts")(math.round(acc*100)/100)
+   end
+   function p:GetValue()
+      return acc
+   end
+   function p:GetState()
+      return bool
+   end
+   function p:FireCallback()
+      t.Callback(acc,stRef)
+   end
+   function p:GetTemplate()
+      return Template
+   end
+   return p
 end 
 
 function UI:Paragraph(p,t)
@@ -7384,12 +7497,21 @@ function UI:Paragraph(p,t)
    Cons.MaxSize=size
    Title.RichText=true
    Title.TextSize=t.TextSize or 24
-   local prox={}
-   prox.setText=function(t) Title.Text=t end
-   prox.setTextSize=function(t) Title.TextSize=t end
-   prox.setSize=function(v) local size=gp("v2")(999,50 or v) Cons.MaxSize=size end
-   prox.Template=Template
-   return prox
+   local p={}
+   function p:SetText(t)
+      Title.Text=t
+   end
+   function p:SetTextSize(s)
+      Title.TextSize=s
+   end
+   function p:SetSize(s)
+      local size=gp("v2")(999,50 or v) 
+      Cons.MaxSize=size
+   end
+   function p:GetTemplate()
+      return Template
+   end
+   return p
 end 
 
 function UI:TextField(p,t)
@@ -7407,12 +7529,21 @@ function UI:TextField(p,t)
    Cons.MaxSize=size
    Input.RichText=true
    Input.TextSize=t.TextSize or 24
-   local prox={}
-   prox.setText=function(t) Input.Text=t end
-   prox.setTextSize=function(t) Input.TextSize=t end
-   prox.setSize=function(v) local size=gp("v2")(999,50 or v) Cons.MaxSize=size end
-   prox.Template=Template
-   return prox
+   local p={}
+   function p:SetText(t)
+      Title.Text=t
+   end
+   function p:SetTextSize(s)
+      Title.TextSize=s
+   end
+   function p:SetSize(s)
+      local size=gp("v2")(999,50 or v) 
+      Cons.MaxSize=size
+   end
+   function p:GetTemplate()
+      return Template
+   end
+   return p
 end 
 
 
