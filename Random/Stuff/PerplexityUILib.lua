@@ -7170,7 +7170,7 @@ function UI:Dropdown(p,t)
          Proxies[1]:SetState(false,true)
       end 
       for _,p in Proxies do
-         if p:FireCallback() end
+         p:FireCallback()
       end
    end 
    
