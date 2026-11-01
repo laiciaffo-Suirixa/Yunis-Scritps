@@ -7041,6 +7041,7 @@ function UI:Dropdown(p,t)
                end 
             end
             local p={}
+            p.Name=t.Name
             function p:SetState(s,f,int)
                sb(s,f,int)
             end
@@ -7124,6 +7125,7 @@ function UI:Dropdown(p,t)
                end 
             end
             local p={}
+            p.Name=t.Name
             function p:SetState(s,f,int)
                sb(s,f,int)
             end
