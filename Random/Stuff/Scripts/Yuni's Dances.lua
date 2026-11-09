@@ -214,7 +214,7 @@ Home:AddButton({
    Text="Copy",
    Callback=function()
       if setclipboard then
-         setclipboard("link")
+         setclipboard("https://discord.gg/vRVFqYbnk")
          Notify({
             Text="Link has been copied!",
             Size=18,
