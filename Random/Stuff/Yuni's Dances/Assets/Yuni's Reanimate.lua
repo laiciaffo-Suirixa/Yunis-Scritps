@@ -2384,16 +2384,17 @@ Reanim.Start=function(data)
             end
          end
          IsBreaking=true
+         Reanim.Character:ScaleTo(1) 
          if Internal.RespawnCon then Internal.RespawnCon:Disconnect() Internal.RespawnCon=nil end
          wait(.15)
          if Internal.LimbBreakJoints==false then
             Reanim.Character:ScaleTo(Reanim.CharacterScale) 
-            task.delay(.05, function() plr.Character=Internal.OldCharacter end)
             local char=plr.Character
             local h=Reanim.FindChildClass(char, "Humanoid")
             if h then
                Internal.SetHumState(h, "Dead")
             end 
+            Reanim.Character:ScaleTo(Reanim.CharacterScale) 
             Internal.RespawnCon=plr.CharacterAdded:Connect(CharCon) 
          elseif Internal.LimbBreakJoints==true then
             Reanim.Character:ScaleTo(1) 
