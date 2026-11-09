@@ -1,3 +1,21 @@
+--[=[
+PLEASE READ PLEASE READ PLEASE READ PLEASE READ 
+PLEASE READ PLEASE READ PLEASE READ PLEASE READ 
+PLEASE READ PLEASE READ PLEASE READ PLEASE READ 
+
+if your planning on moving your Uhhhh reanimate modules to my dance script, you must change its
+format in order for your module to fully load and play animations
+]=]
+
+
+
+
+
+
+
+
+
+
 
 local modules={}
 local insert=function(t) return table.insert(modules,t) end
@@ -208,7 +226,7 @@ insert(function()
    m.Info={
       Title="Boogie Down",
       Author="Yuni",
-      Description="Idk what to put here",
+      Description="How did he hit every single beat",
    }
    m.CanBeConfigured=false
    m.LoadConfigs=function(save)
@@ -534,7 +552,7 @@ insert(function()
    m.Info={
       Title="Headlock",
       Author="Yuni",
-      Description="bakas bakas bakas bakas baka sekao",
+      Description="bakas bakas bakas bakas baka sekao, elata siya jito soyu wahi kasesipopu",
    }
    m.CanBeConfigured=false 
    
@@ -829,7 +847,7 @@ insert(function()
    local start=nil
    m.Init=function(t)
       start=os.clock()
-      t:SetAudio(Name..".mp3",2)
+      t:SetAudio(Name..".mp3")
       anim=t:GetAnimator("Yuni").new()
       anim.Speed=1
       anim.Alpha=1
@@ -956,7 +974,7 @@ insert(function()
    local start=nil
    m.Init=function(t)
       start=os.clock()
-      t:SetAudio(Name..".mp3")
+      t:SetAudio(Name..".mp3",5)
       anim=t:GetAnimator("Yuni").new()
       anim.Speed=1
       anim.Alpha=1
@@ -1058,16 +1076,25 @@ insert(function()
       Author="Yuni",
       Description="Teto and Miku mesmerizer happy ending",
    }
-   m.CanBeConfigured=false 
+   m.CanBeConfigured=true 
    
-   m.LoadConfigs=function(save)
+   local vars={
+      Variant=1,
+   }
+   m.LoadConfigs=function(s)
+      if s~=nil and s then 
+         vars=s
+      end 
    end
    
-   m.Configs=function(t)
+   m.Configs=function(t,t1)
+      t:AddDivider({
+         Text="Dance Variants",
+      })
    end
    
    m.SavedConfigs=function()
-      return 
+      return vars
    end 
    
    local anim=nil
@@ -1169,6 +1196,8 @@ insert(function()
    m.Type="Emote"
    m.Assets={
       Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      --// Alt
+      Name.." Alt.lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name.." Alt.lua",
       Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
    }
    m.Info={
@@ -1178,23 +1207,29 @@ insert(function()
    }
    m.CanBeConfigured=true 
    
-   local var={
-      Variants=1,
+   local vars={
+      Variant=1,
    }
    m.LoadConfigs=function(s)
       if s~=nil and s then 
-         var=s
-      end
+         vars=s
+      end 
    end
    
-   m.Configs=function(t)
+   m.Configs=function(t,t1)
       t:AddDivider({
          Text="Dance Variants",
       })
+      t1:AddOptionsList("Variant",{
+         "Normal",
+         "Alt",
+      },vars.Variant, function(sel,s)
+         vars.Variant=sel
+      end)
    end
    
    m.SavedConfigs=function()
-      return var
+      return vars
    end 
    
    local anim=nil
@@ -1202,26 +1237,40 @@ insert(function()
    m.Init=function(t)
       start=os.clock()
       t:SetAudio(Name..".mp3")
-      anim=t:GetAnimator("Yuni").new()
-      anim.Speed=1
-      anim.Alpha=1
-      anim.Looped=true
-      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
-      anim.Rig=t:GetFigureModel()
-      anim.Start=os.clock()
-      anim.ShouldLoopAnims=false
-      anim.ShouldUseProps=false
-      anim.QueuedAnims={} 
-      anim.AnimLoopOns={} 
-      anim.PreloadProps=function()
+      if vars.Variant==1 then
+         anim=t:GetAnimator("Yuni").new()
+         anim.Speed=1
+         anim.Looped=true
+         anim.Alpha=1
+         anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+         
+         anim.Rig=t:GetFigureModel()
+         anim.Start=os.clock()
+         anim.ShouldLoopAnims=false
+         anim.ShouldUseProps=false
+         anim.QueuedAnims={} 
+         anim.AnimLoopOns={} 
+         anim.PreloadProps=function()
+         end
+         anim.ToAnimateProps=function()
+         end
+         anim:Initialize()
+      elseif vars.Variant==2 then
+         anim=t:GetAnimator("Steve").new()
+         anim.Rig=t:GetFigureModel() 
+         anim.Animation=t:GetAnimationFromFile("Animations",Name.." Alt.lua",true)
+         anim.Speed=1
+         anim.Looped=true
+         anim.Alpha=.95
       end
-      anim.ToAnimateProps=function()
-      end
-      anim:Initialize()
    end
    
    m.UpdateTrack=function(t)
-      anim:Update(t:GetAudioTimeTrack())
+      if vars.Variant==1 then
+         anim:Update(t:GetAudioTimeTrack())
+      elseif vars.Variant==2 then
+         anim:Step(t:GetAudioTimeTrack())
+      end
    end
    
    m.StopTrack=function(AnimCharacter)
@@ -1315,7 +1364,7 @@ insert(function()
       end
    end
    
-   m.Configs=function(t)
+   m.Configs=function(t,t1)
       t:AddDivider({
          Text="Dance Variants",
       })
@@ -1826,7 +1875,7 @@ insert(function()
    end
    
    m.StopTrack=function(AnimCharacter)
-      AnimCharacter:FindFirstChildOfClass("Humanoid").WalkSpeed=16
+      AnimCharacter:FindFirstChildOfClass("Humanoid").WalkSpeed=16*AnimCharacter:GetScale()
       anim:Destroy(AnimCharacter)
    end
    return m
@@ -2135,6 +2184,9 @@ insert(function()
    m.Assets={
       Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
       Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+      --// Alt
+      Name.."Alt.lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name.."Alt.lua",
+      Name.."Alt.mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name.."Alt.mp3",
    }
    m.Info={
       Title=Name,
@@ -2145,7 +2197,6 @@ insert(function()
    
    local vars={
       Variant=1,
-      MusicVariant=1,
    }
    m.LoadConfigs=function(s)
       if s~=nil and s then 
@@ -2153,10 +2204,16 @@ insert(function()
       end 
    end
    
-   m.Configs=function(t)
+   m.Configs=function(t,t1)
       t:AddDivider({
          Text="Dance Variants",
       })
+      t1:AddOptionsList("Variant",{
+         "Normal",
+         "Alt",
+      },vars.Variant, function(sel,s)
+         vars.Variant=sel
+      end)
    end
    
    m.SavedConfigs=function()
@@ -2167,12 +2224,20 @@ insert(function()
    local start=nil
    m.Init=function(t)
       start=os.clock()
-      t:SetAudio(Name..".mp3")
+      if vars.Variant==1 then
+         t:SetAudio(Name..".mp3",2)
+      elseif vars.Variant==2 then
+         t:SetAudio(Name.."Alt.mp3",2)
+      end
       anim=t:GetAnimator("Yuni").new()
       anim.Speed=1
       anim.Alpha=1
       anim.Looped=true
-      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      if vars.Variant==1 then
+         anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      elseif vars.Variant==2 then
+         anim.Animation=t:GetAnimationFromFile("Animations",Name.."Alt.lua",false)
+      end
       anim.Rig=t:GetFigureModel()
       anim.Start=os.clock()
       anim.ShouldLoopAnims=false
@@ -2263,6 +2328,3375 @@ insert(function()
    end
    return m
 end)
+
+insert(function()
+   local m={}
+   local Name="PickupThePhone"
+   m.Name="Pickup The Phone"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title="Pickup The Phone",
+      Author="Yuni",
+      Description="Why are my kids not home?"
+   }
+   m.CanBeConfigured=false 
+   
+   m.LoadConfigs=function(s)
+      if s~=nil and s then 
+         vars=s
+      end 
+   end
+   
+   m.Configs=function(t)
+      t:AddDivider({
+         Text="Dance Variants",
+      })
+   end
+   
+   m.SavedConfigs=function()
+      return vars
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3",2)
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Spooky"
+   m.Name="Spooky Month"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title="Spooky Month",
+      Author="Yuni",
+      Description="IT IZ DA SPOOKY MONTH!!!"
+   }
+   m.CanBeConfigured=false 
+   
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t)
+   end
+   
+   m.SavedConfigs=function()
+      return 
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3")
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="JK Limited Flexworks"
+   m.Name="JK Limited Flexworks"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="Blue KJ"
+   }
+   m.CanBeConfigured=false 
+   
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3")
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="KJ Unlimited Flexworks"
+   m.Name="KJ Unlimited Flexworks"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="Real KJ"
+   }
+   m.CanBeConfigured=false 
+   
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3")
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="CrissCross"
+   m.Name="CrissCross"
+   m.Type="Emote"
+   m.Assets={
+      Name..".rbxm@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".rbxm",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description=""
+   }
+   m.CanBeConfigured=false 
+   
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3")
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Models",Name..".rbxm",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(os.clock()-start)
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Torture"
+   m.Name="Torture"
+   m.Type="Emote"
+   m.Assets={
+      Name..".rbxm@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".rbxm",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description=""
+   }
+   m.CanBeConfigured=false 
+   
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3")
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Models",Name..".rbxm",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(os.clock()-start)
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Unlockit"
+   m.Name="Unlock It"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+      --// SEWH Version
+      Name.." SEWH.lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name.." SEWH.lua",
+      Name.." SEWH.mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name.." SEWH.mp3",
+   }
+   m.Info={
+      Title="Unlock It",
+      Author="Yuni",
+      Description="you can be my valentino yeah"
+   }
+   m.CanBeConfigured=true 
+   
+   local vars={
+      Variant=1,
+   }
+   m.LoadConfigs=function(s)
+      if s~=nil and s then 
+         vars=s
+      end 
+   end
+   
+   m.Configs=function(t,t1)
+      t:AddDivider({
+         Text="Dance Variants",
+      })
+      t1:AddOptionsList("Variant",{
+         "Normal",
+         "SEWH Version",
+      },vars.Variant, function(sel,s)
+         vars.Variant=sel
+      end)
+   end
+   
+   m.SavedConfigs=function()
+      return vars
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      if vars.Variant==1 then
+         t:SetAudio(Name..".mp3",2)
+      elseif vars.Variant==2 then
+         t:SetAudio(Name.." SEWH.mp3",2)
+      end
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      if vars.Variant==1 then
+         anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      elseif vars.Variant==2 then
+         anim.Animation=t:GetAnimationFromFile("Animations",Name.." SEWH.lua",false)
+      end
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Lagtrain"
+   m.Name="Lagtrain"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      --// Alt
+      Name.." Alt.lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name.." Alt.lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="im lagging help"
+   }
+   m.CanBeConfigured=true 
+   
+   local vars={
+      Variant=1,
+   }
+   m.LoadConfigs=function(s)
+      if s~=nil and s then 
+         vars=s
+      end 
+   end
+   
+   m.Configs=function(t,t1)
+      t:AddDivider({
+         Text="Dance Variants",
+      })
+      t1:AddOptionsList("Variant",{
+         "Normal",
+         "Alt",
+      },vars.Variant, function(sel,s)
+         vars.Variant=sel
+      end)
+   end
+   
+   m.SavedConfigs=function()
+      return vars
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3")
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Looped=true
+      anim.Alpha=1
+      if vars.Variant==1 then
+         anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      elseif vars.Variant==2 then
+         anim.Animation=t:GetAnimationFromFile("Animations",Name.." Alt.lua",false)
+      end 
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Cafeteria"
+   m.Name="Cafeteria"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="get up get down"
+   }
+   m.CanBeConfigured=false 
+   
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t)
+   end
+   
+   m.SavedConfigs=function()
+      return 
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3",2)
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Medicine Teto"
+   m.Name="Medicine Teto(Igaku)"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      "IgakuSutibu.anim@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/IgakuSutibu.anim",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title="Medicine Teto(Igaku)",
+      Author="Yuni",
+      Description="Doctor Teto"
+   }
+   m.CanBeConfigured=true 
+   
+   local vars={
+      Variant=1,
+   }
+   m.LoadConfigs=function(s)
+      if s~=nil and s then 
+         vars=s
+      end 
+   end
+   
+   m.Configs=function(t,t1)
+      t:AddDivider({
+         Text="Dance Variants",
+      })
+      t1:AddOptionsList("Variant",{
+         "Normal",
+         "Steve's Version",
+      },vars.Variant, function(sel,s)
+         vars.Variant=sel
+      end)
+   end
+   
+   m.SavedConfigs=function()
+      return vars
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3",1.5)
+      if vars.Variant==1 then
+         anim=t:GetAnimator("Yuni").new()
+         anim.Speed=1
+         anim.Looped=true
+         anim.Alpha=1
+         anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+         
+         anim.Rig=t:GetFigureModel()
+         anim.Start=os.clock()
+         anim.ShouldLoopAnims=false
+         anim.ShouldUseProps=false
+         anim.QueuedAnims={} 
+         anim.AnimLoopOns={} 
+         anim.PreloadProps=function()
+         end
+         anim.ToAnimateProps=function()
+         end
+         anim:Initialize()
+      elseif vars.Variant==2 then
+         anim=t:GetAnimator("Steve").new()
+         anim.Rig=t:GetFigureModel() 
+         anim.Animation=t:GetAnimationFromFile("Animations","IgakuSutibu.anim",true)
+         anim.Speed=.855
+         anim.Looped=true
+         anim.Alpha=.1
+      end
+   end
+   
+   m.UpdateTrack=function(t)
+      if vars.Variant==1 then
+         anim:Update(t:GetAudioTimeTrack())
+      elseif vars.Variant==2 then
+         anim:Step(t:GetAudioTimeTrack())
+      end
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Squidward Yell"
+   m.Name="Squidward Yells"
+   m.Type="Emote"
+   m.Assets={
+      --// 1st Variant
+      Name.."1.lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name.."1.lua",
+      Name.."1.mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name.."1.mp3",
+      --// 2nd Variant
+      Name.."2.lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name.."2.lua",
+      Name.."2.mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name.."2.mp3",
+      --// 3rd Variant
+      Name.."3.lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name.."3.lua",
+      Name.."3.mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name.."3.mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="Erm, what the stick ma"
+   }
+   m.CanBeConfigured=true 
+   
+   local vars={
+      Variant=1,
+   }
+   m.LoadConfigs=function(s)
+      if s~=nil and s then 
+         vars=s
+      end 
+   end
+   
+   m.Configs=function(t,t1)
+      t:AddDivider({
+         Text="Dance Variants",
+      })
+      t1:AddOptionsList("Variants",{
+         "Variant 1",
+         "Variant 2",
+         "Variant 3",
+      },vars.Variant, function(sel,s)
+         vars.Variant=sel
+      end)
+   end
+   
+   m.SavedConfigs=function()
+      return vars
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      if vars.Variant==1 then 
+         t:SetAudio(Name.."1.mp3",2)
+      elseif vars.Variant==2 then
+         t:SetAudio(Name.."2.mp3",2)
+      elseif vars.Variant==3 then
+         t:SetAudio(Name.."3.mp3",2)
+      end
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      if vars.Variant==1 then
+         anim.Animation=t:GetAnimationFromFile("Animations",Name.."1.lua",false)
+      elseif vars.Variant==2 then
+         anim.Animation=t:GetAnimationFromFile("Animations",Name.."2.lua",false)
+      elseif vars.Variant==3 then
+         anim.Animation=t:GetAnimationFromFile("Animations",Name.."3.lua",false)
+      end
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Out Of Touch"
+   m.Name="Out Of Touch"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description=":3"
+   }
+   m.CanBeConfigured=false 
+   
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3")
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Requiem"
+   m.Name="Requiem"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="Faster n Harder"
+   }
+   m.CanBeConfigured=false 
+   
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3")
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Uh"
+   m.Name="Tokyo"
+   m.Type="Emote"
+   m.Assets={
+      Name..".rbxm@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".rbxm",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title="Tokyo",
+      Author="Yuni",
+      Description="Nyaa Arigato\n dont ask why i added this back"
+   }
+   m.CanBeConfigured=false 
+   
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3",1.5)
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Models",Name..".rbxm",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Jumpstyle"
+   m.Name="Jumpstyle"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="'Now Falling Through The Sky'"
+   }
+   m.CanBeConfigured=false 
+   
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3")
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Smug Dance"
+   m.Name="Smug Dance"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="A Hat in Time OST [Seal The Deal] - Peace and Tranquility.mp3"
+   }
+   m.CanBeConfigured=false 
+   
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3",2)
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Metro Man"
+   m.Name="Metro Man"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="enjoy enjoy enjoy enjoy enjoy"
+   }
+   m.CanBeConfigured=false 
+   
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3")
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Wait"
+   m.Name="Wait!"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name.."!",
+      Author="Yuni",
+      Description="They don't love you like i love you"
+   }
+   m.CanBeConfigured=false 
+   
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3")
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Pokedance"
+   m.Name="Pokedance"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="Hey boogie woogie bam bam, lets go party party boom boom"
+   }
+   m.CanBeConfigured=false 
+   
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3",1.5)
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Spoken For"
+   m.Name="Spoken For"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="Jamie P and Teto never misses <3"
+   }
+   m.CanBeConfigured=false 
+   
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3",2)
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Low Cortisol"
+   m.Name="Low Cortisol"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="Agnes Tachyon, Low Cortisol Uma"
+   }
+   m.CanBeConfigured=false 
+   
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3",2)
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(os.clock()-start)
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Everybody Gangnam"
+   m.Name="Everybody Gangnam"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="Everybody Gangnam Style- aghh~"
+   }
+   m.CanBeConfigured=false 
+   
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3",2)
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Looping The Rooms"
+   m.Name="Looping The Rooms"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="Im stuck in this world, when will find escape, fahhhhhh"
+   }
+   m.CanBeConfigured=true 
+   local vars={
+      Variant=1,
+   }
+   m.LoadConfigs=function(s)
+      if s~=nil and s then 
+         vars=s
+      end 
+   end
+   
+   m.Configs=function(t,t1)
+      t:AddDivider({
+         Text="Dance Variants",
+      })
+   end
+   
+   m.SavedConfigs=function()
+      return vars
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3",2)
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Cry For Me"
+   m.Name="Cry For Me"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="dont ask why i added this back"
+   }
+   m.CanBeConfigured=false 
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3",2)
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Kai And Speed"
+   m.Name="Kai And Speed"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="tale between kai and speed"
+   }
+   m.CanBeConfigured=false 
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3",2)
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Civillian Yell"
+   m.Name="Civillian Yell"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="😡😡😡"
+   }
+   m.CanBeConfigured=false 
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3")
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Skeleton Bashing Shield"
+   m.Name="Skeleton Bashing Shield"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="RRRAAAAAAGGGGHHHHH *clang* *clang* *clang*"
+   }
+   m.CanBeConfigured=false 
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3")
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="When Someone Ships"
+   m.Name="When Someone Ships"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="how dare you ship me?!?!?!!!!!"
+   }
+   m.CanBeConfigured=false 
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3")
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Golden Dandelion"
+   m.Name="Golden Dandelion"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="canman18"
+   }
+   m.CanBeConfigured=false 
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3",2)
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(os.clock()-start)
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Tails Yell"
+   m.Name="Tails Yell"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="Same guy who animated squidward yells"
+   }
+   m.CanBeConfigured=false 
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3",2)
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="California Girls"
+   m.Name="California Girls"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="Hell yeah"
+   }
+   m.CanBeConfigured=false 
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3")
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Doomer"
+   m.Name="Doomer"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="Last bite before the world ends"
+   }
+   m.CanBeConfigured=false 
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3")
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   m.Name="Krump"
+   m.Type="Emote"
+   m.Assets={
+      "Monster Mash.mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/Monster Mash.mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="Lightning Cannon"
+   }
+   m.CanBeConfigured=false 
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio("Monster Mash.mp3")
+   end
+   
+   m.UpdateTrack=function(t)
+      local deltaTime=.75 
+      sine=os.clock()
+      local figure=t:GetFigureModel()
+      local hum = figure:FindFirstChild("Humanoid")
+      if not hum then return end
+      local root = figure:FindFirstChild("HumanoidRootPart")
+      if not root then return end
+      local torso = figure:FindFirstChild("Torso")
+      if not torso then return end
+
+      local scale = figure:GetScale()
+      local cfMul=function(a,b) return a*b end
+      local cf=CFrame.new
+      local angles=CFrame.Angles
+      local Lerp=cf().Lerp
+      local sin=math.sin
+      local cos=math.cos
+
+      local RootJoint = root:FindFirstChild("RootJoint")
+      local Neck = torso:FindFirstChild("Neck")
+      local RightShoulder = torso:FindFirstChild("Right Shoulder")
+      local LeftShoulder = torso:FindFirstChild("Left Shoulder")
+      local RightHip = torso:FindFirstChild("Right Hip")
+      local LeftHip = torso:FindFirstChild("Left Hip") 
+      RootJoint.Transform=Lerp(RootJoint.Transform,cfMul(cf(-0.5*scale*cos((sine*20)+0)+0,0.5*scale*sin((sine*20)+0),-.5*scale),angles(0,-0.17453292519943295+0,0)),deltaTime)
+      LeftHip.Transform=cfMul(cf(0,.25*scale,.5*scale),angles(0.17453292519943295,0,0))
+      RightHip.Transform=cfMul(cf(0,.5*scale,.25*scale),angles(-0.8726646259971648,0,0))
+      RightShoulder.Transform=cf(0,.15,.35*scale)*angles(-1.5707963267948966+0,0,0)
+      LeftShoulder.Transform=cf(0,.15,.35*scale)*angles(-1.5707963267948966+0,0,0)
+      Neck.Transform=CFrame.identity
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      for _,v in AnimCharacter:GetDescendants() do
+         if v:IsA("Motor6D") then
+            v.Transform=CFrame.new()
+         end
+      end 
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   m.Name="Kai and Speed Jumping"
+   m.Type="Emote"
+   m.Assets={
+      "SpeedJumping.mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/SpeedJumping.mp3",
+      "SpeedJumpingDec.mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/SpeedJumpingDec.mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="adventures of luigi and mario\nW SPEED"
+   }
+   m.CanBeConfigured=true
+   
+   local Data={
+      LegFix=false,
+      Intro=true,
+      CorrectFlipping=false,
+      DifferentTiming=true,
+      PoseToTheFans=true,
+      MusicVariant=1,
+   }
+   m.LoadConfigs=function(s)
+      if s~=nil and s then 
+         Data=s
+      end
+   end
+   
+   m.Configs=function(t,t1)
+      --// Example Usage of making a ui element
+      t1:AddOptionsList("Music Variant",{
+         "Normal",
+         "Christmas",
+      },Data.MusicVariant, function(sel,s)
+         Data.MusicVariant=sel
+      end)
+      t1:AddOptionsList("Variant",{
+         "Speed",
+         "Kai Cenat",
+      },Data.DifferentTiming==true and 2 or 1, function(sel,s)
+         Data.DifferentTiming=sel==2
+      end)
+      t1:AddSwitch("Intro",Data.Intro, function(state)
+         Data.Intro=state
+      end)
+      t1:AddSwitch("Correct Jumping",Data.LegFix, function(state)
+         Data.LegFix=state
+      end)
+      t1:AddSwitch("Correct Flipping",Data.CorrectFlipping, function(state)
+         Data.CorrectFlipping=state
+      end)
+      t1:AddSwitch("Pose for fans",Data.PoseToTheFans, function(state)
+         Data.PoseToTheFans=state
+      end)
+   end
+   
+   m.SavedConfigs=function()
+      return Data
+   end 
+   
+   m.Init=function(t)
+      start=os.clock()
+      if Data.MusicVariant==1 then 
+         t:SetAudio("SpeedJumping.mp3",1,1,NumberRange.new(5.516, 19.726))
+      elseif Data.MusicVariant==2 then 
+         t:SetAudio("SpeedJumpingDec.mp3",1,1,NumberRange.new(5.516, 19.726))
+      end
+      if not Data.Intro then
+         t:SetAudioTime(5.516)
+      end
+   end
+   
+   m.UpdateTrack=function(t)
+      local deltaTime=.75 
+      
+      
+      sine=os.clock()
+      local figure=t:GetFigureModel()
+      local t = t:GetAudioTimeTrack().TimePosition
+      local hum = figure:FindFirstChild("Humanoid")
+      if not hum then return end
+      local root = figure:FindFirstChild("HumanoidRootPart")
+      if not root then return end
+      local torso = figure:FindFirstChild("Torso")
+      if not torso then return end
+
+      local scale = figure:GetScale()
+      local rj = root:FindFirstChild("RootJoint")
+      local nj = torso:FindFirstChild("Neck")
+      local rsj = torso:FindFirstChild("Right Shoulder")
+      local lsj = torso:FindFirstChild("Left Shoulder")
+      local rhj = torso:FindFirstChild("Right Hip")
+      local lhj = torso:FindFirstChild("Left Hip")
+
+      if t < 5.516 then
+         local dur = 0.5
+         if t > 2.695 then
+            dur = 5
+         end
+         if t > 3.593 then
+            dur = 0.25
+         end
+         if t > 4.333 then
+            dur = 0.05
+         end
+         local sine = math.sin((t / dur) * math.pi * 2)
+         rj.Transform = CFrame.new(0, 0, -2.5 * scale) * CFrame.Angles(math.rad(-90), 0, math.rad(sine * 10))
+         nj.Transform = CFrame.identity
+         rsj.Transform = CFrame.Angles(0, 0, sine)
+         lsj.Transform = CFrame.Angles(0, 0, sine)
+         rhj.Transform = CFrame.Angles(0, 0, -sine)
+         lhj.Transform = CFrame.Angles(0, 0, -sine)
+      else
+         local animt = ((t - 5.516) / 7.105) % 1
+         local beat = animt * 16 -- 16 jumps
+         local beat2 = beat
+         local xaxis = animt * 4
+         if Data.DifferentTiming then
+            beat2 -= 0.1 + math.sin(((beat + 1) / 4) * math.pi * 2) * 0.1
+            xaxis += 0.67
+         end
+         local height = 1 - math.pow(1 - math.abs(math.sin(beat2 * math.pi)), 2)
+         local yspint, zspint = beat2 % 8, (beat2 + 4) % 8
+         if Data.CorrectFlipping then
+            if Data.DifferentTiming then
+               yspint, zspint = (beat2 + 1) % 4, 0
+            else
+               yspint, zspint = 0, beat2 % 4
+            end
+         end
+         local yspin, zspin = math.pow(1 - math.min(yspint, 1), 2) * math.pi * 2, math.pow(1 - math.min(zspint, 1), 4) * math.pi * 2
+         if Data.CorrectFlipping then
+            if not Data.DifferentTiming then
+               zspin = -zspin
+            end
+         elseif beat >= 8 then
+            yspin, zspin = -yspin, -zspin
+         end
+         local armssine = 1 - math.pow(1 - math.abs(math.sin(math.pow(beat2 % 1, 3) * math.pi)), 2)
+         local arms = math.rad(-75 * armssine)
+         local legs = math.rad(-30 * math.abs(math.sin(beat2 * math.pi)))
+         if Data.LegFix then
+            local alpha = 1 - height
+            arms = math.rad(-75 * alpha)
+            legs = math.rad(-30 * alpha)
+         end
+         rj.Transform = CFrame.new(math.sin(xaxis * math.pi) * 6.7 * scale, 0, height * 4.1 * scale) * CFrame.Angles(0, zspin, yspin)
+         nj.Transform = CFrame.identity
+         rsj.Transform = CFrame.Angles(arms, 0, 0)
+         lsj.Transform = CFrame.Angles(arms, 0, 0)
+         rhj.Transform = CFrame.Angles(legs, 0, 0)
+         lhj.Transform = CFrame.Angles(legs, 0, 0)
+         if Data.PoseToTheFans and beat >= 15 then
+            local a = math.sin((beat - 15) * math.pi)
+            local b = 1 - a
+            if Data.DifferentTiming then
+               rj.Transform = rj.Transform:Lerp(CFrame.new(0, -3 * scale, 3 * scale) * CFrame.Angles(math.rad(-10), math.rad(-10), 0), a)
+               rsj.Transform = CFrame.Angles(arms * b, 0, 3.14 * a)
+               lsj.Transform = CFrame.Angles(arms * b, 0, -3.14 * a)
+               rhj.Transform = CFrame.Angles(legs * b, 0, 0)
+               lhj.Transform = CFrame.Angles(legs * b, 0, 0)
+            else
+               rj.Transform = rj.Transform:Lerp(CFrame.new(0, -5 * scale, 2 * scale) * CFrame.Angles(math.rad(-10), math.rad(10), 0), a)
+               rsj.Transform = CFrame.Angles(arms * b, 0, 1.57 * a)
+               lsj.Transform = CFrame.Angles(arms * b, 0, 1 * a)
+               rhj.Transform = CFrame.Angles(legs * b, 0, 1 * a)
+               lhj.Transform = CFrame.Angles(legs * b, 0, 1.57 * a)
+            end
+         end
+      end
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      for _,v in AnimCharacter:GetDescendants() do
+         if v:IsA("Motor6D") then
+            v.Transform=CFrame.new()
+         end
+      end 
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Chegou 3"
+   m.Name="Chegou 3"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description=""
+   }
+   m.CanBeConfigured=true 
+   local vars={
+      Variant=1,
+   }
+   m.LoadConfigs=function(s)
+      if s~=nil and s then 
+         vars=s
+      end 
+   end
+   
+   m.Configs=function(t,t1)
+      t:AddDivider({
+         Text="Dance Variants",
+      })
+      t1:AddOptionsList("Variant",{
+         "Normal",
+         "Remake",
+      },vars.Variant, function(sel,s)
+         vars.Variant=sel
+      end)
+   end
+   
+   m.SavedConfigs=function()
+      return vars
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3")
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Hikari"
+   m.Name="Hikari"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description=""
+   }
+   m.CanBeConfigured=false 
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3")
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Default Dance"
+   m.Name="Default Dance"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="FORTY NIGHTY LA PABAJI\npabaji\nPABAJI LA EKES BOKES SERES EKES\npabaji\nPABAJI LA BALESTESHONFAIV\nbalesteshon... faiv...\nBALESTESHONFAIVI LA LUKITIK\nlukitik\nLUKITIKI LA HAYBAR EKES EKES EKES EKES\nhaybar ekes ekes ekes ekes\nHAYBAR EKES EKES EKES EKES E LA GIRANDIFIFDORIGINI\ngirandfifdoridini"
+   }
+   m.CanBeConfigured=false 
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3")
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Kemusan"
+   m.Name="Kemusan"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description=""
+   }
+   m.CanBeConfigured=false 
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3")
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Omni Man Flashbang"
+   m.Name="Omni Man Flashbang"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="😭"
+   }
+   m.CanBeConfigured=false 
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3")
+      anim=t:GetAnimator("Steve").new()
+      anim.Rig=t:GetFigureModel() 
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",true)
+      anim.Speed=1
+      anim.Looped=true
+      anim.Alpha=1
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Step(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Bouncin"
+   m.Name="Bouncin"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="Bouncin' Bouncin' Bouncin'"
+   }
+   m.CanBeConfigured=false 
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3")
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Shucks"
+   m.Name="Shucks"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="illwatchasyoubleedforiwarnedyouandwarnedyouyoudidnotheeditsyourfaultandherstoowhyididwhatididitwasallforyouawshucks"
+   }
+   m.CanBeConfigured=false 
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3")
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Teto Territory"
+   m.Name="Teto Territory"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="yaayayaya"
+   }
+   m.CanBeConfigured=false 
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3")
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Analog Horror Funk"
+   m.Name="Analog Horror Funk"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="im scared"
+   }
+   m.CanBeConfigured=false 
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3")
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Konton Boogie"
+   m.Name="Konton Boogie"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="boogie"
+   }
+   m.CanBeConfigured=false 
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3")
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Lil Buddy Was Sick"
+   m.Name="Lil Buddy Was Sick"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="I done got rich, even with no advice🤑🤑🤑"
+   }
+   m.CanBeConfigured=false 
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3",1.5)
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Go Mufasa"
+   m.Name="Go Mufasa"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="Go mufasa goo!\nDont reference the big j here buddy"
+   }
+   m.CanBeConfigured=false 
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3",1.5)
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Hit The Jackpot"
+   m.Name="Hit The Jackpot"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="When you actually hit the jackpot"
+   }
+   m.CanBeConfigured=false 
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3",1.5)
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Epical"
+   m.Name="Epical"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="When the moderators are epical"
+   }
+   m.CanBeConfigured=false 
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3",1.5)
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Montagem Xonada"
+   m.Name="Montagem Xonada"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description=""
+   }
+   m.CanBeConfigured=false 
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3")
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Encore"
+   m.Name="Encore"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description=""
+   }
+   m.CanBeConfigured=false 
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3",1.5)
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Number"
+   m.Name="Number"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="Number Number Number!!!"
+   }
+   m.CanBeConfigured=false 
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3")
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Bang Bang Bang"
+   m.Name="Bang Bang Bang"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="Bang Bang Bang till i take you down down down"
+   }
+   m.CanBeConfigured=false 
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3")
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Tetoris"
+   m.Name="Tetoris"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description=":D"
+   }
+   m.CanBeConfigured=false 
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3",3.5)
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
+
 
 
 return modules
