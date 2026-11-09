@@ -5319,6 +5319,12 @@ function Inv:AddItem(name,configureable,cb)
       local button=FakeButton:Clone()
       button.Parent=InventoryContainer
       button.Name=name
+      local t=Search.Text:lower()
+      if t=="" then
+         button.Visible=true
+      else
+         button.Visible=button.Name:lower():find(t,1,true)~=nil
+      end 
       local Stroke=FindChild(button,"UIStroke")
       local Button=FindChild(button,"Button")
       local eh={
