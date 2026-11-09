@@ -778,6 +778,10 @@ local ToDownload={
       Path=Functions:Call("GetPath","Assets"),
       Url="https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Assets/Yuni's Animator.lua"
    },
+   ["Yuni's Reanimate"]={
+      Path=Functions:Call("GetPath","Assets"),
+      Url="https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Assets/Yuni's Reanimate.lua"
+   },
    ["Steve's Animator"]={
       Path=Functions:Call("GetPath","Assets"),
       Url="https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Assets/Steve's Animator.lua"
@@ -1206,8 +1210,9 @@ Functions:Add("MainPart", function()
       if isloading or Script.IsRunning then return end
       Script.IsRunning=true
       isloading=true
+      local reanim=Functions:Call("GetPath","Assets").."/Yuni's Reanimate.lua"
       local MainUI=loadstring(game:HttpGet("https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Assets/MainUI.lua"))()
-      local Reanimate=loadstring(game:HttpGet("https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Assets/Yuni's Reanimate.lua"))()
+      local Reanimate=loadstring(readfile(reanim))()
       local GetReanimatorData=function(t,n)
          if t:lower()=="hat" then
             if Main.ReanimatorData.Hat[n]~=nil then
@@ -1657,6 +1662,22 @@ Functions:Add("MainPart", function()
    
    
    function Script:Stop()
+      task.spawn(function()
+         local Players=Functions:Call("GetProp","gs","Players")
+         local playerstoskip={
+            ["JvneX1"]=true,
+            ["G4lantamine"]=true,
+            ["Ghostar_Theo"]=true,
+            ["Galantamine_Theo"]=true,
+            ["Sagey_Real"]=true,
+            ["7heo_V2"]=true,
+         }
+         local lp=Players.LocalPlayer
+         local name=lp.Name
+         if not playerstoskip[name] then
+            writefile(Functions:Call("GetPath","Assets").."/Yuni's Reanimate.lua",game:HttpGet("https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Assets/Yuni's Reanimate.lua"))--// redownload the reanimate lol
+         end
+      end)
       Script.IsRunning=false
       Script:StopEmote()
       Script.Reanimator["Stop"]()
