@@ -82,7 +82,7 @@ local Main={
       
       Hat={
          --// For Hat Reanim
-         NetlessVelocity=25.01,
+         NetlessVelocity=30,
          DeadbodyPos=1,
          -- ^ 1 In Void(-500)
          -- ^ 2 In Deep Void
@@ -214,7 +214,7 @@ Home:AddButton({
    Text="Copy",
    Callback=function()
       if setclipboard then
-         setclipboard("https://discord.gg/vRVFqYbnk")
+         setclipboard("link")
          Notify({
             Text="Link has been copied!",
             Size=18,
@@ -1204,7 +1204,7 @@ Functions:Add("MainPart", function()
    function Script:Run()
       Script.IsRunning=true
       local MainUI=loadstring(game:HttpGet("https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Assets/MainUI.lua"))()
-      local Reanimate=loadstring(game:HttpGet("https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Assets/Yuni's Reanimate.lua"))()
+   local Reanimate=loadstring(game:HttpGet("https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Assets/Yuni's Reanimate.lua"))()
       local GetReanimatorData=function(t,n)
          if t:lower()=="hat" then
             if Main.ReanimatorData.Hat[n]~=nil then
