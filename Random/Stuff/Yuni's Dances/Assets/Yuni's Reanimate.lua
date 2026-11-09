@@ -2376,12 +2376,12 @@ Reanim.Start=function(data)
          end)
       end,
       SetLimbBreakjoints=function(v)
-         if Internal.HatReanimed then return end
          if (Internal.OnBreakJointsProcess or IsBreaking)==true then
             warn("Waiting for Breakjoints process to finish, please wait")
             repeat wait() until (Internal.OnBreakJointsProcess or IsBreaking)==false
          end 
          Internal.LimbBreakJoints=v
+         if Internal.HatReanimed then return end
          for name,acc in Reanim.Character:GetChildren() do
             if acc:GetAttribute("_Yuni_Cloned_Accs") then
                acc:Destroy()
