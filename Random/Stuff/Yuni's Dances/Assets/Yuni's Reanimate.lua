@@ -1324,7 +1324,7 @@ Reanim.Start=function(data)
          local MapEntryCounters={}
          local NameCounters={}
          --// Gelatek's Fake accessory v2 by me yayayayaya
-         local network=math.clamp(plr:GetNetworkPing(),0,.275)
+         local network=math.clamp(plr:GetNetworkPing(),.15,.275)
          local MapThisAccessory=function(acc)
             if acc:IsDescendantOf(Reanim.Character) then return end
             local RealName=acc.Name
@@ -1421,7 +1421,7 @@ Reanim.Start=function(data)
          local hrp=char:WaitForChild("HumanoidRootPart")
          rs["PostSimulation"]:Wait(.01)
          local Rhrp=Reanim.Character:FindFirstChild("HumanoidRootPart").CFrame 
-         local t=os.clock()+(.155+network) --// Should be enough to combat network ping 
+         local t=os.clock()+(.2+network) --// Should be enough to combat network ping 
          local flip=hrp.CFrame*CFrame.new(0,-3,0)*CFrame.Angles(-1.5707963267948966,0,0)
          while true do 
             if Internal.SpawnTp==1 then 
@@ -1528,6 +1528,17 @@ Reanim.Start=function(data)
       
       if not belowfpdh then
          if a.ReceiveAge~=0 then
+            if not state.claimboost then state.claimboost=clock end
+            local lostFor=clock-state.claimboost
+            if lostFor > 0.3 then
+               local Rhrp=Reanim.Character:FindFirstChild("HumanoidRootPart")
+               if Rhrp then
+                  local scale=Reanim.Character:GetScale()
+                  local rescueCF=Rhrp.CFrame * CFrame.new(TimeCos, 3*scale, TimeSin)
+                  a.CFrame=rescueCF
+               end
+            end
+            
             local age=math.clamp(a.ReceiveAge,.15,.2)
             local curp=a.Position
             local last=state.last
@@ -1566,23 +1577,36 @@ Reanim.Start=function(data)
                else
                   local fv=b.AssemblyLinearVelocity
                   local fxz=fv*v3_101
-                  a.AssemblyLinearVelocity=vn(fxz)+v3_010*(Axis*2)
+                  a.AssemblyLinearVelocity=vn(fxz)+v3_010*(Axis*1.5)
                end 
             else 
                state.claimed=clock
                local fv=b.AssemblyLinearVelocity
                local fxz=fv*v3_101
-               a.AssemblyLinearVelocity=fxz+v3_010*(Axis*2) --// Slightly increase Y velocity 
+               a.AssemblyLinearVelocity=fxz+v3_010*(Axis*1.5) --// Slightly increase Y velocity 
                --// also track x and z velocity from where its attached to
             end
          else
+            if state.claimboost then
+               local lostFor=clock-(state.claimboost or clock)
+               if lostFor > 0.3 then
+                  local Rhrp=Reanim.Character:FindFirstChild("HumanoidRootPart")
+                  if Rhrp then
+                     local scale=Reanim.Character:GetScale()
+                     a.CFrame=Rhrp.CFrame * CFrame.new(0, 3*scale, 0)
+                  end
+                  a.AssemblyLinearVelocity=Vector3.new(0, Axis*3, 0)
+                  state.claimed=nil
+               end
+               state.claimboost=nil
+            end
             state.claimed=nil
             local fv=b.AssemblyLinearVelocity
             local fxz=fv*v3_101
             if Internal.SpawnTp==2 or Internal.SpawnTp==3 then --// velocity isnt enough for these 2, we'll just increase it lol
                a.AssemblyLinearVelocity=(v3_010*(Axis*1.5))
             else
-               a.AssemblyLinearVelocity=(v3_010*(Axis*1.05))
+               a.AssemblyLinearVelocity=(v3_010*(Axis*1.085))
             end
             state.last=a.Position
          end
@@ -1652,7 +1676,7 @@ Reanim.Start=function(data)
       task.spawn(Internal.DoHatReanim,Internal.Character)
       task.spawn(Internal.DoBreakJoints,Internal.Character)
       
-      wait(.05)
+      wait(.015)
       for _,v in char:GetDescendants() do
          Internal.DescAdd(v)
       end
