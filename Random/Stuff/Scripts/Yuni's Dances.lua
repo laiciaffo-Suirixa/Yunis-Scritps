@@ -214,7 +214,7 @@ Home:AddButton({
    Text="Copy",
    Callback=function()
       if setclipboard then
-         setclipboard("link")
+         setclipboard("https://discord.gg/S3kH9zDhz")
          Notify({
             Text="Link has been copied!",
             Size=18,
@@ -1201,10 +1201,13 @@ Functions:Add("MainPart", function()
    
    
    --// Main
+   local isloading=false
    function Script:Run()
+      if isloading then return end
       Script.IsRunning=true
+      isloading=true
       local MainUI=loadstring(game:HttpGet("https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Assets/MainUI.lua"))()
-   local Reanimate=loadstring(game:HttpGet("https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Assets/Yuni's Reanimate.lua"))()
+      local Reanimate=loadstring(game:HttpGet("https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Assets/Yuni's Reanimate.lua"))()
       local GetReanimatorData=function(t,n)
          if t:lower()=="hat" then
             if Main.ReanimatorData.Hat[n]~=nil then
@@ -1243,6 +1246,7 @@ Functions:Add("MainPart", function()
          r["CharacterScale"](Main.ReanimatorData.ModelScale)
          r["SetNetlessVel"](Main.ReanimatorData.Hat.NetlessVelocity)
          r["SetSpawnTp"](Main.ReanimatorData.Hat.DeadbodyPos)
+         isloading=false
       end)
       MainUI:ChangeInfo({
          Title="No Emote",
