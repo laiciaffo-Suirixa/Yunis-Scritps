@@ -3178,7 +3178,7 @@ FunnyHotbar["Desc_D3"]["Active"] = true;
 FunnyHotbar["Desc_D3"]["Selectable"] = true;
 FunnyHotbar["Desc_D3"]["ScrollBarThickness"] = 0;
 FunnyHotbar["Desc_D3"]["ScrollBarImageColor3"] = Color3.fromRGB(255,255,255);
-FunnyHotbar["Desc_D3"]["CanvasSize"] = UDim2.new(0,0,2,0);
+FunnyHotbar["Desc_D3"]["CanvasSize"] = UDim2.new(0,0,4,0);
 FunnyHotbar["Desc_D3"]["AutomaticCanvasSize"] = Enum.AutomaticSize.Y;
 FunnyHotbar["Desc_D3"]["ScrollingDirection"] = Enum.ScrollingDirection.XY;
 FunnyHotbar["Desc_D3"]["VerticalScrollBarInset"] = Enum.ScrollBarInset.None;
@@ -3190,7 +3190,7 @@ FunnyHotbar["Desc_D3"]["Rotation"] = 0;
 FunnyHotbar["Desc_D3"]["AutoLocalize"] = true;
 FunnyHotbar["Desc_D3"]["BorderColor3"] = Color3.fromRGB(27,42,53);
 FunnyHotbar["Text_D4"]["Name"] = [[Text]];
-FunnyHotbar["Text_D4"]["Size"] = UDim2.new(1,0,2,0);
+FunnyHotbar["Text_D4"]["Size"] = UDim2.new(1,0,9,0);
 FunnyHotbar["Text_D4"]["Position"] = UDim2.new(0,0,0,0);
 FunnyHotbar["Text_D4"]["BackgroundColor3"] = Color3.fromRGB(163,162,165);
 FunnyHotbar["Text_D4"]["BackgroundTransparency"] = 1;
@@ -4268,18 +4268,14 @@ HotbarHandler.Position=Functions:Call("GetProp","u2",.5,0,2,0)
 local InventoryContainer=Inventory["Container"]
 local FakeButton=InventoryContainer["Tem"]
 FakeButton.Parent=nil
-
 Functions:Call("GetProp","gpcs",Search,"Text", function()
    local t=Search.Text:lower()
    for _,v in InventoryContainer:GetChildren() do
       if v:IsA("Frame") then 
-         local btn=FindChild(v,"TextButton")
-         if btn then 
-            if t=="" then
-               v.Visible=true
-            else
-               v.Visible=btn.Text:lower():find(t,1,true)~=nil
-            end 
+         if t=="" then
+            v.Visible=true
+         else
+            v.Visible=v.Name:lower():find(t,1,true)~=nil
          end 
       end 
    end 

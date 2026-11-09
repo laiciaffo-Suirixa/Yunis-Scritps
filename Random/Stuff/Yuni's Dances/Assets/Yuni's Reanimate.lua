@@ -63,33 +63,33 @@ Reanim.Get=function(a)
    elseif a=="uis" then
       return game:GetService("UserInputService")
    elseif a=="hb" then
-      return function(a) 
-         local con=game:GetService("RunService").Heartbeat:Connect(a) 
-         Reanim.Character.Destroying:Once(function()
+      return function(a,b) 
+         local con=game:GetService("RunService").Heartbeat:Connect(b) 
+         a.Destroying:Once(function()
             con:Disconnect()
          end) 
          return con 
       end 
    elseif a=="rens" then
-      return function(a) 
-         local con=game:GetService("RunService").RenderStepped:Connect(a) 
-         Reanim.Character.Destroying:Once(function()
+      return function(a,b) 
+         local con=game:GetService("RunService").RenderStepped:Connect(b) 
+         a.Destroying:Once(function()
             con:Disconnect()
          end) 
          return con 
       end 
    elseif a=="ps" then
-      return function(a) 
-         local con=game:GetService("RunService").PostSimulation:Connect(a) 
-         Reanim.Character.Destroying:Once(function()
+      return function(a,b) 
+         local con=game:GetService("RunService").PostSimulation:Connect(b) 
+         a.Destroying:Once(function()
             con:Disconnect()
          end) 
          return con 
       end 
    elseif a=="prs" then
-      return function(a) 
-         local con=game:GetService("RunService").PreSimulation:Connect(a) 
-         Reanim.Character.Destroying:Once(function()
+      return function(a,b) 
+         local con=game:GetService("RunService").PreSimulation:Connect(b) 
+         a.Destroying:Once(function()
             con:Disconnect()
          end) 
          return con 
@@ -101,7 +101,7 @@ Reanim.Get=function(a)
    elseif a=="mhv" then
       return function(a,b)
          local con=a.MouseEnter:Connect(b) 
-         Reanim.Character.Destroying:Once(function()
+         a.Destroying:Once(function()
             con:Disconnect()
          end) 
          return con
@@ -109,7 +109,7 @@ Reanim.Get=function(a)
    elseif a=="ml" then
       return function(a,b)
          local con=a.MouseLeave:Connect(b) 
-         Reanim.Character.Destroying:Once(function()
+         a.Destroying:Once(function()
             con:Disconnect()
          end) 
          return con
@@ -117,7 +117,7 @@ Reanim.Get=function(a)
    elseif a=="m1" then
       return function(a,b)
          local con=a.MouseButton1Click:Connect(b) 
-         Reanim.Character.Destroying:Once(function()
+         a.Destroying:Once(function()
             con:Disconnect()
          end) 
          return con
@@ -125,7 +125,7 @@ Reanim.Get=function(a)
    elseif a=="m1d" then
       return function(a,b)
          local con=a.MouseButton1Down:Connect(b) 
-         Reanim.Character.Destroying:Once(function()
+         a.Destroying:Once(function()
             con:Disconnect()
          end) 
          return con
@@ -133,7 +133,7 @@ Reanim.Get=function(a)
    elseif a=="fcl" then
       return function(a,b)
          local con=a.FocusLost:Connect(b) 
-         Reanim.Character.Destroying:Once(function()
+         a.Destroying:Once(function()
             con:Disconnect()
          end) 
          return con
@@ -141,7 +141,7 @@ Reanim.Get=function(a)
    elseif a=="ied" then
       return function(a,b)
          local con=a.InputEnded:Connect(b) 
-         Reanim.Character.Destroying:Once(function()
+         a.Destroying:Once(function()
             con:Disconnect()
          end) 
          return con
@@ -149,7 +149,7 @@ Reanim.Get=function(a)
    elseif a=="ibg" then
       return function(a,b)
          local con=a.InputBegan:Connect(b) 
-         Reanim.Character.Destroying:Once(function()
+         a.Destroying:Once(function()
             con:Disconnect()
          end) 
          return con
@@ -157,7 +157,7 @@ Reanim.Get=function(a)
    elseif a=="gpcs" then
       return function(a,b,c)
          local con=a:GetPropertyChangedSignal(b):Connect(c)
-         Reanim.Character.Destroying:Once(function()
+         a.Destroying:Once(function()
             con:Disconnect()
          end) 
          return con
@@ -173,7 +173,7 @@ Reanim.Get=function(a)
    elseif a=="ca" then
       return function(a,b)
          local con=a.ChildAdded:Connect(b) 
-         Reanim.Character.Destroying:Once(function()
+         a.Destroying:Once(function()
             con:Disconnect()
          end) 
          return con
@@ -181,7 +181,7 @@ Reanim.Get=function(a)
    elseif a=="cad" then
       return function(a,b)
          local con=a.CharacterAdded:Connect(b) 
-         Reanim.Character.Destroying:Once(function()
+         a.Destroying:Once(function()
             con:Disconnect()
          end) 
          return con
@@ -189,9 +189,15 @@ Reanim.Get=function(a)
    elseif a=="destroy" then
       return function(a) a.Parent=nil a:Destroy() end
    elseif a=="gs" then
-      return function(a) return game:GetService(a) end
+      return function(a) return cloneref(game:GetService(a)) end
    elseif a=="shp" then
-      return function(a,b,c) sethiddenproperty(a,b,c)end
+      return function(a,b,c) sethiddenproperty(a,b,c) end
+   elseif a=="insert" then
+      return function(a,b) table.insert(a,b) end
+   elseif a=="clear" then
+      return function(a) table.clear(a) end
+   elseif a=="tclone" then
+      return function(a) return table.clone(a) end
    end
 end
 Reanim.GetService=function(s) return Reanim.Get("gs")(s) end
@@ -382,6 +388,8 @@ Reanim.AddToRenderStep=function(f, li)
    return func
 end 
 
+
+Reanim.Attachments={}
 Reanim.CreateHumanoidCharacter=function()
    local Figure=Instance.new("Model")
    local Limbs={}
@@ -446,10 +454,10 @@ Reanim.CreateHumanoidCharacter=function()
    local HeadMesh=Instance.new("SpecialMesh")
    HeadMesh.Scale=Vector3.new(1.25, 1.25, 1.25)
    HeadMesh.Parent=Head
-   local Face=Instance.new("Decal")
-   Face.Name="face"
-   Face.Texture="http://www.roblox.com/asset/?id=158044781"
-   Face.Parent=Head
+   -- local Face=Instance.new("Decal")
+   -- Face.Name="face"
+   -- Face.Texture="http://www.roblox.com/asset/?id=158044781"
+   -- Face.Parent=Head
    local Animate=Instance.new("LocalScript")
    Animate.Name="Animate"
    Animate.Parent=Figure
@@ -487,6 +495,7 @@ Reanim.CreateHumanoidCharacter=function()
    Attachments[6].Parent=Limbs[1]; Attachments[7].Parent=Limbs[1]
    Attachments[8].Parent=Limbs[2]; Attachments[9].Parent=Limbs[2]
    Attachments[10].Parent=Limbs[3]; Attachments[11].Parent=Limbs[4]
+   Reanim.Attachments=Attachments
    for i=0,7 do Attachments[12 + i].Parent=Torso end
    Figure.Name="Gelatek Plexity"
    Figure.PrimaryPart=Head
@@ -784,6 +793,7 @@ Reanim.Start=function(data)
    local ReanimType=data.ReanimType or "Limb"
    local ToolVoid=data.Toolvoiding or true 
    local LimbBreakJoints=data.LimbBreakJoints or false 
+   local HatMapFile=data.HatMapFile or nil
    Reanim.InfiniteJump=data.InfJump or false
    Reanim.Noclip=data.NoClip or false
    Reanim.SmoothCam=data.SmoothCam or false
@@ -809,6 +819,8 @@ Reanim.Start=function(data)
    --// Stuffsss
    local Internal={}
    Internal.LimbBreakJoints=LimbBreakJoints
+   Internal.HatReanimed=ReanimType=="Hat" and true or false
+   
    Internal.SetM6D=function(m, t)
       m.MaxVelocity=9e9
       local _, _, ang=t:ToEulerAngles(Enum.RotationOrder.ZYX)
@@ -834,263 +846,6 @@ Reanim.Start=function(data)
       end 
    end 
    
-   --// Yuni's Tool Voiding
-   Internal.Voiding=false
-   Internal.UseToolVoid=function(Target, tablemmmmm)
-      if Internal.Voiding==true then return end
-      RemoveConnection("Dead")
-      Internal.Voiding=true
-      local v3=Vector3.new
-      local v0=Vector3.zero
-      local cf=CFrame.new
-      local ang=CFrame.Angles
-      local rad=math.rad
-      local rs=game.RunService
-      local ws=workspace
-      local rgb=Color3.fromRGB
-      local cam=ws.CurrentCamera
-      local nan=0/0
-      local ts=task.spawn
-      local isn=Instance.new
-      local Resp=false
-      local Cons={}
-      function Cons:Add(a,f)
-         if Cons[a] then
-            Cons[a]:Disconnect()
-            Cons[a]=nil
-         elseif not Cons[a] then 
-            Cons[a]=f
-         end
-      end
-      function Cons:Remove(a)
-         if Cons[a] then
-            Cons[a]:Disconnect()
-            Cons[a]=nil
-         end
-      end
-      local ps=rs.PostSimulation
-      local prs=rs.PreSimulation
-      local pr=rs.PreRender
-      local rst=rs.RenderStepped
-      local hb=rs.RenderStepped
-      local random=function(a,b) return math.random(a*1000,b*1000)/1000 end
-      local reproot=function(a,b) --// Replicate Target RootPart or any baseparts instantly 
-         pcall(function() sethiddenproperty(a, "PhysicsRepRootPart", b) end)
-      end
-      local ToObjectWithInverse=function(a,b,c)
-         a=b:ToObjectSpace(c):Inverse()
-      end
-      local ClearAnim=function(a)
-         pcall(function()
-            for _,t in pairs(a:GetPlayingAnimationTracks()) do
-               t:Stop()
-            end
-         end)
-      end
-      local New=function(i,p,t)
-         local ins=Instance.new(i,p)
-         if t~=nil then
-            for prop,v in next,t do
-               pcall(function() ins[prop]=v end)
-            end
-         end
-         return ins
-      end
-      local command=function(c)
-         game.ReplicatedStorage["01_server"]:FireServer("cmd", c)
-      end
-      local getname=function(n,n1)
-         return string.find(n.Name:lower(),n1:lower()) or n.Name:lower():find("^"..n1:lower())
-      end
-      local track=function(insrbx,start,en,incre,rate,f)
-         local co
-         local sv=start
-         local en=en
-         local incre=incre
-         co=insrbx:Connect(function(e)
-            if f and type(f)=="function" then
-               f(e)
-            end 
-            while sv<=en do
-               if sv>=en then break end
-               sv+=incre
-               wait(rate or 0)
-            end
-            co:Disconnect()
-            if f and type(f)=="function" then
-               f(e)
-            end 
-         end)
-      end
-      local setstate=function(h,s)
-         h:ChangeState(s)
-      end
-      local setfpdh=function(n:number) ws["FallenPartsDestroyHeight"]=n end
-      local Tool=nil
-      local lp=game.Players.LocalPlayer
-      local char=Internal.Character
-      local bp=lp.Backpack
-      local hrp=char:WaitForChild("HumanoidRootPart")
-      local oldpos=hrp.CFrame
-      local Impulse=function(a,b) a:ApplyImpulse(b,true) end
-      local fixtp=function(a,b,c1,d)
-         local tpart=b
-         local ppart=a
-         if tpart then
-            tpart.Velocity=v3()
-            tpart.RotVelocity=v3()
-            local invrot=tpart.CFrame.Rotation:Inverse()
-            local cpos=invrot*(tpart.CFrame.Rotation*v3((d~=nil and d.x or 0), (d~=nil and d.y or 0), (d~=nil and d.z or 0)))
-            local crot=invrot*(tpart.CFrame.Rotation*ang(rad((d~=nil and d.xr or 0)), rad((d~=nil and d.yr or 0)), rad((d~=nil and d.zr or 0))))
-            ppart.CFrame=cf(cpos)*crot
-         end
-      end 
-      for i=1,1 do
-         local tchar=Target
-         if not tchar and tchar==nil or tchar.Name==Reanim.Character.Name then break end
-         local tcharhum=tchar.Humanoid
-         if tcharhum.Health<1 then break end -- Return if the target is reanimated or dead
-         if i>=4 and tcharhum.Health>=1 then break end
-         local tcroot=tchar:FindFirstChild("HumanoidRootPart")
-         if not tcroot then break end
-         if bp:FindFirstChildOfClass("Tool") then
-            Tool=bp:FindFirstChildOfClass("Tool")
-         elseif char:FindFirstChildOfClass("Tool") then
-            Tool=char:FindFirstChildOfClass("Tool")
-         else 
-            return
-         end
-         Tool.Parent=bp 
-         local new=char
-         local fakehrp=hrp:Clone()
-         for _,v in fakehrp:GetChildren() do
-            v:Destroy()
-         end
-         track(lp.CharacterAdded,0,3,.1,.15, function(c)
-            repeat wait() until not Internal.Voiding 
-            fakehrp:Destroy()
-            new=c
-            local hrp=lp.Character:WaitForChild("HumanoidRootPart")
-            hrp.CFrame=oldpos
-            Voiding=false
-            hrp.AssemblyAngularVelocity=v3(0,0,0)
-         end)
-         
-         if Tool~=nil then
-            setfpdh(nan)
-            local c0,c1,c2 --// RunService Connections
-            local active=false
-            local Arm=cf()
-            local hum
-            local looprep=0
-            local bv=isn("BodyVelocity")
-            bv.MaxForce=v3(0,-10e+4,0)
-            bv.P=-10e+4
-            bv.Velocity=v3(0,-10e+4,0)
-            local bv1=isn("BodyVelocity")
-            bv1.MaxForce=v3(-5e+20,0,-5e+20,0,-5e+20,0)
-            bv1.P=-5e+20
-            bv1.Velocity=v3(-5e+20,0,-5e+20,0,-5e+20,0)
-            local ba=isn("BodyAngularVelocity")
-            ba.MaxTorque=v3(0,-5e+9,0)
-            ba.P=-5e+9
-            ba.AngularVelocity=v3(0,-5e+20,0)
-            local ba1=isn("BodyAngularVelocity")
-            ba1.MaxTorque=v3(0,-5e+5,0)
-            ba1.P=-5e+20
-            ba1.AngularVelocity=v3(0,-5e+20,0)
-            task.spawn(function()
-               local m=0
-               repeat 
-                  ps:Wait()
-                  pcall(function()
-                     if not Tool then return end
-                     local height=tcharhum.JumpPower/15
-                     tcroot.CFrame=han.CFrame*cf(0,2+height,0)
-                     tcroot.Velocity=v3(0,-1000,0)
-                     tcroot.RotVelocity=v3(0,-1000,0)
-                     prs:Wait()
-                     tcroot.AssemblyLinearVelocity=v3()
-                     tcroot.AsssemblyAngularVelocity=v3()
-                  end)
-                  m+=1
-               until Tool.Parent==tchar or m>=50
-            end)
-            fakehrp.Parent=ws
-            fakehrp.CFrame=oldpos
-            fakehrp.Anchored=true
-            local hum=char:FindFirstChildOfClass("Humanoid"):Clone()
-            char:FindFirstChildOfClass("Humanoid"):Destroy()
-            hum.Parent=char
-            setfpdh(nan)
-            Tool.Parent=bp
-            reproot(hrp,tcroot)
-            Tool.Enabled=false
-            local han=Tool.Handle
-            local height=tcharhum.JumpPower/15
-            local network=math.clamp(lp:GetNetworkPing(),0,1)
-            hum:EquipTool(Tool)
-            local elapsed=0
-            bv.Parent=hrp
-            ba.Parent=hrp
-            Tool.Grip=cf(-1000,0,0)
-            if tcharhum.Health>=0 then
-               tcharhum.BreakJointsOnDeath=false 
-            end 
-            tcroot.CFrame=hrp.CFrame
-            local dist=(hrp.Position-tcroot.Position).Magnitude*.1+network 
-            ps:Wait(dist-(network/1.5+(tcharhum.JumpPower/20)))
-            cam.CameraSubject=fakehrp
-            hrp.CFrame=hrp.CFrame*cf(0,-500,0)
-            task.spawn(function()
-               local elap=0
-               while elap<=100 or char==new do
-                  ps:Wait()
-                  tcroot.CFrame=han.CFrame
-                  elap+=1
-               end
-            end)
-            while Tool and han or elapsed<=100 do
-               if not Tool or Tool.Parent==tchar or char~=new then break end
-               prs:Wait()
-               elapsed+=1
-               tcroot.CFrame=han.CFrame
-               hrp.RotVelocity=v3(0,-500000,0)
-               hrp.Velocity=v3(0,-10e+7,0)
-               rst:Wait()
-               setstate(tcharhum,"Dead")
-               tcroot.CFrame=han.CFrame
-            end
-            if Tool and Tool.Parent==tchar then 
-               local didonce=false
-               AddConnection("Dead",tchar.ChildRemoved:Connect(function(l)
-                  if l:IsA("BasePart") and l.Name=="HumanoidRootPart" and not didonce then
-                     RemoveConnection("Dead")
-                     didonce=true
-                     game.ReplicatedStorage["01_server"]:FireServer("cmd", "-re ")
-                     if type(tablemmmmm)=="function" then task.spawn(tablemmmmm) end
-                  end
-               end))
-            end
-            setfpdh(-50000)
-            hrp.CFrame=hrp.CFrame*cf(0,-50001,0)
-            Internal.Voiding=false
-            Internal.Killing=false
-            new=char
-            command("-re")
-            setstate(hum,"Dead")
-            setstate(tcharhum,"Dead")
-            fakehrp:Destroy()
-            new:Destroy()
-         end
-         Internal.Voiding=false
-         Internal.Killing=false
-      end
-      Internal.Voiding=false
-      Internal.Killing=false
-   end 
-   
-   
    Internal.SetHumState=function(h, type, e)
       h:ChangeState(type, e)
    end
@@ -1111,7 +866,7 @@ Reanim.Start=function(data)
       end
    end 
    --// Mapping the limbs
-   Internal.PermadeathLimbMap={
+   Internal.R6LimbMap={
       --// R6
       ["Torso"]="Torso",
       ["Left Arm"]="Left Arm",
@@ -1264,7 +1019,7 @@ Reanim.Start=function(data)
             end)
          end
       elseif a:IsA("Motor6D") then
-         if Internal.LimbBreakJoints then if a.Name~="Neck" then a:Destroy() end return end
+         if Internal.LimbBreakJoints and Internal.HatReanimed==false then if a.Name~="Neck" then a:Destroy() end return end
          repeat wait() until not a:IsDescendantOf(ws) or (a.Part0 and a.Part1)
          if not a:IsDescendantOf(ws) then return end
          local p0n=a.Part0.Name
@@ -1306,7 +1061,7 @@ Reanim.Start=function(data)
             end)
             client.Destroying:Connect(function() prscon:Disconnect() end)
          end
-      elseif a:IsA("Accessory") and Internal.LimbBreakJoints then
+      elseif a:IsA("Accessory") and Internal.LimbBreakJoints and Internal.HatReanimed==false then
          Internal.Accessories[a.Name]=a
       end
    end
@@ -1329,14 +1084,14 @@ Reanim.Start=function(data)
             Internal.LastRepeat=c-a
          end
       end
-      if Internal.Killing or Internal.LimbBreakJoints then return end
+      if Internal.LimbBreakJoints or Internal.HatReanimed then return end
+      Root.CFrame=RootCF
       for _,v in Internal.NotKnownMotors do
          if Internal.LimbBreakJoints then continue end
          Internal.SetM6D(v, CFrame.identity)
       end
       for i,m in Internal.LimbMapping do
          local mref=m.Ref
-         if Internal.LimbBreakJoints then return end
          if mref then
             if Target then 
                Internal.SetM6D(mref, CFrame.identity)
@@ -1360,23 +1115,20 @@ Reanim.Start=function(data)
                Internal.SetM6Offset(mref, m.CFrame)
             end
          end 
-         Root.CFrame=RootCF
       end 
    end
    
    Internal.Character=Reanim.GetService("Players").LocalPlayer.Character
    Internal.OldCharacter=Reanim.GetService("Players").LocalPlayer.Character
-   Internal.IsPerma=false
-   Internal.Killing=false
-   Internal.OnPermaProcess=false
-   Internal.PermRespCount=0
-   Internal.OnChangeChar=false
-   Internal.DoPerma=function(eskip)
-      if Internal.LimbBreakJoints then
-         Internal.OnPermaProcess=true
-         wait(.2)
+   Internal.IsBreakJoints=false
+   Internal.OnBreakJointsProcess=false
+   Internal.Running=true
+   Internal.DoBreakJoints=function(c)
+      if (Internal.LimbBreakJoints and Internal.HatReanimed==false) then
+         Internal.OnBreakJointsProcess=true
+         local this=Internal.Character
          local HatsNames={}
-         for Index, Accessory in Internal.Character:GetDescendants() do
+         for Index, Accessory in this:GetDescendants() do
             if Accessory:IsA("Accessory") then
                if HatsNames[Accessory.Name] then
                   if HatsNames[Accessory.Name] == "Unknown" then
@@ -1398,9 +1150,9 @@ Reanim.Start=function(data)
             end
          end
          table.clear(HatsNames)
-         local Connect=Reanim.Get("da")(Internal.Character, function(v)
+         local Connect=Reanim.Get("da")(this, function(v)
             if v:IsDescendantOf(Reanim.Character) then return end
-            if v:IsA("Motor6D") and v.Name~="Neck" then
+            if v:IsA("Motor6D") then
                v:Destroy()
             elseif v:IsA("Script") then
                v.Enabled=false
@@ -1408,27 +1160,38 @@ Reanim.Start=function(data)
                Internal.Accessories[v.Name]=v
                local FakeAccessory=v:Clone()
                local Handle=FakeAccessory:FindFirstChild("Handle")
-               pcall(function() Handle:FindFirstChildWhichIsA("Weld"):Destroy() end)
-               local Weld=Instance.new("Weld"); do
-                  Weld.Name="AccessoryWeld"
-                  Weld.Part0=Handle
+               if not Handle then FakeAccessory:Destroy() return end
+               task.spawn(function()
+                  pcall(function() Handle:FindFirstChildWhichIsA("Weld"):Destroy() end)
+                  local oldsize=Handle.Size
+                  Reanim.Get("gpcs")(Handle,"Size", function()
+                     if Handle.Size~=oldsize then Handle.Size=oldsize end
+                  end)
+                  local Weld=Instance.new("Weld"); do
+                     Weld.Name="AccessoryWeld"
+                     Weld.Part0=Handle
+                  end
+                  repeat wait() until Handle:FindFirstChildOfClass("Attachment")
+                  local Attachment=Handle:FindFirstChildOfClass("Attachment")
+                  if Attachment then
+                     Weld.C0=Attachment.CFrame
+                     Weld.C1=Reanim.Character:FindFirstChild(tostring(Attachment), true).CFrame
+                     Weld.Part1=Reanim.Character:FindFirstChild(tostring(Attachment), true).Parent
+                  else
+                     Weld.Part1=Reanim.Character:FindFirstChild("Head")
+                     Weld.C1=CFrame.new(0,this.Head.Size.Y/2,0) * FakeAccessory.AttachmentPoint:Inverse()
+                  end
+                  Handle.CFrame=Weld.Part1.CFrame * Weld.C1 * Weld.C0:Inverse()
+                  Handle.Transparency=1
+                  Weld.Parent=Handle
+               end)
+               FakeAccessory:SetAttribute("_Yuni_Cloned_Accs",true)
+               if not Reanim.Character:FindFirstChild(v.Name) then
+                  FakeAccessory.Parent=Reanim.Character
                end
-               local Attachment=Handle:FindFirstChildOfClass("Attachment")
-               if Attachment then
-                  Weld.C0=Attachment.CFrame
-                  Weld.C1=Reanim.Character:FindFirstChild(tostring(Attachment), true).CFrame
-                  Weld.Part1=Reanim.Character:FindFirstChild(tostring(Attachment), true).Parent
-               else
-                  Weld.Part1=Reanim.Character:FindFirstChild("Head")
-                  Weld.C1=CFrame.new(0,Reanim.Character:FindFirstChild("Head").Size.Y / 2,0) * FakeAccessory.AttachmentPoint:Inverse()
-               end
-               Handle.CFrame=Weld.Part1.CFrame * Weld.C1 * Weld.C0:Inverse()
-               Handle.Transparency=1
-               Weld.Parent=Handle
-               FakeAccessory.Parent=Reanim.Character
             end
          end)
-         for _,v in Internal.Character:GetDescendants() do
+         for _,v in this:GetDescendants() do
             if v:IsDescendantOf(Reanim.Character) then return end
             if v:IsA("Motor6D") then
                v:Destroy()
@@ -1437,147 +1200,438 @@ Reanim.Start=function(data)
             elseif v:IsA("BasePart") then
                v.CanCollide=false
             elseif v:IsA("Accessory") then
-               Internal.Accessories[v.Name]=v
-               local FakeAccessory=v:Clone()
-               local Handle=FakeAccessory:FindFirstChild("Handle")
-               pcall(function() Handle:FindFirstChildWhichIsA("Weld"):Destroy() end)
-               local Weld=Instance.new("Weld"); do
-                  Weld.Name="AccessoryWeld"
-                  Weld.Part0=Handle
-               end
-               local Attachment=Handle:FindFirstChildOfClass("Attachment")
-               if Attachment then
-                  Weld.C0=Attachment.CFrame
-                  Weld.C1=Reanim.Character:FindFirstChild(tostring(Attachment), true).CFrame
-                  Weld.Part1=Reanim.Character:FindFirstChild(tostring(Attachment), true).Parent
-               else
-                  Weld.Part1=Reanim.Character:FindFirstChild("Head")
-                  Weld.C1=CFrame.new(0,Reanim.Character:FindFirstChild("Head").Size.Y / 2,0) * FakeAccessory.AttachmentPoint:Inverse()
-               end
-               Handle.CFrame=Weld.Part1.CFrame * Weld.C1 * Weld.C0:Inverse()
-               Handle.Transparency=1
-               Weld.Parent=Handle
-               if not Reanim.Character:FindFirstChild(FakeAccessory.Name) then
-                  FakeAccessory.Parent=Reanim.Character
-               end
+               task.spawn(function()
+                  local FakeAccessory=v:Clone()
+                  local Handle=FakeAccessory:FindFirstChild("Handle")
+                  if not Handle then return end
+                  Internal.Accessories[v.Name]=v 
+                  task.spawn(function()
+                     pcall(function() Handle:FindFirstChildWhichIsA("Weld"):Destroy() end)
+                     local oldsize=Handle.Size
+                     Reanim.Get("gpcs")(Handle,"Size", function()
+                        if Handle.Size~=oldsize then Handle.Size=oldsize end
+                     end)
+                     local Weld=Instance.new("Weld"); do
+                        Weld.Name="AccessoryWeld"
+                        Weld.Part0=Handle
+                     end
+                     repeat wait() until Handle:FindFirstChildOfClass("Attachment")
+                     local Attachment=Handle:FindFirstChildOfClass("Attachment")
+                     if Attachment then
+                        Weld.C0=Attachment.CFrame
+                        Weld.C1=Reanim.Character:FindFirstChild(tostring(Attachment), true).CFrame
+                        Weld.Part1=Reanim.Character:FindFirstChild(tostring(Attachment), true).Parent
+                     else
+                        Weld.Part1=Reanim.Character:FindFirstChild("Head")
+                        Weld.C1=CFrame.new(0,this.Head.Size.Y/2,0) * FakeAccessory.AttachmentPoint:Inverse()
+                     end
+                     Handle.CFrame=Weld.Part1.CFrame * Weld.C1 * Weld.C0:Inverse()
+                     Handle.Transparency=1
+                     Weld.Parent=Handle
+                  end)
+                  Internal.Accessories[v.Name]=v
+                  FakeAccessory:SetAttribute("_Yuni_Cloned_Accs",true)
+                  if not Reanim.Character:FindFirstChild(v.Name) then
+                     FakeAccessory.Parent=Reanim.Character
+                  end
+               end)
             end
          end
          local elapsed=0
-         if eskip then
-            plr.Character=Reanim.Character
-         end
-         Internal.PermRespCount+=1
-         repeat
-            wait()
-            elapsed+=.1
-         until elapsed>=plrs.RespawnTime+.5 or Internal.LimbBreakJoints
-         pcall(function()
-            Internal.Character:FindFirstChild("Head"):BreakJoints()
+         local hrp=this:WaitForChild("HumanoidRootPart")
+         Reanim.Get("gpcs")(hrp,"CanCollide", function()
+            if hrp.CanCollide then hrp.CanCollide=false end 
+         end)
+         task.spawn(function()
+            while true do
+               rs["PreSimulation"]:Wait()
+               hrp.CanCollide=false
+               if not hrp or this:WaitForChild("Humanoid").Health==0 then break end 
+            end 
          end)
          for n,a in Internal.Accessories do
-            pcall(function() Ineternal.Character:WaitForChild(n):WaitForChild("Handle"):BreakJoints() end)
+            local ok=pcall(function() this:WaitForChild(n,.2):FindFirstChild("Handle"):BreakJoints() end)
+            if not ok then
+               pcall(function() Reanim.Character:FindFirstChild(n):Destroy() end)
+               Internal.Accessories[n]=nil
+               continue 
+            end
          end
-         Internal.IsPerma=true
-         Internal.OnPermaProcess=false
+         Internal.IsBreakJoints=true
+         Internal.OnBreakJointsProcess=false
       end
    end
    
-   Internal.RefreshPerma=function()
-      if Internal.LimbBreakJoints then
-         local HatsNames={}
-         Internal.IsPerma=false
-         Internal.OnPermaProcess=true
-         for Index, Accessory in pairs(Internal.Character:GetDescendants()) do
-            if Accessory:IsA("Accessory") then
-               if HatsNames[Accessory.Name] then
-                  if HatsNames[Accessory.Name] == "Unknown" then
-                     HatsNames[Accessory.Name]={}
-                  end
-                  table.insert(HatsNames[Accessory.Name], Accessory)
+   
+   
+   --// Hat Reanim
+   local HatMap,HatNameMap=loadstring(readfile(HatMapFile))()
+   Internal.HatData=HatMap
+   Internal.HatClaimState={}
+   Internal.SpawnTp=1
+   -- ^ 1 In Void
+   -- ^ 2 Near reanimate character
+   -- ^ 3 Stay at spawn 
+   
+   
+   Internal.DoHatReanim=function(c)
+      --// Will be set on char added
+      if Internal.HatReanimed then
+         Internal.OnBreakJointsProcess=true
+         Internal.IsBreakJoints=false
+         local char=c
+         task.spawn(function()
+            for n,a in Internal.Accessories do
+               local ok=pcall(function() char:WaitForChild(n,.75) end)
+               if not ok then
+                  pcall(function() Reanim.Character:FindFirstChild(n):Destroy() end)
+                  Internal.Accessories[n]=nil
+                  continue
+               end
+            end
+         end)
+         
+         local FString=function(a,b) 
+            if a==nil then return end
+            if b==nil then return end
+            a=a:lower()
+            b=b:lower()
+            return string.find(a,b)~=nil or a:find("^"..b)~=nil
+         end
+         local GetAccessoryMap=function(handle)
+            local mesh,text
+            if handle:IsA("MeshPart") then
+               mesh=handle.MeshId
+               text=handle.TextureID
+            else
+               local sm=handle:FindFirstChildOfClass("SpecialMesh")
+               if sm then 
+                  mesh=sm.MeshId; 
+                  text=sm.TextureId 
+               end
+            end
+            if not mesh or not text then 
+               return nil
+            end
+            for _,d in Internal.HatData do
+               if FString(mesh,d.m) and FString(text,d.t) then
+                  return d
+               end
+            end
+            return nil
+         end
+         
+         
+         local MapEntryCounters={}
+         local NameCounters={}
+         --// Gelatek's Fake accessory v2 by me yayayayaya
+         local network=math.clamp(plr:GetNetworkPing(),0,.25)
+         local MapThisAccessory=function(acc)
+            if acc:IsDescendantOf(Reanim.Character) then return end
+            local RealName=acc.Name
+            NameCounters[RealName]=(NameCounters[RealName] or 0)+1
+            local NumericName=RealName..NameCounters[RealName]
+            acc.Name=NumericName
+            local FakeAcc=acc:Clone()
+            local Handle=FakeAcc:FindFirstChild("Handle")
+            if not Handle then FakeAcc:Destroy() return end
+            Handle.AssemblyLinearVelocity=Vector3.new()
+            Handle.AssemblyAngularVelocity=Vector3.new()
+            local MappedHandle=GetAccessoryMap(Handle)
+            task.spawn(function()
+               pcall(function() Handle:FindFirstChildWhichIsA("Weld"):Destroy() end)
+               
+               local oldsize=Handle.Size
+               Reanim.Get("gpcs")(Handle,"Size", function()
+                  if Handle.Size~=oldsize then Handle.Size=oldsize end
+               end)
+               
+               local DoWeld=function(Limb,C0)
+                  local Part=Reanim.Character:FindFirstChild(Limb)
+                  if not Part then return end
+                  local Weld=Instance.new("Weld")
+                  Weld.Name="AccessoryWeld"
+                  Weld.Part0=Handle
+                  Weld.Part1=Part
+                  Weld.C0=C0 or CFrame.identity
+                  Weld.C1=CFrame.identity
+                  Handle.CFrame=Part.CFrame * Weld.C1 * Weld.C0:Inverse()
+                  Handle.Transparency=1
+                  Weld.Parent=Handle
+               end
+               
+               local GetAttachment=function(name)
+                  for _,a in Reanim.Attachments do
+                     if a.Name:lower()==name:lower() then 
+                        return a
+                     end
+                  end 
+               end
+               
+               if MappedHandle then
+                  local Limb=MappedHandle.Limb
+                  local C0=MappedHandle.Offset
+                  if type(Limb)=="table" then
+                     local EntryKey=MappedHandle.m:lower().."_"..MappedHandle.t:lower()
+                     MapEntryCounters[EntryKey]=(MapEntryCounters[EntryKey] or 0)+1
+                     local Index=MapEntryCounters[EntryKey]
+                     local TargetLimb=Limb[((Index-1) % #Limb)+1]
+                     DoWeld(TargetLimb, C0) 
+                  else 
+                     DoWeld(Limb, C0) 
+                  end 
                else
-                  HatsNames[Accessory.Name]="Unknown"
-               end
+                  repeat wait() until Handle:FindFirstChildOfClass("Attachment") or not Handle.Parent
+                  if not Handle.Parent then return end
+                  
+                  --// We clone the accessory to the reanim character then we just align from hat map
+                  local Attachment=Handle:FindFirstChildOfClass("Attachment")
+                  local Weld=Instance.new("Weld")
+                  Weld.Name="AccessoryWeld"
+                  Weld.Part0=Handle
+                  if Attachment then
+                     local Attach=GetAttachment(Attachment.Name)
+                     local scale=Reanim.Character:GetScale()
+                     if Attach then
+                        Weld.C0=Attachment.CFrame
+                        Weld.C1=CFrame.new(Attach.Rotation+(Attach.Position*scale))
+                        Weld.Part1=Attach.Parent
+                     end
+                  end
+                  if not Weld.Part1 then
+                     local head=Reanim.Character.Head
+                     Weld.Part1=head
+                     Weld.C1=CFrame.new(0,Reanim.Character.Head.Size.Y/2, 0)*FakeAcc.AttachmentPoint:Inverse()
+                  end
+                  Handle.CFrame=Weld.Part1.CFrame*Weld.C1*Weld.C0:Inverse()
+                  Handle.Transparency=1
+                  Weld.Parent=Handle
+               end 
+            end)
+            Internal.Accessories[NumericName]=acc
+            FakeAcc:SetAttribute("_Yuni_Cloned_Accs",true)
+            acc.Handle:BreakJoints()
+            if not Reanim.Character:FindFirstChild(NumericName) then
+               FakeAcc.Parent=Reanim.Character
+            else
+               FakeAcc:Destroy()
+            end
+         end 
+         workspace["FallenPartsDestroyHeight"]=-500 
+         fpdh=workspace["FallenPartsDestroyHeight"]
+         local hrp=char:WaitForChild("HumanoidRootPart")
+         rs["PostSimulation"]:Wait(.01)
+         local Rhrp=Reanim.Character:FindFirstChild("HumanoidRootPart").CFrame 
+         local t=os.clock()+(.155+network) --// Should be enough to combat network ping 
+         local flip=hrp.CFrame*CFrame.new(0,-3,0)*CFrame.Angles(-1.5707963267948966,0,0)
+         while true do 
+            if Internal.SpawnTp==1 then 
+               hrp.CFrame=Rhrp*CFrame.new(0,fpdh+.5+(network/5),0)*CFrame.Angles(-1.5707963267948966,0,0)
+               hrp.AssemblyLinearVelocity=Vector3.new()
+               hrp.AssemblyAngularVelocity=Vector3.new()
+            elseif Internal.SpawnTp==2 then 
+               hrp.CFrame=Rhrp*CFrame.new(1.5*(Reanim.Character:GetScale()+1),0-(Reanim.Character:GetScale()*2.75),4*(Reanim.Character:GetScale()+1))*CFrame.Angles(-1.5707963267948966,0,0)
+               hrp.AssemblyLinearVelocity=Vector3.new(0,10,0)
+               hrp.AssemblyAngularVelocity=Vector3.new()
+            elseif Internal.SpawnTp==3 then
+               hrp.CFrame=flip
+               hrp.AssemblyLinearVelocity=Vector3.new()
+               hrp.AssemblyAngularVelocity=Vector3.new() 
+            end
+            rs["PostSimulation"]:Wait()
+            if os.clock()>=t then break end
+         end
+         local h=char:FindFirstChild("Humanoid")
+         if hrp then
+            if h then
+               replicatesignal(h["ServerBreakJoints"])
+            else
+               char:BreakJoints()
             end
          end
-         for Index, Tables in pairs(HatsNames) do
-            if type(Tables) == "table" then
-               local Number=1
-                  for Index2, Names in ipairs(Tables) do
-                  Names.Name=Names.Name .. Number
-                  Number=Number + 1
-               end
+         
+         local Connect
+         Connect=Reanim.Get("da")(char, function(v)
+            if v:IsDescendantOf(Reanim.Character) then return end
+            if not Internal.Running then Connect:Disconnect() return end
+            if v:IsA("Accessory") then
+               MapThisAccessory(v)
+            end
+         end)
+         
+         for _,v in char:GetDescendants() do
+            if v:IsDescendantOf(Reanim.Character) then continue end
+            if v:IsA("Accessory") then
+               task.spawn(function()
+                  MapThisAccessory(v)
+               end)
             end
          end
-         for _,v in Internal.Character:GetChildren() do
-            if v:IsA("Motor6D") and v.Name~="Neck"then
-               v:Destroy()
-            elseif v:IsA("Script") then
-               v.Enabled=false
-            elseif v:IsA("Accessory") then
-               Internal.Accessories[v.Name]=v
-            end
-         end
-         table.clear(HatsNames)
-         local elapsed=0
-         if Internal.PermRespCount>=3 then
-            -- task.delay(.1,function() plr.Character=Reanim.Character end)
-            Internal.PermRespCount=0
-         end
-         Internal.PermRespCount+=1
-         repeat
-            wait()
-            elapsed+=.15
-         until elapsed>=plrs.RespawnTime+.5 or not Internal.LimbBreakJoints
-         if Internal.LimbBreakJoints then Internal.Character:FindFirstChild("Head"):BreakJoints() end
-         if Internal.LimbBreakJoints then Internal.Character:FindFirstChild("Humanoid").Health=0 end
-         for n,a in Internal.Accessories do
-            pcall(function() Ineternal.Character:WaitForChild(n):WaitForChild("Handle"):BreakJoints() end)
-         end
-         Internal.IsPerma=true
-         Internal.OnPermaProcess=false
-      end
-   end
+         rs["PostSimulation"]:Wait(.01)
+         Internal.OnBreakJointsProcess=false 
+         rs["PostSimulation"]:Wait(.05)
+         Internal.IsBreakJoints=true
+      end 
+   end 
    
-   Internal.Align=function(a,b)
-      local funny="0."..Reanim.Get("mr")(6,8)..Reanim.Get("mr")(1,9)..Reanim.Get("mr")(1,9)
-      funny=tonumber(funny)
-      a.AssemblyLinearVelocity=Reanim.Get("v3")(Reanim.Get("random")(-2,2),30+funny,Reanim.Get("random")(-2,2))+Reanim.Character:FindFirstChild("Humanoid").MoveDirection*(b.Mass*10)
-      a.CFrame=b.CFrame*CFrame.new(0.00085 * math.cos(os.clock() * 10), 0.00085 * math.sin(os.clock() * 10), 0)
+   
+   Internal.YVel=30
+   
+   --// By the power of patchmas netless...
+   Internal.Align=function(a,b,dt)
       a.RotVelocity=b.RotVelocity
       a.CanCollide=false
       b.CanCollide=false
+      
+      local limit=3000
+      local v3_010=Vector3.new(0,1,0)
+      local v3_101=Vector3.new(1,0,1)
+      local v3xz=v3_101*10
+      local clock=os.clock()
+      local vmag=vector.magnitude
+      local vn=vector.normalize
+      local PPart=b
+      local claimpos=PPart.Position
+      local Axis=(Internal.IsBreakJoints==false and Internal.YVel*1.5 or Internal.YVel)+(math.sin((clock*.5)+1)/2)
+      local state=Internal.HatClaimState[a.Name]
+      if not state then
+         state={last=a.Position, claimed=nil}
+         Internal.HatClaimState[a.Name]=state
+      end
+      
+      local sine15=clock*15
+      local idlerv=Vector3.new(math.sin(sine15),math.cos(sine15+1.047),math.cos(sine15+2.094))
+      local idleoff=idlerv*.001
+      local idlemag=vmag(idleoff)
+      
+      
+      local TimeCos=.0001*math.cos(os.clock()*15)
+      local TimeSin=.0001*math.sin(os.clock()*15)
+      
+      local destroy=fpdh+4
+      local handleY=a.Position.Y
+      local belowfpdh=handleY<destroy
+      
+      if belowfpdh then
+         local safe=state.safe or Vector3.new(a.Position.X, destroy, a.Position.Z)
+         local safeCF=CFrame.new(safe.X, destroy+10, safe.Z) * a.CFrame.Rotation
+         a.CFrame=safeCF
+         local lift=math.max(0, destroy-handleY)
+         local YVel=math.max(Axis*2, lift*25)
+         local curvel=a.AssemblyLinearVelocity
+         a.AssemblyLinearVelocity=Vector3.new(curvel.X, YVel, curvel.Z)
+         a.Massless=true
+         a.CustomPhysicalProperties=PhysicalProperties.new(0.01,0,0,0,0)
+         state.claimed=nil
+      else
+         state.safe=a.Position
+      end
+      
+      if not belowfpdh then
+         if a.ReceiveAge~=0 then
+            local age=math.clamp(a.ReceiveAge,.15,.2)
+            local curp=a.Position
+            local last=state.last
+            local vel=(curp-last)
+            local mag=vmag(vel)
+            if mag<0.11 then
+               state.last=b.Position
+            elseif mag>limit then
+               vel=vn(vel*limit)
+               local new=(vel*lastvel)/clock
+               state.last=new
+            else 
+               state.last=curp
+            end
+            local claim=state.claimed
+            local velm=vmag(vel)/1000
+            Axis=Internal.YVel+(velm*math.max(velm+(age+velm),.01))
+            TimeCos=.001*math.cos(os.clock()*15)+velm
+            TimeSin=.001*math.sin(os.clock()*15)+velm
+            
+            if claim and (clock-claim)<5.67 then 
+               a.Massless=false
+               a.CustomPhysicalProperties=nil
+            else
+               a.Massless=true
+               a.CustomPhysicalProperties=PhysicalProperties.new(0.01, 0, 0, 0, 0)
+            end 
+            
+            --// We dont want to determine if the accessories velocity if it's greater than the netless velocity magnitude,
+            --// We just let its velocity automatically settle in from where it's attached to.
+            if claim then
+               if (clock-claim)<.51 then
+                  local offsetpos=(claimpos-a.Position)
+                  local offxz=(offsetpos*v3_101)
+                  a.AssemblyLinearVelocity=Vector3.new(0,Axis,0)
+               else
+                  local fv=b.AssemblyLinearVelocity
+                  local fxz=fv*v3_101
+                  a.AssemblyLinearVelocity=vn(fxz)+v3_010*(Axis*2)
+               end 
+            else 
+               state.claimed=clock
+               local fv=b.AssemblyLinearVelocity
+               local fxz=fv*v3_101
+               a.AssemblyLinearVelocity=fxz+v3_010*(Axis*2) --// Slightly increase Y velocity 
+               --// also track x and z velocity from where its attached to
+            end
+         else
+            state.claimed=nil
+            local fv=b.AssemblyLinearVelocity
+            local fxz=fv*v3_101
+            if Internal.SpawnTp==2 or Internal.SpawnTp==3 then --// velocity isnt enough for these 2, we'll just increase it lol
+               a.AssemblyLinearVelocity=(v3_010*(Axis*1.5))
+            else
+               a.AssemblyLinearVelocity=(v3_010*(Axis*1.05))
+            end
+            state.last=a.Position
+         end
+      end 
+      if Internal.IsBreakJoints==false then --// position it above the character while the hrp is being teleported
+         local Rhrp=Reanim.Character:FindFirstChild("HumanoidRootPart").CFrame 
+         local scale=Reanim.Character:GetScale() 
+         a.CFrame=(Rhrp*CFrame.new(0,3*scale,0))*CFrame.new(TimeCos,TimeSin,0)
+      else
+         a.CFrame=b.CFrame*CFrame.new(TimeCos,TimeSin,0)
+      end
+      a.AssemblyAngularVelocity=idleoff
    end
-   AddConnection("Align",rs.PostSimulation:Connect(function()
-      if not Internal.LimbBreakJoints then return end
-      if Internal.Voiding or Internal.Killing then return end
+   AddConnection("Align",rs.PostSimulation:Connect(function(dt)
+      if not Internal.Running then return end
+      if Internal.HatReanimed or Internal.LimbBreakJoints then
+         for rn,v in Internal.Accessories do
+            local c=Internal.Character:FindFirstChild(rn)
+            local f=Reanim.Character:FindFirstChild(rn)
+            if c and f then
+               local h1=c:FindFirstChild("Handle")
+               local h2=f:FindFirstChild("Handle")
+               if h1 and h2 then
+                  Internal.Align(h1,h2,dt)
+               else
+                  continue 
+               end
+            else
+               continue 
+            end
+         end
+      end
       pcall(function()
-         for i,m in Internal.PermadeathLimbMap do
+         for i,m in Internal.R6LimbMap do
+            if Internal.HatReanimed then break end
+            if not Internal.LimbBreakJoints then break end
             if not Internal.Character:FindFirstChild(i) or not Reanim.Character:FindFirstChild(m) then continue end
             Internal.Align(Internal.Character:FindFirstChild(i),Reanim.Character:FindFirstChild(m))
          end 
       end)
       pcall(function()
-         for _,v in Reanim.Character:GetDescendants() do
+         for _,v in Internal.Character:GetDescendants() do
             if v:IsA("BasePart") then
+               if Internal.HatReanimed then break end
                v.CanCollide=false
             end
          end
       end)
-      for rn,v in Internal.Accessories do
-         local c=Internal.Character:FindFirstChild(rn)
-         local f=Reanim.Character:FindFirstChild(rn)
-         if c and f then
-            local h1=c:FindFirstChild("Handle")
-            local h2=f:FindFirstChild("Handle")
-            if h1 and h2 then
-               Internal.Align(h1,h2)
-            else
-               continue 
-            end
-         else
-            continue 
-         end
-      end
    end))
    
    AddConnection("Idk",rs.PreSimulation:Connect(function()
@@ -1590,56 +1644,24 @@ Reanim.Start=function(data)
       if char.Name==plr.Name then
          Internal.Character=char
       end
-      if Internal.OnPermaProcess then return end 
-      Reanim.Get("da")(Internal.Character, function(v)
-         if not Internal.LimbBreakJoints then return end
-         if v: IsDescendantOf(Reanim.Character) then return end
-         if v:IsA("Motor6D") then
-            v:Destroy()
-         elseif v:IsA("Script") then
-            v.Enabled=false
-         elseif v:IsA("Accessory") then
-            Internal.Accessories[v.Name]=v
-            if not Reanim.Character:FindFirstChild(v.Name) then
-               local FakeAccessory=v:Clone()
-               local Handle=FakeAccessory:WaitForChild("Handle")
-               if not Handle then return end
-               pcall(function() Handle:FindFirstChildWhichIsA("Weld"):Destroy() end)
-               local Weld=Instance.new("Weld"); do
-                  Weld.Name="AccessoryWeld"
-                  Weld.Part0=Handle
-               end
-               repeat wait() until Handle:FindFirstChildOfClass("Attachment")
-               local Attachment=Handle:FindFirstChildOfClass("Attachment")
-               if Attachment then
-                  pcall(function()
-                     Weld.C0=Attachment.CFrame
-                     Weld.C1=Reanim.Character:FindFirstChild(tostring(Attachment), true).CFrame
-                     Weld.Part1=Reanim.Character:FindFirstChild(tostring(Attachment), true).Parent
-                  end)
-               else
-                  Weld.Part1=Reanim.Character:FindFirstChild("Head")
-                  Weld.C1=CFrame.new(0,Reanim.Character:FindFirstChild("Head").Size.Y / 2,0) * FakeAccessory.AttachmentPoint:Inverse()
-               end
-               Handle.CFrame=Weld.Part1.CFrame * Weld.C1 * Weld.C0:Inverse()
-               Handle.Transparency=1
-               Weld.Parent=Handle
-               FakeAccessory.Parent=Reanim.Character
-            end
-         end
-      end)
-      if Internal.LimbBreakJoints and (not Internal.IsPerma or Internal.OnPermaProcess) then return end 
+      task.spawn(Internal.DoHatReanim,Internal.Character)
+      task.spawn(Internal.DoBreakJoints,Internal.Character)
+      for _,v in char:GetDescendants() do
+         Internal.DescAdd(v)
+      end
+      table.clear(Internal.NotKnownMotors)
+      table.clear(Internal.BaseParts)
+      char.DescendantAdded:Connect(Internal.DescAdd)
+      if Internal.LimbBreakJoints and (not Internal.IsBreakJoints or Internal.OnBreakJointsProcess) then return end 
       local camcf=cam.CFrame
       rs.PreRender:Once(function()
          rs.PreAnimation:Wait()
          cam.CFrame=camcf
       end)
-      Internal.DoPerma(false)
       Internal.LastRespawn=os.clock()
-      table.clear(Internal.NotKnownMotors)
-      table.clear(Internal.BaseParts)
-      if Internal.LimbBreakJoints then
+      if Internal.LimbBreakJoints or Internal.HatReanimed then
          table.clear(Internal.Accessories) 
+         table.clear(Internal.HatClaimState) 
       else
          for name,acc in Internal.Accessories do
             if Reanim.Character:FindFirstChild(name) then
@@ -1650,10 +1672,6 @@ Reanim.Start=function(data)
       for _,m in Internal.LimbMapping do
         m.Ref=nil
       end
-      char.DescendantAdded:Connect(Internal.DescAdd)
-      for _,v in char:GetDescendants() do
-         Internal.DescAdd(v)
-      end
       local hum=Reanim.WaitChild(char,"Humanoid")
       if hum then 
          local an=Reanim.FindChild(hum,"Animator")
@@ -1663,12 +1681,32 @@ Reanim.Start=function(data)
       end 
       local anim=Reanim.WaitChild(char,"Animate")
       if anim then anim:Destroy() end
+      
    end
    Internal.RespawnCon=plr.CharacterAdded:Connect(CharCon)
+   
+   
+   
    --// Begin
-   plr.CharacterAdded:Wait()
-   Reanim.CreateCharacter(Internal.IntPos)
-   task.spawn(Internal.DoPerma,true)
+   local IsBreaking=true 
+   if Internal.HatReanimed then
+      Reanim.CreateCharacter(Internal.IntPos)
+      task.delay(.75, function()
+         Internal.DoHatReanim(Internal.Character)
+         IsBreaking=false
+      end)
+   else
+      if Internal.LimbBreakJoints==false then
+         plr.CharacterAdded:Wait()
+      end
+      IsBreaking=false
+      Reanim.CreateCharacter(Internal.IntPos)
+      task.spawn(Internal.DoBreakJoints,Internal.Character)
+   end
+   Reanim.Character:ScaleTo(1) 
+   
+   
+   
    
    AddConnection("FakeCharDestroying",Reanim.Character.Destroying:Connect(function()
       Internal.RespawnCon:Disconnect()
@@ -2218,18 +2256,16 @@ Reanim.Start=function(data)
    end
    
    
-   Internal.Running=true
    task.spawn(function()
       while Internal.Running do
          rs.PreSimulation:Wait()
          Reanim.ShiftlockScreenGui.Parent=(Reanim.ShiftlockEnabled==true and (gethui and gethui() or CoreGui) or nil)
-         ws["FallenPartsDestroyHeight"]=nan
+         -- ws["FallenPartsDestroyHeight"]=nan
          local ok=false
          local char=plr.Character
          if not char then continue end
          local hum, hrp=Reanim.FindChild(char,"Humanoid"), Reanim.FindChild(char,"HumanoidRootPart")
          local RCF=Reanim.Get("cf")(Internal.RootInVoid)
-         local rvel=Reanim.Get("v3")()
          local rvel=Reanim.Get("v3")()
          local ltm=Reanim.LocalTransparencyModifier
          local ReanimChar=Reanim.Character
@@ -2312,6 +2348,7 @@ Reanim.Start=function(data)
          if not v then
             return 
          end
+         repeat wait() until not IsBreaking --// Don't Scale the Model whilst the the hats are being cloned 
          Reanim.CharacterScale=v 
          Reanim.Character:ScaleTo(v) 
       end,
@@ -2327,30 +2364,92 @@ Reanim.Start=function(data)
          Reanim.DestroyCharacter()
          Reanim.ShiftlockScreenGui:Destroy()
          DisconnectConnection()
+         pcall(function()
+            for name,acc in Internal.Accessories do
+               if Reanim.Character:FindFirstChild(name) then
+                  Reanim.Get("destroy")(Reanim.Character[name])
+               end
+            end
+         end)
       end,
       SetLimbBreakjoints=function(v)
-         if Internal.OnPermaProcess==true then
-            warn("Waiting for permadeath process to finish, please wait")
-            repeat wait() until Internal.OnPermaProcess==false
+         if Internal.HatReanimed then return end
+         if Internal.OnBreakJointsProcess==true then
+            warn("Waiting for Breakjoints process to finish, please wait")
+            repeat wait() until Internal.OnBreakJointsProcess==false
          end 
          Internal.LimbBreakJoints=v
+         for name,acc in Reanim.Character:GetChildren() do
+            if acc:GetAttribute("_Yuni_Cloned_Accs") then
+               acc:Destroy()
+            end
+         end
+         IsBreaking=true
          if Internal.RespawnCon then Internal.RespawnCon:Disconnect() Internal.RespawnCon=nil end
+         wait(.15)
          if Internal.LimbBreakJoints==false then
-            Internal.OnChangeChar=true 
-            plr.Character=Internal.OldCharacter
+            Reanim.Character:ScaleTo(Reanim.CharacterScale) 
             task.delay(.05, function() plr.Character=Internal.OldCharacter end)
             local char=plr.Character
             local h=Reanim.FindChildClass(char, "Humanoid")
             if h then
                Internal.SetHumState(h, "Dead")
             end 
-            wait(.1)
-            Internal.PermRespCount=0
             Internal.RespawnCon=plr.CharacterAdded:Connect(CharCon) 
-            Internal.OnChangeChar=false 
          elseif Internal.LimbBreakJoints==true then
-            Internal.DoPerma(true)
-            Internal.RespawnCon=plr.CharacterAdded:Connect(CharCon) 
+            Reanim.Character:ScaleTo(1) 
+            Internal.DoBreakJoints()
+            Internal.RespawnCon=plr.CharacterAdded:Connect(CharCon)
+            Reanim.Character:ScaleTo(Reanim.CharacterScale) 
+         end
+         IsBreaking=false
+      end,
+      SetReanimType=function(v)
+         if Internal.OnBreakJointsProcess==true then
+            warn("Waiting for Breakjoints process to finish, please wait")
+            repeat wait() until Internal.OnBreakJointsProcess==false
+         end 
+         for name,acc in Reanim.Character:GetChildren() do
+            if acc:GetAttribute("_Yuni_Cloned_Accs") then
+               acc:Destroy()
+            end
+         end
+         IsBreaking=true
+         Internal.HatReanimed=(v:lower()=="hat" and true or false)
+         if Internal.HatReanimed then
+            local char=plr.Character
+            Reanim.Character:ScaleTo(1) 
+            local h=Reanim.FindChildClass(char, "Humanoid")
+            if h then
+               Internal.DoHatReanim(Internal.Character)
+               wait(.25)
+               Reanim.Character:ScaleTo(Reanim.CharacterScale) 
+               Internal.SetHumState(h, "Dead")
+               IsBreaking=false
+            end 
+         else
+            Reanim.Character:ScaleTo(1) 
+            workspace["FallenPartsDestroyHeight"]=fpdh 
+            if plr.Character.Humanoid.Health<=10 then
+               plr.CharacterAdded:Wait()
+               wait(.1)
+            end 
+            Reanim.Character:ScaleTo(Reanim.CharacterScale) 
+         end
+         IsBreaking=false
+      end,
+      SetNetlessVel=function(v)
+         if tonumber(v) then 
+            Internal.YVel=v
+         end
+      end,
+      RefreshHatMap=function(v)
+         local HatMap,HatNameMap=loadstring(readfile(HatMapFile))()
+         Internal.HatData=HatMap
+      end,
+      SetSpawnTp=function(v)
+         if tonumber(v) then 
+            Internal.SpawnTp=v
          end
       end,
    }
@@ -2359,3 +2458,4 @@ end
 
 
 return Reanim
+

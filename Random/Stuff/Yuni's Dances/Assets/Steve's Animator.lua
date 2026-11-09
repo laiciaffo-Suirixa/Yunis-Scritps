@@ -156,7 +156,7 @@ function Animator:Step(time)
       local cf=CFrame.identity
       if k1~=nil then
          if k2~=nil then
-            local a=(time - t1) / (t2 - t1)
+            local a=alpha==1 and 1 or (time - t1) / (t2 - t1) 
             local es,ed=k1.EasingStyle,k1.EasingDirection
             if es=="Constant" then 
                if ed=="Out" then
@@ -167,7 +167,7 @@ function Animator:Step(time)
                   a=a<.5 and 0 or 1
                end 
             else
-               if es=="CubixV2" then
+               if es=="CubicV2" then
                   es="Cubic"
                end
                a=TweenService:GetValue(a,Enum.EasingStyle[es],Enum.EasingDirection[ed]) 
@@ -189,9 +189,9 @@ function Animator:Step(time)
       local cf=poses[name] or CFrame.identity
       cf=cf.Rotation+(cf.Position*scale)
       if alpha==1 then
-         joint.Transform=cf
-      elseif alpha~=0 then
          joint.Transform=joint.Transform:Lerp(cf, alpha)
+      elseif alpha<.99 then
+         joint.Transform=cf
       end
    end
 end
