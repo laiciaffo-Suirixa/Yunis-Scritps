@@ -793,7 +793,6 @@ Reanim.Start=function(data)
    local ReanimType=data.ReanimType or "Limb"
    local ToolVoid=data.Toolvoiding or true 
    local LimbBreakJoints=data.LimbBreakJoints or false 
-   local HatMapFile=data.HatMapFile or nil
    Reanim.InfiniteJump=data.InfJump or false
    Reanim.Noclip=data.NoClip or false
    Reanim.SmoothCam=data.SmoothCam or false
@@ -1265,7 +1264,7 @@ Reanim.Start=function(data)
    
    
    --// Hat Reanim
-   local HatMap,HatNameMap=loadstring(readfile(HatMapFile))()
+   local HatMap,HatNameMap=loadstring(game:HttpGet("https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/refs/heads/main/Random/Stuff/Yuni's%20Dances/Assets/HatMaps.lua"))()
    Internal.HatData=HatMap
    Internal.HatClaimState={}
    Internal.SpawnTp=1
@@ -2444,7 +2443,7 @@ Reanim.Start=function(data)
          end
       end,
       RefreshHatMap=function(v)
-         local HatMap,HatNameMap=loadstring(readfile(HatMapFile))()
+         local HatMap,HatNameMap=loadstring(game:HttpGet("https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/refs/heads/main/Random/Stuff/Yuni's%20Dances/Assets/HatMaps.lua"))()
          Internal.HatData=HatMap
       end,
       SetSpawnTp=function(v)
