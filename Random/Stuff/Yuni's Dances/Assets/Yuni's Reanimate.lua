@@ -1086,7 +1086,7 @@ Reanim.Start=function(data)
       if Internal.LimbBreakJoints or Internal.HatReanimed then return end
       Root.CFrame=RootCF
       for _,v in Internal.NotKnownMotors do
-         if Internal.LimbBreakJoints then continue end
+         if Internal.LimbBreakJoints then break end
          Internal.SetM6D(v, CFrame.identity)
       end
       for i,m in Internal.LimbMapping do
@@ -1324,7 +1324,7 @@ Reanim.Start=function(data)
          local MapEntryCounters={}
          local NameCounters={}
          --// Gelatek's Fake accessory v2 by me yayayayaya
-         local network=math.clamp(plr:GetNetworkPing(),0,.25)
+         local network=math.clamp(plr:GetNetworkPing(),0,.275)
          local MapThisAccessory=function(acc)
             if acc:IsDescendantOf(Reanim.Character) then return end
             local RealName=acc.Name
@@ -1425,7 +1425,7 @@ Reanim.Start=function(data)
          local flip=hrp.CFrame*CFrame.new(0,-3,0)*CFrame.Angles(-1.5707963267948966,0,0)
          while true do 
             if Internal.SpawnTp==1 then 
-               hrp.CFrame=Rhrp*CFrame.new(0,fpdh+.5+(network/5),0)*CFrame.Angles(-1.5707963267948966,0,0)
+               hrp.CFrame=Rhrp*CFrame.new(0,fpdh+.5+(network/1.15),0)*CFrame.Angles(-1.5707963267948966,0,0)
                hrp.AssemblyLinearVelocity=Vector3.new()
                hrp.AssemblyAngularVelocity=Vector3.new()
             elseif Internal.SpawnTp==2 then 
@@ -1693,8 +1693,9 @@ Reanim.Start=function(data)
    local IsBreaking=true 
    if Internal.HatReanimed then
       Reanim.CreateCharacter(Internal.IntPos)
-      task.delay(.75, function()
+      task.delay(.05, function()
          Internal.DoHatReanim(Internal.Character)
+         wait(.05)
          IsBreaking=false
       end)
    else
@@ -2350,7 +2351,7 @@ Reanim.Start=function(data)
          if not v then
             return 
          end
-         repeat wait() until not IsBreaking --// Don't Scale the Model whilst the the hats are being cloned 
+         repeat wait(.1) until not IsBreaking --// Don't Scale the Model whilst the the hats are being cloned 
          Reanim.CharacterScale=v 
          Reanim.Character:ScaleTo(v) 
       end,
