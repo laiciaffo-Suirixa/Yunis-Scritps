@@ -1203,7 +1203,7 @@ Functions:Add("MainPart", function()
    --// Main
    local isloading=false
    function Script:Run()
-      if isloading then return end
+      if isloading or Script.IsRunning then return end
       Script.IsRunning=true
       isloading=true
       local MainUI=loadstring(game:HttpGet("https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Assets/MainUI.lua"))()
@@ -1275,6 +1275,7 @@ Functions:Add("MainPart", function()
       Script.IsPlayingEmote=false
       Script.UpdateConnection=nil
       MainUI:ScaleTo(Main.HotbarScale)
+      
       Functions:Add("ScaleHotbar", function(s)
          if not Script.IsRunning then return end
          MainUI:ScaleTo(s) 
@@ -1375,6 +1376,11 @@ Functions:Add("MainPart", function()
          })
          Script.CurrentLoadedModule=nil
          Script.IsPlayingEmote=false
+         for _,v in Script:GetFigureModel():GetDescendants() do
+            if v:IsA("Motor6D") then
+               v.Transform=CFrame.new()
+            end
+         end
       end
      
       function Script:PlayAnimationTrack(module)
