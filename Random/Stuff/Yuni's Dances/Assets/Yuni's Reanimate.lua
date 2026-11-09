@@ -1647,13 +1647,15 @@ Reanim.Start=function(data)
       for _,m in Internal.LimbMapping do
         m.Ref=nil
       end
+      table.clear(Internal.NotKnownMotors)
+      table.clear(Internal.BaseParts)
       task.spawn(Internal.DoHatReanim,Internal.Character)
       task.spawn(Internal.DoBreakJoints,Internal.Character)
+      
+      wait(.05)
       for _,v in char:GetDescendants() do
          Internal.DescAdd(v)
       end
-      table.clear(Internal.NotKnownMotors)
-      table.clear(Internal.BaseParts)
       char.DescendantAdded:Connect(Internal.DescAdd)
       if Internal.LimbBreakJoints and (not Internal.IsBreakJoints or Internal.OnBreakJointsProcess) then return end 
       local camcf=cam.CFrame
@@ -2385,32 +2387,26 @@ Reanim.Start=function(data)
             end
          end
          IsBreaking=true
-         Reanim.Character:ScaleTo(1) 
+         if plr.Character.Humanoid.Health<=10 then
+            plr.CharacterAdded:Wait()
+            wait(.15)
+         end 
          if Internal.RespawnCon then Internal.RespawnCon:Disconnect() Internal.RespawnCon=nil end
          if Internal.LimbBreakJoints==false then
-            if plr.Character.Humanoid.Health<=10 then
-               plr.CharacterAdded:Wait()
-               wait(.2)
-            end 
-            Reanim.Character:ScaleTo(Reanim.CharacterScale) 
-            local char=plr.Character
-            local h=Reanim.FindChildClass(char, "Humanoid")
-            if h then
-               Internal.SetHumState(h, "Dead")
-            end 
-            Reanim.Character:ScaleTo(Reanim.CharacterScale) 
             Internal.RespawnCon=plr.CharacterAdded:Connect(CharCon) 
-         elseif Internal.LimbBreakJoints==true then
-            if plr.Character.Humanoid.Health<=10 then
-               plr.CharacterAdded:Wait()
-               wait(.2)
-            end 
-            Internal.DoBreakJoints()
             Reanim.Character:ScaleTo(Reanim.CharacterScale) 
+         elseif Internal.LimbBreakJoints==true then
+            Reanim.Character:ScaleTo(1) 
+            Internal.DoBreakJoints()
             Internal.RespawnCon=plr.CharacterAdded:Connect(CharCon)
+            wait(.2)
+            Reanim.Character:ScaleTo(Reanim.CharacterScale) 
          end
+         
          IsBreaking=false
       end,
+      
+      
       SetReanimType=function(v)
          if (Internal.OnBreakJointsProcess or IsBreaking)==true then
             warn("Waiting for Breakjoints process to finish, please wait")
@@ -2435,7 +2431,6 @@ Reanim.Start=function(data)
                IsBreaking=false
             end 
          else
-            Reanim.Character:ScaleTo(1) 
             workspace["FallenPartsDestroyHeight"]=fpdh 
             if plr.Character.Humanoid.Health<=10 then
                plr.CharacterAdded:Wait()
