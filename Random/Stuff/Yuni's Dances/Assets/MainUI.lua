@@ -4332,6 +4332,7 @@ Toggle.Font="SciFi"
 Toggle.Text="•"
 Search.BackgroundTransparency=.5
 New("UICorner",Search,{CornerRadius=Functions:Call("GetProp","ud",.025,0)})
+New("UIScale",HotbarHandler,{Scale=1})
 
 --// More UI stuff
 local EmoteInfo=getUIob(Inventory,false,"Emote Info")
@@ -5459,6 +5460,10 @@ function Inv:GetCount()
       end 
    end 
    return Amount
+end
+
+function Inv:ScaleTo(v)
+   HotbarHandler:FindFirstChildOfClass('UIScale').Scale=v
 end
 
 
