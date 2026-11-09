@@ -94,7 +94,7 @@ local Main={
       --// Reanimator settings
       SmoothCam=true,
       OverrideCamera=true, --// Forces the camera to focus on the reanimate character,
-      --// ^ disable this if you are planning on making a custom camera script for this
+      --// ^ enable this if you are planning on making a custom camera script for this
       NoClip=false,
       SitOnSeats=true,
       CollectTools=false,
