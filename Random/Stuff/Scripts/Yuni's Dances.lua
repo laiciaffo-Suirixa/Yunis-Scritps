@@ -734,14 +734,12 @@ Functions:Add("DownloadAssert", function(path,name,url)
       Color=Functions:Call("GetProp","rgb",0,255,0)
    })
    if isfile and not isfile(file) then
-      task.spawn(function() 
       writefile(file,link) 
-         Notify({
-            Text="File Downloaded: "..file.."\nUrl: "..url,
-            Size=12,
-            Color=Functions:Call("GetProp","rgb",0,255,0)
-         })
-      end)
+      Notify({
+          Text="File Downloaded: "..file.."\nUrl: "..url,
+          Size=12,
+          Color=Functions:Call("GetProp","rgb",0,255,0)
+      })
       return true 
    end
 end)
@@ -779,10 +777,6 @@ local ToDownload={
    ["MainUI"]={
       Path=Functions:Call("GetPath","Assets"),
       Url="https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Assets/MainUI.lua"
-   },
-   ["HatMaps"]={
-      Path=Functions:Call("GetPath","Assets"),
-      Url="https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Assets/HatMaps.lua"
    },
    ["Yuni's Animator"]={
       Path=Functions:Call("GetPath","Assets"),
@@ -1219,7 +1213,6 @@ Functions:Add("MainPart", function()
       Script.IsRunning=true
       local uifile=Functions:Call("GetPath","Assets").."/MainUI.lua"
       local Reanim=Functions:Call("GetPath","Assets").."/Yuni's Reanimate.lua"
-      local hatmaps=Functions:Call("GetPath","Assets").."/HatMaps.lua"
       local MainUI=loadstring(readfile(uifile))()
       local Reanimate=loadstring(readfile(Reanim))()
       local GetReanimatorData=function(t,n)
@@ -1243,7 +1236,6 @@ Functions:Add("MainPart", function()
             Rep10Fps=GetReanimatorData("limb","Replicate10FPS"),
             LimbBreakJoints=Main.ReanimatorData.Permadeath,
             ReanimType=Main.ReanimatorData.ReanimType,
-            HatMapFile=hatmaps,
          })
          Script.Reanimator=StartReanim
          Script.InvUI=MainUI
@@ -1293,6 +1285,14 @@ Functions:Add("MainPart", function()
          if not Script.IsRunning then return end
          MainUI:ScaleTo(s) 
       end)
+      Functions:Add("SetInventoryPos", function(pos)
+         if not Script.IsRunning then
+            warn("Run the script first.")
+            return 
+         end
+         MainUI:SetPosition(pos:lower())
+      end)
+      
       --// Utilities 
       function Script:AddOptionsList(name,nameoption,default,callback)
          local Options={}
@@ -1481,14 +1481,6 @@ Functions:Add("MainPart", function()
       Script:MakeKeybinds()
       
       Functions:Call("Refresh Emotes")
-      
-      Functions:Add("SetInventoryPos", function(pos)
-         if not Script.IsRunning then
-            warn("Run the script first.")
-            return 
-         end
-         MainUI:SetPosition(pos:lower())
-      end)
       
       
       
