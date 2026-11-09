@@ -67,6 +67,7 @@ local Main={
    },
    UseKeyboard=false,
    HotbarPosition="Middle",
+   HotbarScale=1,
    ScriptData={},
    ReanimatorData={
       Limb={
@@ -116,7 +117,8 @@ Functions:Add("LoadData", function ()
       local YuniReanimate=Reanimator.ReanimByYuni
       Main.Reanimator.ReanimByYuni=YuniReanimate
       local HotBarPos=data.HotbarPosition
-      Main.HotbarPosition=HotBarPos
+      local HotbarScale=data.HotbarScale
+      Main.HotbarScale=HotbarScale
       local SetReanimatorData=function(d)
          if data.ReanimatorData then 
             if data.ReanimatorData[d]==nil then return end
@@ -224,6 +226,9 @@ Home:AddButton({
 
 
 --// Settings 
+Settings:AddDivider({
+   Text="Hotbar",
+})
 Settings:AddDropdown({
    Name="Hotbar Position",
    Description="",
@@ -268,6 +273,22 @@ Settings:AddDropdown({
    }
 })
 
+Settings:AddSlider({
+   Name="Size",
+   Description="How big reanimate character is",
+   Min=.5,
+   Max=1.15,
+   Default=Main.HotbarScale or 1,
+   Callback=function(value)
+      Main.HotbarScale=value
+      Functions:Call("ScaleHotbar",value)
+      Functions:Call("SaveConfig","ScriptConfigs",Main)
+   end,
+})
+
+Settings:AddDivider({
+   Text="Camera",
+})
 Settings:AddToggle({
    Name="Camera Bob",
    Description="Bob music loudness",
@@ -1267,8 +1288,11 @@ Functions:Add("MainPart", function()
       Script.CurrentLoadedModule=nil
       Script.IsPlayingEmote=false
       Script.UpdateConnection=nil
-      
-      
+      MainUI:ScaleTo(Main.HotbarScale)
+      Functions:Add("ScaleHotbar", function(s)
+         if not Script.IsRunning then return end
+         MainUI:ScaleTo(s) 
+      end)
       --// Utilities 
       function Script:AddOptionsList(name,nameoption,default,callback)
          local Options={}
