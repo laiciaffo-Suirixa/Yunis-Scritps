@@ -82,7 +82,7 @@ local Main={
       
       Hat={
          --// For Hat Reanim
-         NetlessVelocity=30,
+         NetlessVelocity=25.01,
          DeadbodyPos=1,
          -- ^ 1 In Void(-500)
          -- ^ 2 In Deep Void
