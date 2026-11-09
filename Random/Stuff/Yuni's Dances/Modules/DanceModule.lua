@@ -949,25 +949,16 @@ insert(function()
       Author="Yuni",
       Description="idk what to put in this",
    }
-   m.CanBeConfigured=true 
+   m.CanBeConfigured=false 
    
-   local var={
-      Variants=1,
-   }
    m.LoadConfigs=function(s)
-      if s~=nil and s then 
-         var=s
-      end
    end
    
    m.Configs=function(t)
-      t:AddDivider({
-         Text="Dance Variants",
-      })
    end
    
    m.SavedConfigs=function()
-      return var
+      return
    end 
    
    local anim=nil
@@ -1076,21 +1067,12 @@ insert(function()
       Author="Yuni",
       Description="Teto and Miku mesmerizer happy ending",
    }
-   m.CanBeConfigured=true 
+   m.CanBeConfigured=false 
    
-   local vars={
-      Variant=1,
-   }
    m.LoadConfigs=function(s)
-      if s~=nil and s then 
-         vars=s
-      end 
    end
    
    m.Configs=function(t,t1)
-      t:AddDivider({
-         Text="Dance Variants",
-      })
    end
    
    m.SavedConfigs=function()
@@ -1352,26 +1334,16 @@ insert(function()
       Author="Yuni",
       Description="How it feels hitting the jackpot",
    }
-   m.CanBeConfigured=true 
+   m.CanBeConfigured=false 
    
-   local var={
-      Variants=1,
-      MusicVariants=1,
-   }
    m.LoadConfigs=function(s)
-      if s~=nil and s then 
-         var=s
-      end
    end
    
    m.Configs=function(t,t1)
-      t:AddDivider({
-         Text="Dance Variants",
-      })
    end
    
    m.SavedConfigs=function()
-      return var
+      return
    end 
    
    local anim=nil
@@ -2275,25 +2247,19 @@ insert(function()
       Author="Yuni",
       Description="im sure you want my veggie juice"
    }
-   m.CanBeConfigured=true 
+   m.CanBeConfigured=false 
    
    local vars={
       Variant=1,
    }
    m.LoadConfigs=function(s)
-      if s~=nil and s then 
-         vars=s
-      end 
    end
    
    m.Configs=function(t)
-      t:AddDivider({
-         Text="Dance Variants",
-      })
    end
    
    m.SavedConfigs=function()
-      return vars
+      return
    end 
    
    local anim=nil
@@ -3759,24 +3725,15 @@ insert(function()
       Author="Yuni",
       Description="Im stuck in this world, when will find escape, fahhhhhh"
    }
-   m.CanBeConfigured=true 
-   local vars={
-      Variant=1,
-   }
+   m.CanBeConfigured=false 
    m.LoadConfigs=function(s)
-      if s~=nil and s then 
-         vars=s
-      end 
    end
    
    m.Configs=function(t,t1)
-      t:AddDivider({
-         Text="Dance Variants",
-      })
    end
    
    m.SavedConfigs=function()
-      return vars
+      return
    end 
    
    local anim=nil
