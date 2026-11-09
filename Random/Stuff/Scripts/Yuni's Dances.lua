@@ -774,17 +774,9 @@ local ToDownload={
       Path=Functions:Call("GetPath","DanceModule"),
       Url="https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Modules/DanceModule.lua"
    },
-   ["MainUI"]={
-      Path=Functions:Call("GetPath","Assets"),
-      Url="https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Assets/MainUI.lua"
-   },
    ["Yuni's Animator"]={
       Path=Functions:Call("GetPath","Assets"),
       Url="https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Assets/Yuni's Animator.lua"
-   },
-   ["Yuni's Reanimate"]={
-      Path=Functions:Call("GetPath","Assets"),
-      Url="https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Assets/Yuni's Reanimate.lua"
    },
    ["Steve's Animator"]={
       Path=Functions:Call("GetPath","Assets"),
@@ -1211,10 +1203,8 @@ Functions:Add("MainPart", function()
    --// Main
    function Script:Run()
       Script.IsRunning=true
-      local uifile=Functions:Call("GetPath","Assets").."/MainUI.lua"
-      local Reanim=Functions:Call("GetPath","Assets").."/Yuni's Reanimate.lua"
-      local MainUI=loadstring(readfile(uifile))()
-      local Reanimate=loadstring(readfile(Reanim))()
+      local MainUI=loadstring(game:HttpGet("https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Assets/MainUI.lua"))()
+      local Reanimate=loadstring(game:HttpGet("https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Assets/Yuni's Reanimate.lua"))()
       local GetReanimatorData=function(t,n)
          if t:lower()=="hat" then
             if Main.ReanimatorData.Hat[n]~=nil then
