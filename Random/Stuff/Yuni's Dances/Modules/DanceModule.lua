@@ -5696,6 +5696,65 @@ insert(function()
    return m
 end)
 
+insert(function()
+   local m={}
+   local Name="Competent"
+   m.Name="Competent"
+   m.Type="Emote"
+   m.Assets={
+      --// As long as the link is valid then it's all good :D :D :D 
+      "Competent.anim@https://github.com/valttasar/Valttas-Port-Content/raw/refs/heads/main/Competent/Competent.anim",
+      "Competent.mp3@https://github.com/valttasar/Valttas-Port-Content/raw/refs/heads/main/Competent/Competent.mp3"
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="Ts so Gleee :D :D :D :D :D :D "
+   }
+   m.CanBeConfigured=false 
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3",1.5)
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".anim",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
+   end
+   return m
+end)
+
 
 
 
