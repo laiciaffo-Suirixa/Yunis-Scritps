@@ -2401,6 +2401,8 @@ Reanim.Start=function(data)
                end
             end
          end)
+         Internal={}
+         Internal=nil
       end,
       SetLimbBreakjoints=function(v)
          if (Internal.OnBreakJointsProcess or IsBreaking)==true then
@@ -2424,10 +2426,10 @@ Reanim.Start=function(data)
             Reanim.Character:ScaleTo(Reanim.CharacterScale) 
          elseif Internal.LimbBreakJoints==true then
             Reanim.Character:ScaleTo(1) 
-            Internal.DoBreakJoints()
-            Internal.RespawnCon=plr.CharacterAdded:Connect(CharCon)
+            pcall(Internal.DoBreakJoints)
             wait(.1)
             Reanim.Character:ScaleTo(Reanim.CharacterScale) 
+            Internal.RespawnCon=plr.CharacterAdded:Connect(CharCon)
          end
          
       end,
