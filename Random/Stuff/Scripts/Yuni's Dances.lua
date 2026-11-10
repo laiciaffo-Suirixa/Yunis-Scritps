@@ -703,7 +703,7 @@ Functions:Call("RefreshReanimTab",Main.ReanimatorData.ReanimType)
 
 
 --// Core Stuff
-Functions:Add("DownloadAssert", function(path,name,url)
+Functions:Add("DownloadAssert", function(path,name,url,ov)
    if not isfile and not writefile then
       Notify({
          Text="isfile and writefile isn't supported",
@@ -727,12 +727,21 @@ Functions:Add("DownloadAssert", function(path,name,url)
    else
       link=raw
    end 
-   if isfile and isfile(file) then return true end
+   if isfile and isfile(file) and not ov then return true end
    Notify({
       Text="Downloading File: "..file.."\nUrl: "..url,
       Size=12,
       Color=Functions:Call("GetProp","rgb",0,255,0)
    })
+   if ov then
+      writefile(file,link) 
+      Notify({
+          Text="File Downloaded: "..file.."\nUrl: "..url,
+          Size=12,
+          Color=Functions:Call("GetProp","rgb",0,255,0)
+      })
+      return true
+   end
    if isfile and not isfile(file) then
       writefile(file,link) 
       Notify({
@@ -772,7 +781,8 @@ end)
 local ToDownload={
    ["DanceModule"]={
       Path=Functions:Call("GetPath","DanceModule"),
-      Url="https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Modules/DanceModule.lua"
+      Url="https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Modules/DanceModule.lua",
+      AutoDownload=true 
    },
    ["Yuni's Animator"]={
       Path=Functions:Call("GetPath","Assets"),
@@ -792,7 +802,7 @@ for n,v in ToDownload do
    Functions:Call("DownloadAssert",
    v.Path,
    n..".lua",
-   v.Url)
+   v.Url,v.AutoDownload)
 end
 
 
