@@ -69,11 +69,19 @@ local Hats={
    },
    
    {
-      m="139733645770094",t="130809869695496",Limb={"Left Leg","Right Leg"},Offset=cf()*angles(0,0,90)
+      m="139733645770094",t="130809869695496",Limb="Left Leg",Offset=cf()*angles(0,0,90)
    },
    
    {
-      m="99608462237958",t="130809869695496",Limb={"Left Arm","Right Arm"},Offset=cf()*angles(0,0,90)
+      m="99608462237958",t="130809869695496",Limb="Left Arm",Offset=cf()*angles(0,0,90)
+   },
+   
+   {
+      m="105141400603933",t="71060417496309",Limb="Right Arm",Offset=cf()*angles(0,0,90)
+   },
+   
+   {
+      m="90736849096372",t="79186624401216",Limb="Right Leg",Offset=cf()*angles(0,0,90)
    },
    
 }
