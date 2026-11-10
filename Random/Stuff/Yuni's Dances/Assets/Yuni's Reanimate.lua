@@ -2379,7 +2379,7 @@ Reanim.Start=function(data)
             return 
          end
          Reanim.CharacterScale=v 
-         repeat wait(.1) until not IsBreaking --// Don't Scale the Model whilst the the hats are being cloned 
+         repeat wait() until not IsBreaking --// Don't Scale the Model whilst the the hats are being cloned 
          Reanim.Character:ScaleTo(v) 
       end,
       Stop=function()
@@ -2414,7 +2414,6 @@ Reanim.Start=function(data)
                acc:Destroy()
             end
          end
-         IsBreaking=true
          if plr.Character.Humanoid.Health<=10 then
             plr.CharacterAdded:Wait()
             wait(.15)
@@ -2427,11 +2426,10 @@ Reanim.Start=function(data)
             Reanim.Character:ScaleTo(1) 
             Internal.DoBreakJoints()
             Internal.RespawnCon=plr.CharacterAdded:Connect(CharCon)
-            wait(.2)
+            wait(.1)
             Reanim.Character:ScaleTo(Reanim.CharacterScale) 
          end
          
-         IsBreaking=false
       end,
       
       
@@ -2447,9 +2445,9 @@ Reanim.Start=function(data)
          end
          IsBreaking=true
          Internal.HatReanimed=(v:lower()=="hat" and true or false)
+         Reanim.Character:ScaleTo(1) 
          if Internal.HatReanimed then
             local char=plr.Character
-            Reanim.Character:ScaleTo(1) 
             local h=Reanim.FindChildClass(char, "Humanoid")
             if h then
                Internal.DoHatReanim(Internal.Character)
