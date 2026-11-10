@@ -1019,10 +1019,10 @@ Reanim.Start=function(data)
          end
       elseif a:IsA("Motor6D") then
          if Internal.LimbBreakJoints and Internal.HatReanimed==false then if a.Name~="Neck" then a:Destroy() end return end
-         repeat wait() until not a:IsDescendantOf(ws) or (a.Part0 and a.Part1)
          if not a:IsDescendantOf(ws) then return end
          local p0n=a.Part0.Name
          local p1n=a.Part1.Name
+         print(a)
          if p0n and p1n then
             for _,m in Internal.LimbMapping do
                if m.Part0==p0n and m.Part1==p1n then
@@ -1084,7 +1084,6 @@ Reanim.Start=function(data)
          end
       end
       if Internal.LimbBreakJoints or Internal.HatReanimed then return end
-      Root.CFrame=RootCF
       for _,v in Internal.NotKnownMotors do
          if Internal.LimbBreakJoints then break end
          Internal.SetM6D(v, CFrame.identity)
@@ -1115,6 +1114,7 @@ Reanim.Start=function(data)
             end
          end 
       end 
+      Root.CFrame=RootCF
    end
    
    Internal.Character=Reanim.GetService("Players").LocalPlayer.Character
@@ -1419,7 +1419,7 @@ Reanim.Start=function(data)
          workspace["FallenPartsDestroyHeight"]=-500 
          fpdh=workspace["FallenPartsDestroyHeight"]
          local hrp=char:WaitForChild("HumanoidRootPart")
-         rs["PostSimulation"]:Wait(.01)
+         rs["PostSimulation"]:Wait(.01+(network/2))
          local Rhrp=Reanim.Character:FindFirstChild("HumanoidRootPart").CFrame 
          local t=os.clock()+(.2+network) --// Should be enough to combat network ping 
          local flip=hrp.CFrame*CFrame.new(0,-3,0)*CFrame.Angles(-1.5707963267948966,0,0)
@@ -1516,7 +1516,7 @@ Reanim.Start=function(data)
          local safeCF=CFrame.new(safe.X, destroy+10, safe.Z) * a.CFrame.Rotation
          a.CFrame=safeCF
          local lift=math.max(0, destroy-handleY)
-         local YVel=math.max(Axis*2, lift*25)
+         local YVel=math.max(Axis*2, lift*5)
          local curvel=a.AssemblyLinearVelocity
          a.AssemblyLinearVelocity=Vector3.new(curvel.X, YVel, curvel.Z)
          a.Massless=true
@@ -1530,7 +1530,7 @@ Reanim.Start=function(data)
          if a.ReceiveAge~=0 then
             if not state.claimboost then state.claimboost=clock end
             local lostFor=clock-state.claimboost
-            if lostFor > 0.3 then
+            if lostFor>0.3 then
                local Rhrp=Reanim.Character:FindFirstChild("HumanoidRootPart")
                if Rhrp then
                   local scale=Reanim.Character:GetScale()
@@ -1577,7 +1577,7 @@ Reanim.Start=function(data)
                else
                   local fv=b.AssemblyLinearVelocity
                   local fxz=fv*v3_101
-                  a.AssemblyLinearVelocity=vn(fxz)+v3_010*(Axis*1.5)
+                  a.AssemblyLinearVelocity=fxz+v3_010*(Axis*1.5)
                end 
             else 
                state.claimed=clock
@@ -1593,9 +1593,9 @@ Reanim.Start=function(data)
                   local Rhrp=Reanim.Character:FindFirstChild("HumanoidRootPart")
                   if Rhrp then
                      local scale=Reanim.Character:GetScale()
-                     a.CFrame=Rhrp.CFrame * CFrame.new(0, 3*scale, 0)
+                     a.CFrame=Rhrp.CFrame*CFrame.new(0, 3*scale, 0)
                   end
-                  a.AssemblyLinearVelocity=Vector3.new(0, Axis*3, 0)
+                  a.AssemblyLinearVelocity=Vector3.new(0, Axis*1.5, 0)
                   state.claimed=nil
                end
                state.claimboost=nil
@@ -1604,9 +1604,9 @@ Reanim.Start=function(data)
             local fv=b.AssemblyLinearVelocity
             local fxz=fv*v3_101
             if Internal.SpawnTp==2 or Internal.SpawnTp==3 then --// velocity isnt enough for these 2, we'll just increase it lol
-               a.AssemblyLinearVelocity=(v3_010*(Axis*1.5))
+               a.AssemblyLinearVelocity=fxz+(v3_010*(Axis*1.5))
             else
-               a.AssemblyLinearVelocity=(v3_010*(Axis*1.085))
+               a.AssemblyLinearVelocity=fxz+(v3_010*(Axis*1.085))
             end
             state.last=a.Position
          end
@@ -1651,6 +1651,7 @@ Reanim.Start=function(data)
          for _,v in Internal.Character:GetDescendants() do
             if v:IsA("BasePart") then
                if Internal.HatReanimed then break end
+               if not Internal.LimbBreakJoints then break end
                v.CanCollide=false
             end
          end
@@ -1664,29 +1665,14 @@ Reanim.Start=function(data)
    
    
    local CharCon=function(char)
+      if not Reanim.Character then return end 
       if char.Name==plr.Name then
          Internal.Character=char
       end
       
-      for _,m in Internal.LimbMapping do
-        m.Ref=nil
-      end
-      table.clear(Internal.NotKnownMotors)
-      table.clear(Internal.BaseParts)
+      
       task.spawn(Internal.DoHatReanim,Internal.Character)
       task.spawn(Internal.DoBreakJoints,Internal.Character)
-      
-      wait(.015)
-      for _,v in char:GetDescendants() do
-         Internal.DescAdd(v)
-      end
-      char.DescendantAdded:Connect(Internal.DescAdd)
-      if Internal.LimbBreakJoints and (not Internal.IsBreakJoints or Internal.OnBreakJointsProcess) then return end 
-      local camcf=cam.CFrame
-      rs.PreRender:Once(function()
-         rs.PreAnimation:Wait()
-         cam.CFrame=camcf
-      end)
       Internal.LastRespawn=os.clock()
       if Internal.LimbBreakJoints or Internal.HatReanimed then
          table.clear(Internal.Accessories) 
@@ -1697,6 +1683,21 @@ Reanim.Start=function(data)
                Reanim.Get("destroy")(Reanim.Character[name])
             end
          end
+      end
+      table.clear(Internal.NotKnownMotors)
+      table.clear(Internal.BaseParts)
+      local camcf=cam.CFrame
+      rs.PreRender:Once(function()
+         rs.PreAnimation:Wait()
+         cam.CFrame=camcf
+      end)
+      
+      for _,m in Internal.LimbMapping do
+        m.Ref=nil
+      end
+      char.DescendantAdded:Connect(Internal.DescAdd)
+      for _,v in char:GetDescendants() do
+         task.spawn(Internal.DescAdd,v)
       end
       local hum=Reanim.WaitChild(char,"Humanoid")
       if hum then 
@@ -2372,11 +2373,11 @@ Reanim.Start=function(data)
       Replicate10Fps=function(v) Rep10Fps=v end,
       RootPos=function(v) RootPos=v end,
       CharacterScale=function(v) 
-         if not v then
+         if not tonumber(v) then
             return 
          end
-         repeat wait(.1) until not IsBreaking --// Don't Scale the Model whilst the the hats are being cloned 
          Reanim.CharacterScale=v 
+         repeat wait(.1) until not IsBreaking --// Don't Scale the Model whilst the the hats are being cloned 
          Reanim.Character:ScaleTo(v) 
       end,
       Stop=function()
