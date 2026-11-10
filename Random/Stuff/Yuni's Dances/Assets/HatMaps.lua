@@ -87,11 +87,11 @@ local Hats={
    
    --// Other
    {
-      m="18640901641",t="18640901676",Limb={"Right Leg", "Left Leg"},Offset=cf()*angles(0,0,90)
+      m="18640901641",t="18640901676",Limb={"Right Leg", "Left Leg"},Offset=cf()*angles(0,0,0)
    },
    
    {
-      m="18640914129",t="18640914168",Limb={"Right Arm", "Left Arm"},Offset=cf()*angles(0,0,90)
+      m="18640914129",t="18640914168",Limb={"Right Arm", "Left Arm"},Offset=cf()*angles(0,0,0)
    },
    
 }
