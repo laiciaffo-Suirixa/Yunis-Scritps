@@ -2474,6 +2474,7 @@ Reanim.Start=function(data)
          end
       end,
       RefreshHatMap=function(v)
+         Internal.HatData=nil
          local HatMap,HatNameMap=loadstring(game:HttpGet("https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/refs/heads/main/Random/Stuff/Yuni's%20Dances/Assets/HatMaps.lua"))()
          Internal.HatData=HatMap
       end,
