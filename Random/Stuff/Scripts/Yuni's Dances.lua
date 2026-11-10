@@ -802,7 +802,7 @@ for n,v in ToDownload do
    Functions:Call("DownloadAssert",
    v.Path,
    n..".lua",
-   v.Url,v.AutoDownload)
+   v.Url,(v.AutoDownload or false))
 end
 
 
