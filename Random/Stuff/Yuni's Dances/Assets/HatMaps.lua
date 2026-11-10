@@ -62,6 +62,20 @@ local Hats={
       m="137702817952968",t="135650240593878",Limb={"Left Arm","Right Arm"},Offset=cf()*angles(0,0,90)
    },
    
+   
+   --// White Rig
+   {
+      m="126825022897778",t="130689541138804",Limb="Torso",Offset=cf()*angles(0,0,0)
+   },
+   
+   {
+      m="139733645770094",t="130809869695496",Limb={"Left Leg","Right Leg"},Offset=cf()*angles(0,0,90)
+   },
+   
+   {
+      m="99608462237958",t="130809869695496",Limb={"Left Arm","Right Arm"},Offset=cf()*angles(0,0,90)
+   },
+   
 }
 
-return Hats, AccNames
+return Hats, AccNamesturn Hats, AccNames
