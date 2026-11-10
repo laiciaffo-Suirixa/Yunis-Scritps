@@ -48,7 +48,19 @@ local Hats={
    },
    
    
+   --// 7ws 
+   --// Noob rig
+   {
+      m="126825022897778",t="125975972015302",Limb="Torso",Offset=cf()*angles(0,0,0)
+   },
    
+   {
+      m="137702817952968",t="73798034827573",Limb={"Left Leg","Right Leg"},Offset=cf()*angles(0,0,0)
+   },
+   
+   {
+      m="137702817952968",t="135650240593878",Limb={"Left Arm","Right Arm"},Offset=cf()*angles(0,0,0)
+   },
    
 }
 
