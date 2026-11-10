@@ -1019,18 +1019,20 @@ Reanim.Start=function(data)
          end
       elseif a:IsA("Motor6D") then
          if Internal.LimbBreakJoints and Internal.HatReanimed==false then if a.Name~="Neck" then a:Destroy() end return end
-         if not a:IsDescendantOf(ws) then return end
-         local p0n=a.Part0.Name
-         local p1n=a.Part1.Name
-         print(a)
-         if p0n and p1n then
-            for _,m in Internal.LimbMapping do
-               if m.Part0==p0n and m.Part1==p1n then
-                  m.Ref=a
-                  return 
-               end
-            end 
-         end
+         task.spawn(function()
+            if not a:IsDescendantOf(ws) then return end
+            repeat wait() until (a.Part1~=nil and a.Part0~=nil)
+            local p0n=a.Part0.Name
+            local p1n=a.Part1.Name
+            if p0n and p1n then
+               for _,m in Internal.LimbMapping do
+                  if m.Part0==p0n and m.Part1==p1n then
+                     m.Ref=a
+                     return 
+                  end
+               end 
+            end
+         end)
          table.insert(Internal.NotKnownMotors, a)
       elseif a:IsA("Animator") then
          task.defer(a.Destroy, a)
