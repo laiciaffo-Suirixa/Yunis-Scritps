@@ -78,4 +78,4 @@ local Hats={
    
 }
 
-return Hats, AccNamesturn Hats, AccNames
+return Hats, AccNames
