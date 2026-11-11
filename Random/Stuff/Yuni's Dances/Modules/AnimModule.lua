@@ -1741,6 +1741,7 @@ insert(function()
          end
          wait()
       end
+      figure.Humanoid.WalkSpeed=16*figure:GetScale()
       util:UnbindAction("VRWaveL")
       util:UnbindAction("VRWaveR")
       util:UnbindAction("VRCrouch")
