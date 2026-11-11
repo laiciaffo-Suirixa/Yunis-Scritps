@@ -1531,7 +1531,7 @@ insert(function()
       if not hum then return end
       if not root then return end
       if not torso then return end
-      hum.WalkSpeed=12
+      hum.WalkSpeed=12*figure:GetScale()
       --ReanimCamera.FPSLocked=true
       for _,v in figure:GetChildren() do
          if v:IsA("BasePart") then
@@ -1626,10 +1626,10 @@ insert(function()
       util:SetPosition("VRCrouch", UDim2.new(1, -130, 1, -230))
       util:BindAction("VRRun", function(_, state, _)
          if state == Enum.UserInputState.Begin then
-            if hum.WalkSpeed == 12 then
-               hum.WalkSpeed=24
+            if hum.WalkSpeed == 12*scale then
+               hum.WalkSpeed=24*scale
             else
-               hum.WalkSpeed=12
+               hum.WalkSpeed=12*scale
             end
          end
       end, true, Enum.KeyCode.LeftControl, Enum.KeyCode.ButtonB)
@@ -1669,13 +1669,13 @@ insert(function()
       if Crouching then
          CrouchDistance=CROUCH_DISTANCE + (CrouchDistance - CROUCH_DISTANCE) * math.exp(-16 * dt)
       else
-         CrouchDistance *= math.exp(-16 * dt)
+         CrouchDistance *= math.exp(-16 * (dt/scale))
       end
 
       if not isdancing then
          rj.Enabled, nj.Enabled, rsj.Enabled, lsj.Enabled, rhj.Enabled, lhj.Enabled=false, false, false, false, false, false
-         --hum.HipHeight=2 * scale
-         hum.HipHeight=2 * scale - 2 - CrouchDistance * scale
+         -- hum.HipHeight=2 * scale
+         hum.HipHeight=2/scale * (scale - 1) - (CrouchDistance * scale)
          root.CustomPhysicalProperties=PhysicalProperties.new(3.15, 0.3, 0.5)
          local head=figure:FindFirstChild("Head")
          local rarm=figure:FindFirstChild("Right Arm")
@@ -1725,7 +1725,7 @@ insert(function()
          SetCFrame(rleg, ProcessLegs(LegsTarget[2], dt))
       else
          rj.Enabled, nj.Enabled, rsj.Enabled, lsj.Enabled, rhj.Enabled, lhj.Enabled=true, true, true, true, true, true
-         hum.HipHeight=2 * scale - 2
+         hum.HipHeight=2/scale * (scale - 1)
          root.CustomPhysicalProperties=nil
       end
    end 
