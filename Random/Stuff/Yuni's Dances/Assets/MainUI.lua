@@ -4627,7 +4627,6 @@ function Inv:Slider(p,t)
    local Template=Temporary["Slider"]:Clone()
    Template.Parent=p
    Template.Visible=true
-   
    local Items=Template["Items"]
    local Text=Template["Texts"]
    local Label=Text["Text"]
@@ -4637,7 +4636,7 @@ function Inv:Slider(p,t)
    local Input=Items["InputPart"]["Input"]
    
    local Square=SliderPart["Square"]
-   local Button=SliderPart["Button"]
+   local Button=SliderPart["Slider"]
    
    local min,max=(t.Min or -1),(t.Max or 1)
    local dv=Functions:Call("GetProp","mcl",t.Default,min,max)
@@ -4661,6 +4660,7 @@ function Inv:Slider(p,t)
       local value=Functions:Call("GetProp","tn",math.round(acc*100)/100)
       if fire==true and t.Callback then t.Callback(value) end
    end
+   
    Functions:Call("GetProp","fcl",Input,function()
       local num=Functions:Call("GetProp","tn",Input.Text)
       if num then
@@ -4670,9 +4670,9 @@ function Inv:Slider(p,t)
          Input.Text=Functions:Call("GetProp","ts",math.round(acc*100)/100)
       end
    end)
-   render(false,true)
    
-   local uis=Functions:Call("GetProp","uis")
+   render(false,true)
+   local uis=Functions:Call("GetProp","gs","UserInputService")
    Functions:Call("GetProp","m1d",Button,function()
       dragging=true
       local mouse=uis:GetMouseLocation()
@@ -4685,13 +4685,13 @@ function Inv:Slider(p,t)
          if dragging then dragging=false end 
       end
    end)
-   Functions:Call("GetProp","hb",Button, function()
+   Functions:Call("GetProp","hb",Button, function(dt)
       if dragging then
          local mouse=uis:GetMouseLocation()
          local tw=SliderPart.AbsoluteSize.X
          local pix=mouse.X-MX
          local valdt=(pix/tw)*(max-min)
-         local rv=dragaccum+valdt
+         local rv=draggaccum+valdt
          local step=t.Step or .0001
          acc=Functions:Call("GetProp","mcl",math.round(rv/step)*step,min,max)
          render(false,true)
@@ -4994,7 +4994,7 @@ function Inv:Dropdown(p,t)
             local Input=Items["InputPart"]["Input"]
             
             local Square=SliderPart["Square"]
-            local Button=SliderPart["Button"]
+            local Button=SliderPart["Slider"]
             
             local min,max=(t.Min or -1),(t.Max or 1)
             local dv=Functions:Call("GetProp","mcl",t.Default,min,max)
@@ -5029,7 +5029,7 @@ function Inv:Dropdown(p,t)
             end)
             render(false,true)
             
-            local uis=Functions:Call("GetProp","uis")
+            local uis=Functions:Call("GetProp","gs","UserInputService")
             Functions:Call("GetProp","m1d",Button,function()
                dragging=true
                local mouse=uis:GetMouseLocation()
@@ -5048,7 +5048,7 @@ function Inv:Dropdown(p,t)
                   local tw=SliderPart.AbsoluteSize.X
                   local pix=mouse.X-MX
                   local valdt=(pix/tw)*(max-min)
-                  local rv=dragaccum+valdt
+                  local rv=draggaccum+valdt
                   local step=t.Step or .0001
                   acc=Functions:Call("GetProp","mcl",math.round(rv/step)*step,min,max)
                   render(false,true)
