@@ -735,11 +735,6 @@ Functions:Add("DownloadAssert", function(path,name,url,ov)
       link=raw
    end 
    if isfile and isfile(file) and not ov then return true end
-   Notify({
-      Text="Downloading File: "..file.."\nUrl: "..url,
-      Size=12,
-      Color=Functions:Call("GetProp","rgb",0,255,0)
-   })
    if ov then
       writefile(file,link) 
       warn("Redownloaded File: "..file.."\nUrl: "..url)
