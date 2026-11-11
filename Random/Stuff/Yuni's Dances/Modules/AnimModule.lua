@@ -1675,7 +1675,6 @@ insert(function()
       if not isdancing then
          rj.Enabled, nj.Enabled, rsj.Enabled, lsj.Enabled, rhj.Enabled, lhj.Enabled=false, false, false, false, false, false
          -- hum.HipHeight=2 * scale
-         --// This part was fixed by yuni :333
          hum.HipHeight=2/scale * (scale - 1) - (CrouchDistance * scale)
          root.CustomPhysicalProperties=PhysicalProperties.new(3.15, 0.3, 0.5)
          local head=figure:FindFirstChild("Head")
@@ -1732,6 +1731,16 @@ insert(function()
    end 
    
    m.Destroy=function(util,figure)
+      local c=os.clock()+.2
+      while true do 
+         if os.clock()>c then break end
+         for _,m6 in figure:GetDescendants() do
+            if m6:IsA("Motor6D") then
+               m6.Enabled=true
+            end
+         end
+         wait()
+      end
       util:UnbindAction("VRWaveL")
       util:UnbindAction("VRWaveR")
       util:UnbindAction("VRCrouch")
