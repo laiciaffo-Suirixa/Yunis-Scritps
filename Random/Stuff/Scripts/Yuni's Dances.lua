@@ -775,7 +775,7 @@ Functions:Add("GetFile", function(path,name,url)
    end
 end)
 
-local Override=true --// enable this if you wanna redownload utility assets again if theres an update(dev only)
+local Override=false --// enable this if you wanna redownload utility assets again if theres an update(dev only)
 local ToDownload={
    ["DanceModule"]={
       Path=Functions:Call("GetPath","DanceModule"),
@@ -1650,7 +1650,7 @@ Functions:Add("MainPart", function()
          pcall(function()
             for _,m6 in Script:GetFigureModel():GetDescendants() do
                if m6:IsA("Motor6D") then
-                  m6.C0=OrigC0[m6.Name]
+                  m6.C0=OrigC0[m6.Name]+(OrigC0[m6.Name].Position*Script:GetFigureModel())
                   m6.Enabled=true
                end
             end
@@ -1883,7 +1883,7 @@ Functions:Add("MainPart", function()
          pcall(function()
             for _,m6 in Script:GetFigureModel():GetDescendants() do
                if m6:IsA("Motor6D") then
-                  m6.C0=OrigC0[m6.Name]
+                  m6.C0=OrigC0[m6.Name]+(OrigC0[m6.Name].Position*Script:GetFigureModel())
                   m6.Enabled=true
                end
             end
