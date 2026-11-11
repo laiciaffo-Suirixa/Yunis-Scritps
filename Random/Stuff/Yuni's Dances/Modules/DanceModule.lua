@@ -965,7 +965,7 @@ insert(function()
    local start=nil
    m.Init=function(t)
       start=os.clock()
-      t:SetAudio(Name..".mp3",5)
+      t:SetAudio(Name..".mp3",2)
       anim=t:GetAnimator("Yuni").new()
       anim.Speed=1
       anim.Alpha=1
