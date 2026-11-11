@@ -1,22 +1,20 @@
 
 
 
-
 --// Yuni's Animator
 local GetJoints=function(Model)
+   print(Model)
    local Motors,Welds={},{}
    for _,part in Model:GetDescendants() do
       if part:IsA("BasePart") then
          for _, joint in part:GetJoints() do
             if joint:IsA("Motor6D") and joint.Part1==part then
                Motors[part.Name]=joint
-               break 
             elseif joint:IsA("Weld") and joint.Part1==part then
                Welds[part.Name]={
                  Joint=joint,
                  C0=joint.C0 --// Store old C0
                }
-               break 
             end
          end
       end 
@@ -185,6 +183,7 @@ function Animator:Update(time)
       PoseCFrame=PoseCFrame.Rotation+(PoseCFrame.Position*scale)
       if motor then
          motor.Transform=PoseCFrame
+         motor.Enabled=true
       end 
       local weld=self._Welds[Part]
       if weld and self.ShouldUseProps==true then

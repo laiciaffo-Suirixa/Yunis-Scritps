@@ -1336,6 +1336,7 @@ Reanim.Start=function(data)
             local FakeAcc=acc:Clone()
             local Handle=FakeAcc:FindFirstChild("Handle")
             if not Handle then FakeAcc:Destroy() return end
+            Internal.Accessories[NumericName]=acc
             Handle.AssemblyLinearVelocity=Vector3.new()
             Handle.AssemblyAngularVelocity=Vector3.new()
             local MappedHandle=GetAccessoryMap(Handle)
@@ -1409,7 +1410,6 @@ Reanim.Start=function(data)
                   Weld.Parent=Handle
                end 
             end)
-            Internal.Accessories[NumericName]=acc
             FakeAcc:SetAttribute("_Yuni_Cloned_Accs",true)
             acc.Handle:BreakJoints()
             if not Reanim.Character:FindFirstChild(NumericName) then
@@ -1425,9 +1425,10 @@ Reanim.Start=function(data)
          local Rhrp=Reanim.Character:FindFirstChild("HumanoidRootPart").CFrame 
          local t=os.clock()+(.2+network) --// Should be enough to combat network ping 
          local flip=hrp.CFrame*CFrame.new(0,-3,0)*CFrame.Angles(-1.5707963267948966,0,0)
+         local void=hrp.CFrame*CFrame.new(0,fpdh+.5+(network/1.15),0)*CFrame.Angles(-1.5707963267948966,0,0)
          while true do 
             if Internal.SpawnTp==1 then 
-               hrp.CFrame=Rhrp*CFrame.new(0,fpdh+.5+(network/1.15),0)*CFrame.Angles(-1.5707963267948966,0,0)
+               hrp.CFrame=void
                hrp.AssemblyLinearVelocity=Vector3.new()
                hrp.AssemblyAngularVelocity=Vector3.new()
             elseif Internal.SpawnTp==2 then 
@@ -1735,9 +1736,6 @@ Reanim.Start=function(data)
    end
    Reanim.Character:ScaleTo(1) 
    
-   
-   
-   
    AddConnection("FakeCharDestroying",Reanim.Character.Destroying:Connect(function()
       Internal.RespawnCon:Disconnect()
       local char=plr.Character
@@ -1750,6 +1748,8 @@ Reanim.Start=function(data)
       Reanim.ShiftlockScreenGui:Destroy()
       DisconnectConnection()
    end))
+   
+   
    
    --// Movement Controls 
    local GameSettings=UserSettings():GetService("UserGameSettings")
@@ -2285,7 +2285,6 @@ Reanim.Start=function(data)
       end)
    end
    
-   
    task.spawn(function()
       while Internal.Running do
          rs.PreSimulation:Wait()
@@ -2378,9 +2377,9 @@ Reanim.Start=function(data)
          if not tonumber(v) then
             return 
          end
-         Reanim.CharacterScale=v 
+         Reanim.CharacterScale=tonumber(v) 
          repeat wait() until not IsBreaking --// Don't Scale the Model whilst the the hats are being cloned 
-         Reanim.Character:ScaleTo(v) 
+         Reanim.Character:ScaleTo(tonumber(v)) 
       end,
       Stop=function()
          if Internal.RespawnCon then Internal.RespawnCon:Disconnect() Internal.RespawnCon=nil end
@@ -2405,9 +2404,9 @@ Reanim.Start=function(data)
          Internal=nil
       end,
       SetLimbBreakjoints=function(v)
-         if (Internal.OnBreakJointsProcess or IsBreaking)==true then
+         if (Internal.OnBreakJointsProcess or IsBreaking) then
             warn("Waiting for Breakjoints process to finish, please wait")
-            repeat wait() until (Internal.OnBreakJointsProcess or IsBreaking)==false
+            repeat wait() until (Internal.OnBreakJointsProcess or not IsBreaking)
          end 
          Internal.LimbBreakJoints=v
          if Internal.HatReanimed then return end
@@ -2436,9 +2435,9 @@ Reanim.Start=function(data)
       
       
       SetReanimType=function(v)
-         if (Internal.OnBreakJointsProcess or IsBreaking)==true then
+         if (Internal.OnBreakJointsProcess or IsBreaking) then
             warn("Waiting for Breakjoints process to finish, please wait")
-            repeat wait() until (Internal.OnBreakJointsProcess or IsBreaking)==false
+            repeat wait() until (Internal.OnBreakJointsProcess or not IsBreaking)
          end 
          for name,acc in Reanim.Character:GetChildren() do
             if acc:GetAttribute("_Yuni_Cloned_Accs") then
@@ -2447,8 +2446,8 @@ Reanim.Start=function(data)
          end
          IsBreaking=true
          Internal.HatReanimed=(v:lower()=="hat" and true or false)
-         Reanim.Character:ScaleTo(1) 
          if Internal.HatReanimed then
+            Reanim.Character:ScaleTo(1) 
             local char=plr.Character
             local h=Reanim.FindChildClass(char, "Humanoid")
             if h then
