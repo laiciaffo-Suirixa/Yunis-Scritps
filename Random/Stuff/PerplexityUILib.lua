@@ -7522,7 +7522,7 @@ function UI:TextField(p,t)
       TextSize
    ]]
    local t=t or {}
-   local Template=Scroll["Paragraph"]:Clone()
+   local Template=Scroll["Textfield"]:Clone()
    Template.Parent=p
    Template.Size=gp("u2")(1,0,99999,0)
    local Input=Template["Input"]
@@ -7737,7 +7737,7 @@ function UI:NewTab(name)
       return UI:Paragraph(Scroll,t)
    end
    function Entry:AddTextField(t)
-      return UI:Paragraph(Scroll,t)
+      return UI:TextField(Scroll,t)
    end
    function Entry:OpenTab(name)
       local Popup=Content["Popup"]
@@ -7765,14 +7765,6 @@ function UI:NewTab(name)
       end)
       
       --// Tween
-      tw(Popup,.35,{AnchorPoint=gp("v2")(1,1)},"Quint"):Play()
-      tw(Scroll,.35,{AnchorPoint=gp("v2")(1,1)},"Quint"):Play()
-      
-      Title.Text="|| "..name or "|| Tab"
-      gp("m1")(Return, function()
-         tw(Popup,.35,{AnchorPoint=gp("v2")(0,1)},"Quint"):Play()
-         tw(Scroll,.35,{AnchorPoint=gp("v2")(0,1)},"Quint"):Play()
-      end)
       local Data={}
       function Data:AddButton(t)
          return UI:Button(PopupScroll,t)
@@ -7799,7 +7791,7 @@ function UI:NewTab(name)
          return UI:Paragraph(PopupScroll,t)
       end
       function Data:AddTextField(t)
-         return UI:Paragraph(PopupScroll,t)
+         return UI:TextField(PopupScroll,t)
       end
       function Data:ClearCanvas()
          for _,v in PopupScroll:GetChildren() do
@@ -7808,6 +7800,15 @@ function UI:NewTab(name)
             end
          end
       end
+      tw(Popup,.35,{AnchorPoint=gp("v2")(1,1)},"Quint"):Play()
+      tw(Scroll,.35,{AnchorPoint=gp("v2")(1,1)},"Quint"):Play()
+      
+      Title.Text="|| "..name or "|| Tab"
+      gp("m1")(Return, function()
+         Data:ClearCanvas()
+         tw(Popup,.35,{AnchorPoint=gp("v2")(0,1)},"Quint"):Play()
+         tw(Scroll,.35,{AnchorPoint=gp("v2")(0,1)},"Quint"):Play()
+      end)
       return Data
    end
    --// Other Stuffs
