@@ -775,7 +775,7 @@ Functions:Add("GetFile", function(path,name,url)
    end
 end)
 
-local Override=true --// enable this if you wanna redownload utility assets again if theres an update(dev only)
+local Override=false --// enable this if you wanna redownload utility assets again if theres an update(dev only)
 local ToDownload={
    ["DanceModule"]={
       Path=Functions:Call("GetPath","DanceModule"),
@@ -1621,7 +1621,7 @@ Functions:Add("MainPart", function()
             local m=e.Module 
             if m.Name==Script.AnimModule.ModuleName then
                Script.AnimModule.CurrentModule=m
-               task.spawn(function() Functions:Call("ApplyAnimModule",m) end)
+               -- task.spawn(function() Functions:Call("ApplyAnimModule",m) end)
                break 
             end 
          end 
@@ -1647,13 +1647,13 @@ Functions:Add("MainPart", function()
       Script.Sound1:Stop()
       Script.Sound1.TimePosition=0
       if Script.AnimModule.CurModule and Script.AnimModule.CurModule.Destroy then
-         local c=os.clock()+.15
+         local c=os.clock()+.2
          while true do
             if os.clock()>c then break end
             pcall(function()
                for _,m6 in Script:GetFigureModel():GetDescendants() do
                   if m6:IsA("Motor6D") then
-                     m6.C0=OrigC0[m6.Name]+(OrigC0[m6.Name].Position*Script:GetFigureModel())
+                     m6.C0=OrigC0[m6.Name].Rotation+(OrigC0[m6.Name].Position*Script:GetFigureModel():GetScale())
                      m6.Enabled=true
                   end
                end
@@ -1738,15 +1738,15 @@ Functions:Add("MainPart", function()
          r["SetNetlessVel"](Main.ReanimatorData.Hat.NetlessVelocity)
          r["SetSpawnTp"](Main.ReanimatorData.Hat.DeadbodyPos)
          isloading=false
-         if Script.AnimModule.CurModule then
-            Functions:Call("ApplyAnimModule",Script.AnimModule.CurModule)
+         if Script.AnimModule.CurrentModule then
+            Functions:Call("ApplyAnimModule",Script.AnimModule.CurrentModule)
          elseif Main.ScriptData["SelectedAnimModule"] then
             local name=Main.ScriptData["SelectedAnimModule"]
             for _,e in AnimationModules do
                if e.Module.Name==name then
                   Script.AnimModule.CurModule=e.Module
                   Functions:Call("ApplyAnimModule",e.Module)
-                 break
+                  break
                end
             end
          end
@@ -1882,17 +1882,14 @@ Functions:Add("MainPart", function()
          Script.Sound1:Stop()
          Script.Sound1.TimePosition=0
          Script:GetFigureModel():SetAttribute("IsDancing",true)
-         
          Script.CurrentLoadedModule=module
          wait(.01)
-         pcall(function()
-            for _,m6 in Script:GetFigureModel():GetDescendants() do
-               if m6:IsA("Motor6D") then
-                  m6.C0=OrigC0[m6.Name]+(OrigC0[m6.Name].Position*Script:GetFigureModel())
-                  m6.Enabled=true
-               end
+         for _,m6 in Script:GetFigureModel():GetDescendants() do
+            if m6:IsA("Motor6D") then
+               m6.C0=OrigC0[m6.Name].Rotation+(OrigC0[m6.Name].Position*Script:GetFigureModel():GetScale())
+               m6.Enabled=true
             end
-         end)
+         end
          Script.IsPlayingEmote=true
          MainUI:ChangeInfo(module.Info) --// Apply Emote Info
          if module.CanBeConfigured then
