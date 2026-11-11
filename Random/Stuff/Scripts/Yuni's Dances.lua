@@ -28,6 +28,7 @@ _____.___.            .__/\       ________
 local Lib=loadstring(game:HttpGet('https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/refs/heads/main/Random/Stuff/PerplexityUILib.lua'))()
 local UI=Lib.UI
 local Functions=Lib.Functions
+local Connections=Lib.Connections
 local Values=Lib.Values
 local GetConfig=Lib.GetConfig
 local Notify=Lib.Notification
@@ -339,6 +340,11 @@ Settings:AddButton({
    Text="Refresh",
    Callback=function()
       Functions:Call("Refresh Emotes")
+      Notify({
+         Text="Refreshed",
+         Size=18,
+         Color=Functions:Call("GetProp","rgb",0,255,0)
+      })
    end,
 })
 
@@ -347,7 +353,12 @@ Settings:AddButton({
    Description="Reloads Animation Modules",
    Text="Refresh",
    Callback=function()
-      Functions:Call("Refresh Emotes")
+      Functions:Call("Refresh Anim Modules")
+      Notify({
+         Text="Refreshed",
+         Size=18,
+         Color=Functions:Call("GetProp","rgb",0,255,0)
+      })
    end,
 })
 
@@ -698,10 +709,6 @@ end)
 Functions:Call("RefreshReanimTab",Main.ReanimatorData.ReanimType)
 
 
-
-
-
-
 --// Core Stuff
 Functions:Add("DownloadAssert", function(path,name,url,ov)
    if not isfile and not writefile then
@@ -735,11 +742,7 @@ Functions:Add("DownloadAssert", function(path,name,url,ov)
    })
    if ov then
       writefile(file,link) 
-      Notify({
-          Text="File Downloaded: "..file.."\nUrl: "..url,
-          Size=12,
-          Color=Functions:Call("GetProp","rgb",0,255,0)
-      })
+      warn("Redownloaded File: "..file.."\nUrl: "..url)
       return true
    end
    if isfile and not isfile(file) then
@@ -777,24 +780,32 @@ Functions:Add("GetFile", function(path,name,url)
    end
 end)
 
-
+local Override=true --// enable this if you wanna redownload utility assets again if theres an update(dev only)
 local ToDownload={
    ["DanceModule"]={
       Path=Functions:Call("GetPath","DanceModule"),
       Url="https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Modules/DanceModule.lua",
-      AutoDownload=true 
+      AutoDownload=Override 
+   },
+   ["AnimModule"]={
+      Path=Functions:Call("GetPath","AnimModule"),
+      Url="https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Modules/AnimModule.lua",
+      AutoDownload=Override 
    },
    ["Yuni's Animator"]={
       Path=Functions:Call("GetPath","Assets"),
-      Url="https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Assets/Yuni's Animator.lua"
+      Url="https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Assets/Yuni's Animator.lua",
+      AutoDownload=Override 
    },
    ["Yuni's Reanimate"]={
       Path=Functions:Call("GetPath","Assets"),
-      Url="https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Assets/Yuni's Reanimate.lua"
+      Url="https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Assets/Yuni's Reanimate.lua",
+      AutoDownload=Override 
    },
    ["Steve's Animator"]={
       Path=Functions:Call("GetPath","Assets"),
-      Url="https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Assets/Steve's Animator.lua"
+      Url="https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Assets/Steve's Animator.lua",
+      AutoDownload=Override 
    },
 }
 
@@ -811,6 +822,21 @@ end
 
 Functions:Add("MainPart", function()
    --// Main Script
+   local Script={}
+   Script.Reanimator=nil
+   Script.ReanimatorData=nil
+   Script.InvUI=nil
+   Script.IsRunning=false
+   Script.AnimModule={
+      CurrentModule=nil,
+      ModuleName=nil,
+      CurrentlyOpened=nil,
+      Connection=nil,
+      Entries={},
+   }
+   
+   
+   
    Functions:Add("DownloadAsset", function(t)
       if not t then return end
       for _,v in t do
@@ -845,92 +871,6 @@ Functions:Add("MainPart", function()
       end 
    end)
    
-   local LoadedModules={}
-   local AnimationModules={}
-   Functions:Add("GetEmoteModules", function()
-      Functions:Call("GetProp","clear",LoadedModules)
-      local files=listfiles(Functions:Call("GetPath","DanceModule"))
-      for _,file in files do
-         if file:match("%.lua$") then
-            local ok,code=pcall(function()
-               return loadstring(readfile(file))()
-            end)
-            if ok then
-               if type(code)=="table" then
-                  for _,func in code do
-                     if type(func)=="function" then
-                        local ok1,r=pcall(func)
-                        if ok1 then
-                           if type(r)=="table" and r.Type:lower()=="emote" then
-                              r._AssetsDownloaded=false
-                              Functions:Call("GetProp","insert",LoadedModules,{Module=r})
-                              local ok2=pcall(function() Functions:Call("DownloadAsset",r.Assets) end)
-                              if ok2 then
-                                 r._AssetsDownloaded=true 
-                              end 
-                           end
-                        end 
-                     end
-                  end 
-               end 
-            else
-               warn("Failed to load file: "..file.."\nReason: "..code)
-               continue 
-            end 
-         end
-      end
-   end)
-   
-   Functions:Add("LoadAnimModules", function()
-      Functions:Call("GetProp","clear",AnimationModules)
-      local files=listfiles(Functions:Call("GetPath","AnimModule"))
-      for _,file in files do
-         if file:match("%.lua$") then
-            local ok,code=pcall(function()
-               return loadstring(readfile(file))()
-            end)
-            if ok then
-               if type(code)=="table" then
-                  for _,func in code do
-                     if type(func)=="function" then
-                        local ok1,r=pcall(func)
-                        if ok1 then
-                           if type(r)=="table" and r.Type:lower()=="moveset" then
-                              r._AssetsDownloaded=false
-                              Functions:Call("GetProp","insert",AnimationModules,{Module=r})
-                              task.spawn(function()
-                                 local ok2=pcall(function() Functions:Call("DownloadAsset",r.Assets) end)
-                                 if ok2 then
-                                    r._AssetsDownloaded=true 
-                                 end 
-                              end)
-                           end
-                        end 
-                     end
-                  end 
-               end 
-            else
-               warn("Failed to load file: "..file.."\nReason: "..code)
-               continue 
-            end 
-         end
-      end
-   end)
-   
-   Functions:Add("GetModules", function()
-      return LoadedModules
-   end)
-   
-   Functions:Add("GetLoadedAnimModules", function()
-      return AnimationModules
-   end)
-   
-   
-   
-   local Script={}
-   Script.Reanimator=nil
-   Script.InvUI=nil
-   Script.IsRunning=false
    function Script:ReadBinary(data) --// from my old dance script
       local pos=1
       local len=#data
@@ -1073,8 +1013,8 @@ Functions:Add("MainPart", function()
                end 
             elseif should==false then --// For Yuni's Animator
                --// Yuni's Artificial KeyframeSequence maker
-               local file = Functions:Call("GetPath","Animations").."/"..n
-               local ok, data = pcall(function()
+               local file=Functions:Call("GetPath","Animations").."/"..n
+               local ok, data=pcall(function()
                   return Script:ReadBinary(readfile(file))
                end)
                if ok then
@@ -1182,13 +1122,23 @@ Functions:Add("MainPart", function()
       Volume=1,
       Pitch=1,
    })
+   local Sound1=Functions:Call("NewInstance","Sound",UI:GetUI(),{
+      Looped=true,
+      Volume=1,
+      Pitch=1,
+   })
    Script.Sound=Sound
+   Script.Sound1=Sound1
    function Script:GetFigureModel()
       return workspace:FindFirstChild("Gelatek Plexity")
    end
    
    function Script:GetAudioTimeTrack()
       return Sound
+   end
+   
+   function Script:SetAudioTime(time)
+      Sound.TimePosition=time
    end
    
    Functions:Add("ScaleModelTo", function(ToScale)
@@ -1212,7 +1162,525 @@ Functions:Add("MainPart", function()
       Sound:Play()
    end
    
+   function Script:SetAnimAudio(FileName,Volume,Pitch,LoopRegion)
+      if FileName=="" then
+         Sound1:Stop()
+         Sound1.Volume=0
+         Sound1.TimePosition=0
+         return
+      end
+      Sound1:Stop()
+      Sound1.TimePosition=0
+      Sound1.SoundId=getcustomasset(Functions:Call("GetPath","Audios").."/"..FileName)
+      Sound1.Volume=Volume or 1
+      Sound1.Pitch=Pitch or 1
+      if LoopRegion~=nil then
+         Sound1.PlaybackRegionsEnabled=true
+         Sound1.LoopRegion=LoopRegion
+      else
+         Sound1.PlaybackRegionsEnabled=false
+      end 
+      Sound1:Play()
+   end
    
+   Script.CurrentTime=Sound1.TimePosition
+   function Script:SaveAudioTime()
+      Script.CurrentTime=Sound1.TimePosition
+   end
+   
+   function Script:GetAudioTime()
+      return Script.CurrentTime
+   end
+   
+   --// Context Actions (Sourced from Uhhhh Reanim)
+   
+   local UIS=Functions:Call("GetProp","gs","UserInputService")
+   local buttonsui=Instance.new("Frame", UI:GetUI())
+   buttonsui.BackgroundTransparency=1
+   buttonsui.Name="ContextActions"
+   buttonsui.AnchorPoint=Vector2.new(0, 0)
+   buttonsui.Position=UDim2.new(1, -90, 1, -90)
+   buttonsui.Size=UDim2.new(0, 130, 0, 130)
+   buttonsui.Visible=false
+   Script.ButtonsUI=buttonsui
+   Script._ContextActions={}
+   Script._ContextActionsMap={}
+   local actions,actionsmap=Script._ContextActions, Script._ContextActionsMap
+   function Script:RunBinding(caac, input)
+      local s, result=xpcall(caac.Callback, function(m)
+         warn(debug.traceback("Yuni's Dances :: Custom Script Error - " .. m))
+      end, caac.Name, input.UserInputState, input)
+      if s then
+         if result == Enum.ContextActionResult.Sink then
+            return true
+         end
+      end
+      return false
+   end
+   
+   function Script:OnInput(input, gpe)
+      if input.UserInputType ~= Enum.UserInputType.Keyboard then
+         if gpe then return end
+      end
+      for i=#actions, 1, -1 do
+         local caac=actions[i]
+         local exec=false
+         for _,v in caac.Inputs do
+            if v == input.UserInputType then
+               exec=true
+               break
+            end
+            if input.UserInputType == Enum.UserInputType.Keyboard then
+               if v == input.KeyCode then
+                  exec=true
+                  break
+               end
+            end
+         end
+         if exec then
+            if Script:RunBinding(caac, input) then return end
+         end
+      end
+   end
+   function Script:UnbindAllActions()
+      table.clear(actions)
+      table.clear(actionsmap)
+      Script.ButtonsUI:ClearAllChildren()
+   end
+   function Script:BindAction(name, callback, touchButton, ...)
+      assert(type(name) == "string")
+      assert(type(callback) == "function")
+      assert(type(touchButton) == "boolean")
+      Script:UnbindAction(name)
+      local caac={
+         Name=name,
+         Callback=callback,
+         Inputs={...}
+      }
+      table.insert(actions, caac)
+      actionsmap[name]=caac
+      if touchButton then
+         local button=Instance.new("ImageButton", buttonsui)
+         button.Name="Button"
+         button.Position=UDim2.new(0, 0, 0, 0)
+         button.Size=UDim2.new(0, 35, 0, 35)
+         button.Image="https://www.roblox.com/asset/?id=97166444"
+         button.BackgroundTransparency=1
+         local txt=Instance.new("TextLabel", button)
+         txt.Name="Title"
+         txt.Position=UDim2.new(0, 0, 0, 0)
+         txt.Size=UDim2.new(1, 0, 1, 0)
+         txt.BackgroundTransparency=1
+         txt.Font=Enum.Font.SourceSansBold
+         txt.TextSize=18
+         txt.TextColor3=Color3.new(1, 1, 1)
+         txt.TextStrokeTransparency=0
+         txt.TextStrokeColor3=Color3.new(0, 0, 0)
+         txt.Text=""
+         local icon=Instance.new("ImageLabel", button)
+         icon.Name="Icon"
+         icon.Position=UDim2.new(0, 0, 0, 0)
+         icon.Size=UDim2.new(1, 0, 1, 0)
+         icon.BackgroundTransparency=1
+         icon.Image=""
+         button.InputBegan:Connect(function(input)
+            Script:RunBinding(caac, input)
+         end)
+         button.InputChanged:Connect(function(input)
+            Script:RunBinding(caac, input)
+         end)
+         button.InputEnded:Connect(function(input)
+            Script:RunBinding(caac, input)
+         end)
+         caac.TouchButton=button
+      end
+   end
+   
+   function Script:UnbindAction(name)
+      local caac=actionsmap[name]
+      if caac then
+         if caac.TouchButton then
+            caac.TouchButton:Destroy()
+         end
+         local i=table.find(actions, caac)
+         if i then table.remove(actions, i) end
+      end
+   end
+   
+   function Script:UnbindAction(name)
+      local caac=actionsmap[name]
+      if caac then
+         if caac.TouchButton then
+            caac.TouchButton:Destroy()
+         end
+         local i=table.find(actions, caac)
+         if i then table.remove(actions, i) end
+      end
+   end
+   function Script:SetTitle(name, title)
+      local caac=actionsmap[name]
+      if caac then
+         local button=caac.TouchButton
+         if button then
+            if button.Icon.Image == "" then
+               button.Title.Visible=true
+               button.Icon.Visible=false
+            else
+               button.Title.Visible=true
+               button.Icon.Visible=false
+            end
+            button.Title.Text=title
+         end
+      end
+   end
+   function Script:SetImage(name, image)
+      local caac=actionsmap[name]
+      if caac then
+         local button=caac.TouchButton
+         if button then
+            if image then
+               button.Icon.Image=image
+            else
+               button.Icon.Image=""
+            end
+            if button.Icon.Image == "" then
+               button.Title.Visible=true
+               button.Icon.Visible=false
+            else
+               button.Title.Visible=true
+               button.Icon.Visible=false
+            end
+         end
+      end
+   end
+   function Script:SetPosition(name, position)
+      local caac=actionsmap[name]
+      if caac then
+         local button=caac.TouchButton
+         if button then
+            button.Position=position
+         end
+      end
+   end
+   local rs=Functions:Call("GetProp","gs","RunService")
+   local Player=Functions:Call("GetProp","gs","Players").LocalPlayer
+   Connections:Add("ContextActions",rs.Heartbeat:Connect(function()
+      local playerGui=Player:FindFirstChildOfClass("PlayerGui")
+      local touchGui=playerGui and playerGui:FindFirstChild("TouchGui")
+      if not touchGui or not touchGui.Enabled then
+         return
+      end
+      local touchFrame=touchGui and touchGui:FindFirstChild("TouchControlFrame")
+      local jumpButton=touchFrame and touchFrame:FindFirstChild("JumpButton")
+      if not jumpButton then
+         return
+      end
+      local pos=jumpButton.AbsolutePosition - UI:GetUI().AbsolutePosition
+      buttonsui.Position=UDim2.fromOffset(pos.X - 35, pos.Y - 35)
+   end))
+   
+   Connections:Add("ContextActions_InputBegan",UIS.InputBegan:Connect(function(input, gpe)
+      if UIS:GetFocusedTextBox() then return end
+      Script:OnInput(input, gpe)
+   end))
+   
+   Connections:Add("ContextActions_InputChanged",UIS.InputChanged:Connect(function(input, gpe)
+      if UIS:GetFocusedTextBox() then return end
+      Script:OnInput(input, gpe)
+   end))
+   
+   Connections:Add("ContextActions_InputEnded",UIS.InputEnded:Connect(function(input, gpe)
+      if UIS:GetFocusedTextBox() then return end
+      Script:OnInput(input, gpe)
+   end))
+   
+   
+   function Script:GetAnimator(name)
+      if name:lower()=="yuni" then
+         local AnimatorLib=Functions:Call("GetPath","Assets").."/Yuni's Animator.lua"
+         local AnimLib=loadstring(readfile(AnimatorLib))()
+         return AnimLib
+      elseif name:lower()=="steve" then
+         local AnimatorBySteve=Functions:Call("GetPath","Assets").."/Steve's Animator.lua"
+         local ok,res=pcall(function()
+            return loadstring(readfile(AnimatorBySteve))()
+         end)
+         if ok then
+            return res
+         end
+      end 
+   end 
+   
+   --// For the animation set utils part
+   function Script:Switch(name, defaultstate, func)
+      if Script.AnimModule.CurrentlyOpened~=nil then
+         Script.AnimModule.CurrentlyOpened:AddToggle({
+            Name=name,
+            Description="",
+            Default=defaultstate or false,
+            Callback=function(v)
+               func(v)
+            end,
+         })
+      end 
+   end 
+   
+   function Script:Slider(name, min, max, default, func)
+      if Script.AnimModule.CurrentlyOpened~=nil then
+         Script.AnimModule.CurrentlyOpened:AddSlider({
+            Name=name,
+            Description="",
+            Min=min or -1,
+            Max=max or 1,
+            Default=default or 0,
+            Callback=function(value)
+               func(value)
+            end,
+         })
+      end 
+   end 
+   
+   function Script:Dropdown(Name, options, default, func)
+      if Script.AnimModule.CurrentlyOpened~=nil then
+         local Options={}
+         if type(options)=="table" then
+            for i, name in options do
+               table.insert(Options, {
+                  Type="toggle",
+                  Name=name,
+                  DefualtState=default==i and true or false,
+                  Callback=function(state)
+                     if state==false then return end
+                     func(i,state)
+                  end,
+               })
+            end
+         end
+         Script.AnimModule.CurrentlyOpened:AddDropdown({
+            Name=Name,
+            MultiToggle=false,
+            FireOnLoad=false,
+            Options=Options,
+         })
+      end
+   end 
+   
+   
+   local LoadedModules={}
+   local AnimationModules={}
+   Functions:Add("GetEmoteModules", function()
+      Functions:Call("GetProp","clear",LoadedModules)
+      local files=listfiles(Functions:Call("GetPath","DanceModule"))
+      for _,file in files do
+         if file:match("%.lua$") then
+            local ok,code=pcall(function()
+               return loadstring(readfile(file))()
+            end)
+            if ok then
+               if type(code)=="table" then
+                  for _,func in code do
+                     if type(func)=="function" then
+                        local ok1,r=pcall(func)
+                        if ok1 then
+                           if type(r)=="table" and r.Type:lower()=="emote" then
+                              r._AssetsDownloaded=false
+                              Functions:Call("GetProp","insert",LoadedModules,{Module=r})
+                              local ok2=pcall(function() Functions:Call("DownloadAsset",r.Assets) end)
+                              if ok2 then
+                                 r._AssetsDownloaded=true 
+                              end 
+                           end
+                        end 
+                     end
+                  end 
+               end 
+            else
+               warn("Failed to load file: "..file.."\nReason: "..code)
+               continue 
+            end 
+         end
+      end
+   end)
+   
+   Functions:Add("LoadAnimModules", function()
+      Functions:Call("GetProp","clear",AnimationModules)
+      local files=listfiles(Functions:Call("GetPath","AnimModule"))
+      if Script.AnimModule.CurrentlyOpened~=nil then Script.AnimModule.CurrentlyOpened:ClearCanvas() Script.AnimModule.CurrentlyOpened=nil end 
+      AnimSet:ClearCanvas()
+      AnimSet:CloseTab()
+      for _,file in files do
+         if file:match("%.lua$") then
+            local ok,code=pcall(function()
+               return loadstring(readfile(file))()
+            end)
+            if ok then
+               if type(code)=="table" then
+                  for _,func in code do
+                     if type(func)=="function" then
+                        local ok1,r=pcall(func)
+                        if ok1 then
+                           if type(r)=="table" and r.Type:lower()=="animset" then
+                              r._AssetsDownloaded=false
+                              Functions:Call("GetProp","insert",AnimationModules,{Module=r})
+                              task.spawn(function()
+                                 local ok2=pcall(function() Functions:Call("DownloadAsset",r.Assets) end)
+                                 if ok2 then
+                                    r._AssetsDownloaded=true 
+                                 end 
+                              end)
+                              local m=r
+                              AnimSet:AddButton({
+                                 Name=m.Name,
+                                 Description="",
+                                 Text="Open",
+                                 Callback=function()
+                                    if Script.AnimModule.CurrentlyOpened~=nil then Script.AnimModule.CurrentlyOpened:ClearCanvas() Script.AnimModule.CurrentlyOpened=nil end  
+                                    
+                                    local Tab=AnimSet:OpenTab(m.Name)
+                                    Script.AnimModule.CurrentlyOpened=Tab
+                                    local data=Main.ScriptData["AnimModule_" ..m.Name]
+                                    Script.AnimModule.CurrentModule=m
+                                    Script.AnimModule.ModuleName=m.Name
+                                    Tab:AddButton({
+                                       Name="Apply Anim",
+                                       Description="Applies the animation",
+                                       Text="Apply",
+                                       Callback=function()
+                                          Notify({Text="Applied",Size=18,Color=Functions:Call("GetProp","rgb",0,255,0)})
+                                          Main.ScriptData["SelectedAnimModule"]=m.Name
+                                          Functions:Call("SaveConfig","ScriptConfigs",Main)
+                                          Functions:Call("ApplyAnimModule", m)
+                                       end
+                                    })
+                                    
+                                    Tab:AddDivider({Text="Configurations"})
+                                    
+                                    
+                                    if data and m.LoadConfigs then
+                                       pcall(m.LoadConfigs,data)
+                                    end 
+                                    if m.Configs then
+                                       m.Configs(Script)
+                                    end
+                                    
+                                    Tab:AddDivider({Text="Save Configs"})
+                                    Tab:AddButton({
+                                       Name="Save Configs",
+                                       Description="Save your settings",
+                                       Text="Save",
+                                       Callback=function()
+                                          if m.SaveConfigs then
+                                             local Conf=m.SaveConfigs()
+                                             Notify({Text="Saved",Size=18,Color=Functions:Call("GetProp","rgb",0,255,0)})
+                                             Main.ScriptData["AnimModule_"..m.Name]=Conf
+                                             Functions:Call("SaveConfig","ScriptConfigs",Main)
+                                          end
+                                       end
+                                    })
+                                    Tab:AddDivider({Text="Description"})
+                                    local desc=(type(m.Description)=="table" and m.Description.Text) or m.Description or ""
+                                    Tab:AddParagraph({
+                                       Text=desc,
+                                       Size=(type(m.Description)=="table" and m.Description.Size) or 100,
+                                       TextSize=(type(m.Description)=="table" and m.Description.TextSize) or 18,
+                                    })
+                                 end,
+                              })
+                           end
+                        end 
+                     end
+                  end 
+               end 
+            else
+               warn("Failed to load file: "..file.."\nReason: "..code)
+               continue 
+            end 
+         end
+      end
+   end)
+   
+   Functions:Add("GetModules", function()
+      return LoadedModules
+   end)
+   
+   Functions:Add("GetLoadedAnimModules", function()
+      return AnimationModules
+   end)
+   
+   Functions:Add("Refresh Anim Modules", function()
+      for _,e in AnimationModules do
+         local m=e.Module
+         if m.SaveConfigs then
+            local c=m.SaveConfigs()
+            Main.ScriptData["AnimModule_"..m.Name]=c
+         end
+      end
+      
+      Functions:Call("SaveConfig","ScriptConfigs",Main)
+      Functions:Call("LoadAnimModules")
+      if not Script.AnimModule.ModuleName then
+         Script.AnimModule.ModuleName=Main.ScriptData["SelectedAnimModule"]
+      end
+      if Script.AnimModule.ModuleName then
+         for _,e in AnimationModules do
+            local m=e.Module 
+            if m.Name==Script.AnimModule.ModuleName then
+               Script.AnimModule.CurrentModule=m
+               task.spawn(function() Functions:Call("ApplyAnimModule",m) end)
+               break 
+            end 
+         end 
+      end
+   end)
+   
+   local rad=math.rad
+   local cf=CFrame.new
+   local angles=CFrame.Angles
+   local OrigC0={
+      ["Right Hip"]=cf(1,-1,0)*angles(0,rad(90),0),
+      ["Left Hip"]=cf(-1,-1,0)*angles(0,rad(-90),0),
+      ["Left Shoulder"]=cf(-1,.5,0)*angles(0,rad(-90),0),
+      ["Right Shoulder"]=cf(1,.5,0)*angles(0,rad(90),0),
+      ["RootJoint"]=cf(0,0,0)*angles(rad(-90),rad(0),rad(180)),
+      ["Neck"]=cf(0,1,0)*angles(rad(-90),rad(0),rad(180)),
+   }
+   Functions:Add("ApplyAnimModule", function(m)
+      if Script.AnimModule.Connection then
+         Script.AnimModule.Connection:Disconnect()
+         Script.AnimModule.Connection=nil
+      end
+      Script.Sound1:Stop()
+      Script.Sound1.TimePosition=0
+      if Script.AnimModule.CurModule and Script.AnimModule.CurModule.Destroy then
+         pcall(function()
+            for _,m6 in Script:GetFigureModel():GetDescendants() do
+               if m6:IsA("Motor6D") then
+                  m6.C0=OrigC0[m6.Name]
+                  m6.Enabled=true
+               end
+            end
+         end)
+         Script.AnimModule.CurModule.Destroy(Script,Script:GetFigureModel())
+      end
+      Script.AnimModule.CurModule=m
+      local module=Script.AnimModule.CurModule
+      local isloaded=false
+      if m.Init then
+         workspace:WaitForChild("Gelatek Plexity") 
+         if module~=Script.AnimModule.CurModule then return end
+         m.Init(Script)
+         isloaded=true
+      end
+      local rs=Functions:Call("GetProp","gs","RunService")
+      Script.AnimModule.Connection=rs.PostSimulation:Connect(function(dt)
+         if Script.IsPlayingEmote then return end
+         if not Script.IsRunning then return end
+         if m.Update then 
+            m.Update(Script,dt)
+         end
+      end)
+   end)
+   Functions:Call("Refresh Anim Modules")
    
    --// Main
    local isloading=false
@@ -1221,8 +1689,15 @@ Functions:Add("MainPart", function()
       Script.IsRunning=true
       isloading=true
       local reanim=Functions:Call("GetPath","Assets").."/Yuni's Reanimate.lua"
+      local inv=Functions:Call("GetPath","Assets").."/MainUI.lua"
       local MainUI=loadstring(game:HttpGet("https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Assets/MainUI.lua"))()
+      -- local MainUI=loadstring(readfile(inv))()
       local Reanimate=loadstring(readfile(reanim))()
+      
+      function Script:Reanim()
+         if not Script.IsRunning then return end
+         return Script.ReanimatorData  --// We'll use this from anim modules since we are moving steves module to my dance script 
+      end 
       local GetReanimatorData=function(t,n)
          if t:lower()=="hat" then
             if Main.ReanimatorData.Hat[n]~=nil then
@@ -1246,6 +1721,7 @@ Functions:Add("MainPart", function()
             ReanimType=Main.ReanimatorData.ReanimType,
          })
          Script.Reanimator=StartReanim
+         Script.ReanimatorData=Reanimate
          Script.InvUI=MainUI
          local r=Script.Reanimator
          r["InfJump"](Main.ReanimatorData.InfiniteJump)
@@ -1262,28 +1738,29 @@ Functions:Add("MainPart", function()
          r["SetNetlessVel"](Main.ReanimatorData.Hat.NetlessVelocity)
          r["SetSpawnTp"](Main.ReanimatorData.Hat.DeadbodyPos)
          isloading=false
+         if Script.AnimModule.CurModule then
+            Functions:Call("ApplyAnimModule",Script.AnimModule.CurModule)
+         elseif Main.ScriptData["SelectedAnimModule"] then
+            local name=Main.ScriptData["SelectedAnimModule"]
+            for _,e in AnimationModules do
+               if e.Module.Name==name then
+                  Script.AnimModule.CurModule=e.Module
+                  Functions:Call("ApplyAnimModule",e.Module)
+                 break
+               end
+            end
+         end
+         Script:GetFigureModel():SetAttribute("IsDancing",false)
+         Script.ButtonsUI.Visible=true
       end)
+      
+      
+      
       MainUI:ChangeInfo({
          Title="No Emote",
          Author="???",
          Description="Description Here",
       })
-      function Script:GetAnimator(name)
-         if name:lower()=="yuni" then
-            local AnimatorLib=Functions:Call("GetPath","Assets").."/Yuni's Animator.lua"
-            local AnimLib=loadstring(readfile(AnimatorLib))()
-            return AnimLib
-         elseif name:lower()=="steve" then
-            local AnimatorBySteve=Functions:Call("GetPath","Assets").."/Steve's Animator.lua"
-            local ok,res=pcall(function()
-               return loadstring(readfile(AnimatorBySteve))()
-            end)
-            if ok then
-               return res
-            end
-         end 
-      end 
-      
       --// Main Part
       Script.CurrentEmote=nil
       Script.CurrentLoadedModule=nil
@@ -1341,24 +1818,18 @@ Functions:Add("MainPart", function()
       
       function Script:AddSlider(name,range,default,step,cb)
          local EmoteEntry=Script.CurrentEmote
-         local min,max=(range.Min or 0),(range.Max or 1)
+         local min,max=(range.Min or -1),(range.Max or 1)
          EmoteEntry:AddSlider({
             Name=name,
             Min=min,
             Max=max,
-            Default=default or 1,
+            Default=default or 0,
             Step=step or .1,
             Callback=function(val)
                cb(val)
             end 
          })
       end
-      
-      function Script:SetAudioTime(time)
-         Sound.TimePosition=time
-      end
-      
-      
       
       function Script:SaveEmoteConfig()
          if not Script.CurrentEmote then return end
@@ -1374,9 +1845,13 @@ Functions:Add("MainPart", function()
             Script.UpdateConnection:Disconnect()
             Script.UpdateConnection=nil
          end
+         Script.Sound1:Play()
+         Script.Sound1.TimePosition=Script:GetAudioTime()
          Script.Sound:Stop()
+         Script.Sound.TimePosition=0 
+         Script:GetFigureModel():SetAttribute("IsDancing",false)
+         
          Script:SaveEmoteConfig()
-         Script.Sound.TimePosition=0
          if Script.CurrentLoadedModule and Script.CurrentLoadedModule.StopTrack then
             pcall(function() Script.CurrentLoadedModule.StopTrack(Script:GetFigureModel()) end)
          end
@@ -1399,8 +1874,25 @@ Functions:Add("MainPart", function()
       end
      
       function Script:PlayAnimationTrack(module)
+         Script:SaveAudioTime()
+         Script.Sound1:Stop()
+         Script.Sound1.TimePosition=0
+         
          Script:StopEmote()
+         Script.Sound1:Stop()
+         Script.Sound1.TimePosition=0
+         Script:GetFigureModel():SetAttribute("IsDancing",true)
+         
          Script.CurrentLoadedModule=module
+         wait(.01)
+         pcall(function()
+            for _,m6 in Script:GetFigureModel():GetDescendants() do
+               if m6:IsA("Motor6D") then
+                  m6.C0=OrigC0[m6.Name]
+                  m6.Enabled=true
+               end
+            end
+         end)
          Script.IsPlayingEmote=true
          MainUI:ChangeInfo(module.Info) --// Apply Emote Info
          if module.CanBeConfigured then
@@ -1494,12 +1986,9 @@ Functions:Add("MainPart", function()
          KeybindCurrentPage=1
       end
       Script:MakeKeybinds()
-      
       Functions:Call("Refresh Emotes")
       
       
-      
-      local UIS=Functions:Call("GetProp","gs","UserInputService")
       Script.KeyboardCon=UIS.InputBegan:Connect(function(input,io)
          if io then return end
          if Main.UseKeyboard==false then return end 
@@ -1530,7 +2019,6 @@ Functions:Add("MainPart", function()
          end
       end)
       --// Camera
-      local rs=Functions:Call("GetProp","gs","RunService")
       local CameraSettings={
          --// Edit this if you want
          BaseRot=3,
@@ -1684,18 +2172,27 @@ Functions:Add("MainPart", function()
          }
          local lp=Players.LocalPlayer
          local name=lp.Name
-         if not playerstoskip[name] then
+         if not playerstoskip[name] and Override then
             writefile(Functions:Call("GetPath","Assets").."/Yuni's Reanimate.lua",game:HttpGet("https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Assets/Yuni's Reanimate.lua"))--// redownload the reanimate lol
          end
       end)
+      Script.ButtonsUI.Visible=false
+      Script:UnbindAllActions()
       Script.IsRunning=false
       Script:StopEmote()
       Script.Reanimator["Stop"]()
+      if Script.AnimModule.Connection then
+         Script.AnimModule.Connection:Disconnect()
+         Script.AnimModule.Connection=nil
+      end
       Script.InvUI:DestroyUI()
       Script.Reanimator=nil
+      Script.ReanimatorData=nil
       Script.InvUI=nil
       Script.Sound:Stop()
       Script.Sound.TimePosition=0
+      Script.Sound1:Stop()
+      Script.Sound1.TimePosition=0
       Script.CameraCon:Disconnect()
       Script.CameraCon=nil
       Script.KeyboardCon:Disconnect()
