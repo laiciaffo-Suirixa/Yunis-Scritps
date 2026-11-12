@@ -6651,8 +6651,8 @@ function UI:Dropdown(p,t)
       local AbsY=p.AbsolutePosition.Y
       local AbsH=p.AbsoluteSize.Y
       local Bottom=AbsY+AbsH
-      local ExpH=dropAbsH*(3.5*Values:Get("Gui")["UIScale"]["Scale"])
-      local wouldClip=(dropAbsY+dropAbsH+ExpH)>Bottom
+      local ExpH=AbsH*(3.5*Values:Get("Gui")["UIScale"]["Scale"])
+      local wouldClip=(AbsY+AbsH+ExpH)>Bottom
       tw(Canvas,.5,{Size=s}):Play()
       tw(Stroke,.5,{Thickness=thick}):Play()
       if not CanvasOpened then return end
