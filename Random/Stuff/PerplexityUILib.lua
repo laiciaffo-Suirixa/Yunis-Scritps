@@ -6648,11 +6648,11 @@ function UI:Dropdown(p,t)
       local s=(CanvasOpened and open or minimized)
       local thick=(CanvasOpened and .5 or 0)
       
-      local screenH=workspace.CurrentCamera.ViewportSize.Y
-      local dropAbsY=Template.AbsolutePosition.Y
-      local dropAbsH=Template.AbsoluteSize.Y
-      local expandedH=dropAbsH*(1.5*(Values:Get("Gui")["UIScale"]["Scale"]))
-      local wouldClip=(dropAbsY+dropAbsH+expandedH)*(.1+(math.clamp(2+Values:Get("Gui")["UIScale"]["Scale"],0,1.5))-math.clamp(Values:Get("Gui")["UIScale"]["Scale"]*.1,.1,.5))>screenH
+      local AbsY=p.AbsolutePosition.Y
+      local AbsH=p.AbsoluteSize.Y
+      local Bottom=AbsY+AbsH
+      local ExpH=dropAbsH*(3.5*Values:Get("Gui")["UIScale"]["Scale"])
+      local wouldClip=(dropAbsY+dropAbsH+ExpH)>Bottom
       tw(Canvas,.5,{Size=s}):Play()
       tw(Stroke,.5,{Thickness=thick}):Play()
       if not CanvasOpened then return end
