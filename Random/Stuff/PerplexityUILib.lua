@@ -6648,15 +6648,17 @@ function UI:Dropdown(p,t)
       local s=(CanvasOpened and open or minimized)
       local thick=(CanvasOpened and .5 or 0)
       
-      local AbsY=p.AbsolutePosition.Y
+      local AbsY=Template.AbsolutePosition.Y
       local AbsH=p.AbsoluteSize.Y
-      local Bottom=AbsY+AbsH
-      local ExpH=AbsH*(3.5*Values:Get("Gui")["UIScale"]["Scale"])
-      local wouldClip=(AbsY+AbsH+ExpH)>Bottom
+      local Bottom=AbsY/(1+(Values:Get("Gui")["UIScale"].Scale/2.5))
+      local ExpH=AbsH
+      local clipping=(AbsY+AbsH+ExpH)/(5*Values:Get("Gui")["UIScale"].Scale)
+      local wouldClip=clipping>Bottom
+      -- print(clipping.." > "..Bottom)
       tw(Canvas,.5,{Size=s}):Play()
       tw(Stroke,.5,{Thickness=thick}):Play()
       if not CanvasOpened then return end
-      if not wouldClip then
+      if wouldClip then
          Canvas.Position=posFlipped
          Canvas.AnchorPoint=apFlipped
       else
