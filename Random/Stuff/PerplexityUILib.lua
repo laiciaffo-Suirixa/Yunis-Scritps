@@ -7663,6 +7663,9 @@ function UI:NewTab(name)
       end
    end
    Scroll.VerticalScrollBarPosition="Left"
+   GetContentSize(Scroll,"Y", function(v)
+      Scroll.CanvasSize=gp("u2")(0,0,0,v)
+   end)
    local Frame=Values:Get("Tabs")["Content"]["Template"]:Clone()
    Frame.Visible=true
    Frame.Parent=Values:Get("Tabs")["Content"]
