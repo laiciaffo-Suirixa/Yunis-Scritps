@@ -8,13 +8,7 @@ format in order for your module to fully load and play animations
 ]=]
 
 
-
-
-
-
-
 cloneref=cloneref or function(o) return o end
-
 local Debris=cloneref(game:GetService("Debris"))
 local Players=cloneref(game:GetService("Players"))
 local RunService=cloneref(game:GetService("RunService"))
@@ -26,6 +20,11 @@ local TextChatService=cloneref(game:GetService("TextChatService"))
 local UserInputService=cloneref(game:GetService("UserInputService"))
 
 local Player=Players.LocalPlayer
+
+
+
+
+
 
 
 
@@ -977,7 +976,7 @@ insert(function()
    local start=nil
    m.Init=function(t)
       start=os.clock()
-      t:SetAudio(Name..".mp3",2)
+      t:SetAudio(Name..".mp3",1.5)
       anim=t:GetAnimator("Yuni").new()
       anim.Speed=1
       anim.Alpha=1
@@ -3731,60 +3730,33 @@ insert(function()
    m.Assets={
       Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
       Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
-      
-      "Larping The Rooms.anim",
-      "Larping The Rooms.mp3",
    }
    m.Info={
       Title=Name,
       Author="Yuni",
       Description="Im stuck in this world, when will find escape, fahhhhhh"
    }
-   m.CanBeConfigured=true 
-   
-   local vars={
-      Variant=1,
-   }
+   m.CanBeConfigured=false 
    m.LoadConfigs=function(s)
-      if s~=nil and s then 
-         vars=s
-      end 
    end
    
    m.Configs=function(t,t1)
-      t:AddDivider({
-         Text="Dance Variants",
-      })
-      t1:AddOptionsList("Variant",{
-         "Normal",
-         "JJS Version",
-      },vars.Variant, function(sel,s)
-         vars.Variant=sel
-      end)
    end
    
    m.SavedConfigs=function()
-      return vars
+      return
    end 
    
    local anim=nil
    local start=nil
    m.Init=function(t)
       start=os.clock()
-      if vars.Variant==1 then
-         t:SetAudio(Name..".mp3",2)
-      elseif vars.Variant==2 then
-         t:SetAudio("Larping The Rooms.mp3")
-      end 
+      t:SetAudio(Name..".mp3",2)
       anim=t:GetAnimator("Yuni").new()
       anim.Speed=1
       anim.Alpha=1
       anim.Looped=true
-      if vars.Variant==1 then
-         anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
-      elseif vars.Variant==2 then
-         anim.Animation=t:GetAnimationFromFile("Animations","Larping The Rooms.anim",false)
-      end
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
       anim.Rig=t:GetFigureModel()
       anim.Start=os.clock()
       anim.ShouldLoopAnims=false
@@ -4332,7 +4304,7 @@ end)
 
 insert(function()
    local m={}
-   m.Name="Krump"
+   m.Name="LC Krump"
    m.Type="Emote"
    m.Assets={
       "Monster Mash.mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/Monster Mash.mp3",
@@ -4363,14 +4335,14 @@ insert(function()
       local deltaTime=.75 
       sine=os.clock()
       local figure=t:GetFigureModel()
-      local hum=figure:FindFirstChild("Humanoid")
+      local hum = figure:FindFirstChild("Humanoid")
       if not hum then return end
-      local root=figure:FindFirstChild("HumanoidRootPart")
+      local root = figure:FindFirstChild("HumanoidRootPart")
       if not root then return end
-      local torso=figure:FindFirstChild("Torso")
+      local torso = figure:FindFirstChild("Torso")
       if not torso then return end
 
-      local scale=figure:GetScale()
+      local scale = figure:GetScale()
       local cfMul=function(a,b) return a*b end
       local cf=CFrame.new
       local angles=CFrame.Angles
@@ -4378,18 +4350,89 @@ insert(function()
       local sin=math.sin
       local cos=math.cos
 
-      local RootJoint=root:FindFirstChild("RootJoint")
-      local Neck=torso:FindFirstChild("Neck")
-      local RightShoulder=torso:FindFirstChild("Right Shoulder")
-      local LeftShoulder=torso:FindFirstChild("Left Shoulder")
-      local RightHip=torso:FindFirstChild("Right Hip")
-      local LeftHip=torso:FindFirstChild("Left Hip") 
+      local RootJoint = root:FindFirstChild("RootJoint")
+      local Neck = torso:FindFirstChild("Neck")
+      local RightShoulder = torso:FindFirstChild("Right Shoulder")
+      local LeftShoulder = torso:FindFirstChild("Left Shoulder")
+      local RightHip = torso:FindFirstChild("Right Hip")
+      local LeftHip = torso:FindFirstChild("Left Hip") 
       RootJoint.Transform=Lerp(RootJoint.Transform,cfMul(cf(-0.5*scale*cos((sine*20)+0)+0,0.5*scale*sin((sine*20)+0),-.5*scale),angles(0,-0.17453292519943295+0,0)),deltaTime)
       LeftHip.Transform=cfMul(cf(0,.25*scale,.5*scale),angles(0.17453292519943295,0,0))
       RightHip.Transform=cfMul(cf(0,.5*scale,.25*scale),angles(-0.8726646259971648,0,0))
       RightShoulder.Transform=cf(0,.15,.35*scale)*angles(-1.5707963267948966+0,0,0)
       LeftShoulder.Transform=cf(0,.15,.35*scale)*angles(-1.5707963267948966+0,0,0)
       Neck.Transform=CFrame.identity
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      for _,v in AnimCharacter:GetDescendants() do
+         if v:IsA("Motor6D") then
+            v.Transform=CFrame.new()
+         end
+      end 
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   m.Name="LC TPose"
+   m.Type="Emote"
+   m.Assets={
+      "Monster Mash.mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/Monster Mash.mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="Lightning Cannon"
+   }
+   m.CanBeConfigured=false 
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio("Monster Mash.mp3")
+   end
+   
+   m.UpdateTrack=function(t)
+      local deltaTime=.75 
+      sine=os.clock()
+      local figure=t:GetFigureModel()
+      local hum = figure:FindFirstChild("Humanoid")
+      if not hum then return end
+      local root = figure:FindFirstChild("HumanoidRootPart")
+      if not root then return end
+      local torso = figure:FindFirstChild("Torso")
+      if not torso then return end
+
+      local scale = figure:GetScale()
+      local cfMul=function(a,b) return a*b end
+      local cf=CFrame.new
+      local angles=CFrame.Angles
+      local Lerp=cf().Lerp
+      local sin=math.sin
+      local cos=math.cos
+      local rad=math.rad
+
+      local RootJoint = root:FindFirstChild("RootJoint")
+      local Neck = torso:FindFirstChild("Neck")
+      local RightShoulder = torso:FindFirstChild("Right Shoulder")
+      local LeftShoulder = torso:FindFirstChild("Left Shoulder")
+      local RightHip = torso:FindFirstChild("Right Hip")
+      local LeftHip = torso:FindFirstChild("Left Hip") 
+      local r=function(a,b) return math.random(a*1000,b*1000)/1000 end
+      RootJoint.Transform=cfMul(cf(0+r(-1,1)*scale,r(-1,.1)*scale,r(-1.5,1.5)*scale),angles(rad(10+r(-90,90)),r(-.1,.1),0+r(-.95,.95)))
+      RightShoulder.Transform=cf(0,.15,.35*scale)*angles(-1.5707963267948966+0,0,0)
+      LeftShoulder.Transform=cf(0,.15,.35*scale)*angles(-1.5707963267948966+0,0,0)
    end
    
    m.StopTrack=function(AnimCharacter)
@@ -4481,95 +4524,95 @@ insert(function()
       
       sine=os.clock()
       local figure=t:GetFigureModel()
-      local t=t:GetAudioTimeTrack().TimePosition
-      local hum=figure:FindFirstChild("Humanoid")
+      local t = t:GetAudioTimeTrack().TimePosition
+      local hum = figure:FindFirstChild("Humanoid")
       if not hum then return end
-      local root=figure:FindFirstChild("HumanoidRootPart")
+      local root = figure:FindFirstChild("HumanoidRootPart")
       if not root then return end
-      local torso=figure:FindFirstChild("Torso")
+      local torso = figure:FindFirstChild("Torso")
       if not torso then return end
 
-      local scale=figure:GetScale()
-      local rj=root:FindFirstChild("RootJoint")
-      local nj=torso:FindFirstChild("Neck")
-      local rsj=torso:FindFirstChild("Right Shoulder")
-      local lsj=torso:FindFirstChild("Left Shoulder")
-      local rhj=torso:FindFirstChild("Right Hip")
-      local lhj=torso:FindFirstChild("Left Hip")
+      local scale = figure:GetScale()
+      local rj = root:FindFirstChild("RootJoint")
+      local nj = torso:FindFirstChild("Neck")
+      local rsj = torso:FindFirstChild("Right Shoulder")
+      local lsj = torso:FindFirstChild("Left Shoulder")
+      local rhj = torso:FindFirstChild("Right Hip")
+      local lhj = torso:FindFirstChild("Left Hip")
 
       if t < 5.516 then
-         local dur=0.5
+         local dur = 0.5
          if t > 2.695 then
-            dur=5
+            dur = 5
          end
          if t > 3.593 then
-            dur=0.25
+            dur = 0.25
          end
          if t > 4.333 then
-            dur=0.05
+            dur = 0.05
          end
-         local sine=math.sin((t / dur) * math.pi * 2)
-         rj.Transform=CFrame.new(0, 0, -2.5 * scale) * CFrame.Angles(math.rad(-90), 0, math.rad(sine * 10))
-         nj.Transform=CFrame.identity
-         rsj.Transform=CFrame.Angles(0, 0, sine)
-         lsj.Transform=CFrame.Angles(0, 0, sine)
-         rhj.Transform=CFrame.Angles(0, 0, -sine)
-         lhj.Transform=CFrame.Angles(0, 0, -sine)
+         local sine = math.sin((t / dur) * math.pi * 2)
+         rj.Transform = CFrame.new(0, 0, -2.5 * scale) * CFrame.Angles(math.rad(-90), 0, math.rad(sine * 10))
+         nj.Transform = CFrame.identity
+         rsj.Transform = CFrame.Angles(0, 0, sine)
+         lsj.Transform = CFrame.Angles(0, 0, sine)
+         rhj.Transform = CFrame.Angles(0, 0, -sine)
+         lhj.Transform = CFrame.Angles(0, 0, -sine)
       else
-         local animt=((t - 5.516) / 7.105) % 1
-         local beat=animt * 16 -- 16 jumps
-         local beat2=beat
-         local xaxis=animt * 4
+         local animt = ((t - 5.516) / 7.105) % 1
+         local beat = animt * 16 -- 16 jumps
+         local beat2 = beat
+         local xaxis = animt * 4
          if Data.DifferentTiming then
             beat2 -= 0.1 + math.sin(((beat + 1) / 4) * math.pi * 2) * 0.1
             xaxis += 0.67
          end
-         local height=1 - math.pow(1 - math.abs(math.sin(beat2 * math.pi)), 2)
-         local yspint, zspint=beat2 % 8, (beat2 + 4) % 8
+         local height = 1 - math.pow(1 - math.abs(math.sin(beat2 * math.pi)), 2)
+         local yspint, zspint = beat2 % 8, (beat2 + 4) % 8
          if Data.CorrectFlipping then
             if Data.DifferentTiming then
-               yspint, zspint=(beat2 + 1) % 4, 0
+               yspint, zspint = (beat2 + 1) % 4, 0
             else
-               yspint, zspint=0, beat2 % 4
+               yspint, zspint = 0, beat2 % 4
             end
          end
-         local yspin, zspin=math.pow(1 - math.min(yspint, 1), 2) * math.pi * 2, math.pow(1 - math.min(zspint, 1), 4) * math.pi * 2
+         local yspin, zspin = math.pow(1 - math.min(yspint, 1), 2) * math.pi * 2, math.pow(1 - math.min(zspint, 1), 4) * math.pi * 2
          if Data.CorrectFlipping then
             if not Data.DifferentTiming then
-               zspin=-zspin
+               zspin = -zspin
             end
          elseif beat >= 8 then
-            yspin, zspin=-yspin, -zspin
+            yspin, zspin = -yspin, -zspin
          end
-         local armssine=1 - math.pow(1 - math.abs(math.sin(math.pow(beat2 % 1, 3) * math.pi)), 2)
-         local arms=math.rad(-75 * armssine)
-         local legs=math.rad(-30 * math.abs(math.sin(beat2 * math.pi)))
+         local armssine = 1 - math.pow(1 - math.abs(math.sin(math.pow(beat2 % 1, 3) * math.pi)), 2)
+         local arms = math.rad(-75 * armssine)
+         local legs = math.rad(-30 * math.abs(math.sin(beat2 * math.pi)))
          if Data.LegFix then
-            local alpha=1 - height
-            arms=math.rad(-75 * alpha)
-            legs=math.rad(-30 * alpha)
+            local alpha = 1 - height
+            arms = math.rad(-75 * alpha)
+            legs = math.rad(-30 * alpha)
          end
-         rj.Transform=CFrame.new(math.sin(xaxis * math.pi) * 6.7 * scale, 0, height * 4.1 * scale) * CFrame.Angles(0, zspin, yspin)
-         nj.Transform=CFrame.identity
-         rsj.Transform=CFrame.Angles(arms, 0, 0)
-         lsj.Transform=CFrame.Angles(arms, 0, 0)
-         rhj.Transform=CFrame.Angles(legs, 0, 0)
-         lhj.Transform=CFrame.Angles(legs, 0, 0)
+         rj.Transform = CFrame.new(math.sin(xaxis * math.pi) * 6.7 * scale, 0, height * 4.1 * scale) * CFrame.Angles(0, zspin, yspin)
+         nj.Transform = CFrame.identity
+         rsj.Transform = CFrame.Angles(arms, 0, 0)
+         lsj.Transform = CFrame.Angles(arms, 0, 0)
+         rhj.Transform = CFrame.Angles(legs, 0, 0)
+         lhj.Transform = CFrame.Angles(legs, 0, 0)
          if Data.PoseToTheFans and beat >= 15 then
-            local a=math.sin((beat - 15) * math.pi)
-            local b=1 - a
+            local a = math.sin((beat - 15) * math.pi)
+            local b = 1 - a
             if Data.DifferentTiming then
-               rj.Transform=rj.Transform:Lerp(CFrame.new(0, -3 * scale, 3 * scale) * CFrame.Angles(math.rad(-10), math.rad(-10), 0), a)
-               rsj.Transform=CFrame.Angles(arms * b, 0, 3.14 * a)
-               lsj.Transform=CFrame.Angles(arms * b, 0, -3.14 * a)
-               rhj.Transform=CFrame.Angles(legs * b, 0, 0)
-               lhj.Transform=CFrame.Angles(legs * b, 0, 0)
+               rj.Transform = rj.Transform:Lerp(CFrame.new(0, -3 * scale, 3 * scale) * CFrame.Angles(math.rad(-10), math.rad(-10), 0), a)
+               rsj.Transform = CFrame.Angles(arms * b, 0, 3.14 * a)
+               lsj.Transform = CFrame.Angles(arms * b, 0, -3.14 * a)
+               rhj.Transform = CFrame.Angles(legs * b, 0, 0)
+               lhj.Transform = CFrame.Angles(legs * b, 0, 0)
             else
-               rj.Transform=rj.Transform:Lerp(CFrame.new(0, -5 * scale, 2 * scale) * CFrame.Angles(math.rad(-10), math.rad(10), 0), a)
-               rsj.Transform=CFrame.Angles(arms * b, 0, 1.57 * a)
-               lsj.Transform=CFrame.Angles(arms * b, 0, 1 * a)
-               rhj.Transform=CFrame.Angles(legs * b, 0, 1 * a)
-               lhj.Transform=CFrame.Angles(legs * b, 0, 1.57 * a)
+               rj.Transform = rj.Transform:Lerp(CFrame.new(0, -5 * scale, 2 * scale) * CFrame.Angles(math.rad(-10), math.rad(10), 0), a)
+               rsj.Transform = CFrame.Angles(arms * b, 0, 1.57 * a)
+               lsj.Transform = CFrame.Angles(arms * b, 0, 1 * a)
+               rhj.Transform = CFrame.Angles(legs * b, 0, 1 * a)
+               lhj.Transform = CFrame.Angles(legs * b, 0, 1.57 * a)
             end
          end
       end
@@ -5753,64 +5796,6 @@ end)
 
 insert(function()
    local m={}
-   local Name="Lord Verity"
-   m.Name="Lord Verity"
-   m.Type="Emote"
-   m.Assets={
-      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
-      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
-   }
-   m.Info={
-      Title=Name,
-      Author="Yuni",
-      Description="Loooredd verit, master of humanity"
-   }
-   m.CanBeConfigured=false 
-   m.LoadConfigs=function(s)
-   end
-   
-   m.Configs=function(t,t1)
-   end
-   
-   m.SavedConfigs=function()
-      return
-   end 
-   
-   local anim=nil
-   local start=nil
-   m.Init=function(t)
-      start=os.clock()
-      t:SetAudio(Name..".mp3")
-      anim=t:GetAnimator("Yuni").new()
-      anim.Speed=1
-      anim.Alpha=1
-      anim.Looped=true
-      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
-      anim.Rig=t:GetFigureModel()
-      anim.Start=os.clock()
-      anim.ShouldLoopAnims=false
-      anim.ShouldUseProps=false
-      anim.QueuedAnims={} 
-      anim.AnimLoopOns={} 
-      anim.PreloadProps=function()
-      end
-      anim.ToAnimateProps=function()
-      end
-      anim:Initialize()
-   end
-   
-   m.UpdateTrack=function(t)
-      anim:Update(t:GetAudioTimeTrack())
-   end
-   
-   m.StopTrack=function(AnimCharacter)
-      anim:Destroy(AnimCharacter)
-   end
-   return m
-end)
-
-insert(function()
-   local m={}
    local Name="Ragdoll"
    m.Name="Ragdoll"
    m.Type="Emote"
@@ -6532,6 +6517,64 @@ insert(function()
       local hum=AnimCharacter:FindFirstChild("Humanoid")
       if not hum then return end
       hum.EvaluateStateMachine=true
+   end
+   return m
+end)
+
+insert(function()
+   local m={}
+   local Name="Lord Verity"
+   m.Name="Lord Verity"
+   m.Type="Emote"
+   m.Assets={
+      Name..".lua@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Animations/"..Name..".lua",
+      Name..".mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/"..Name..".mp3",
+   }
+   m.Info={
+      Title=Name,
+      Author="Yuni",
+      Description="Loooredd verit, master of humanity"
+   }
+   m.CanBeConfigured=false 
+   m.LoadConfigs=function(s)
+   end
+   
+   m.Configs=function(t,t1)
+   end
+   
+   m.SavedConfigs=function()
+      return
+   end 
+   
+   local anim=nil
+   local start=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio(Name..".mp3")
+      anim=t:GetAnimator("Yuni").new()
+      anim.Speed=1
+      anim.Alpha=1
+      anim.Looped=true
+      anim.Animation=t:GetAnimationFromFile("Animations",Name..".lua",false)
+      anim.Rig=t:GetFigureModel()
+      anim.Start=os.clock()
+      anim.ShouldLoopAnims=false
+      anim.ShouldUseProps=false
+      anim.QueuedAnims={} 
+      anim.AnimLoopOns={} 
+      anim.PreloadProps=function()
+      end
+      anim.ToAnimateProps=function()
+      end
+      anim:Initialize()
+   end
+   
+   m.UpdateTrack=function(t)
+      anim:Update(t:GetAudioTimeTrack())
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      anim:Destroy(AnimCharacter)
    end
    return m
 end)
