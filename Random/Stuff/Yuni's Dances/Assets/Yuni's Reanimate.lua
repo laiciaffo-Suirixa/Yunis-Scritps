@@ -1379,6 +1379,7 @@ Reanim.Start=function(data)
                      local Index=MapEntryCounters[EntryKey]
                      local TargetLimb=Limb[((Index-1) % #Limb)+1]
                      DoWeld(TargetLimb, C0) 
+                     FakeAcc:SetAttribute("_Yuni_Attached_Accs",true)
                   else 
                      DoWeld(Limb, C0) 
                   end 
@@ -1423,7 +1424,7 @@ Reanim.Start=function(data)
          local hrp=char:WaitForChild("HumanoidRootPart")
          rs["PostSimulation"]:Wait(.01+(network/2))
          local Rhrp=Reanim.Character:FindFirstChild("HumanoidRootPart").CFrame 
-         local t=os.clock()+(.2+network) --// Should be enough to combat network ping 
+         local t=os.clock()+(.15+network) --// Should be enough to combat network ping 
          local flip=hrp.CFrame*CFrame.new(0,-3,0)*CFrame.Angles(-1.5707963267948966,0,0)
          local void=hrp.CFrame*CFrame.new(0,fpdh+.5+(network/1.15),0)*CFrame.Angles(-1.5707963267948966,0,0)
          while true do 
