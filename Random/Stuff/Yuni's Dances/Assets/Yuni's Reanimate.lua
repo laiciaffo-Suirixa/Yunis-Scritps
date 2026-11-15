@@ -1667,6 +1667,19 @@ Reanim.Start=function(data)
       Reanim.Get("shp")(plr, "SimulationRadius", plr.MaximumSimulationRadius)
    end))
    
+   AddConnection("Anti Fling",rs.PreSimulation:Connect(function()
+      for _,v in plrs:GetPlayers() do
+         if v~=plr then
+         if not v.Character then continue end 
+            for _,b in v.Character:GetDescendants() do 
+               if b:IsA("BasePart") then
+                  b.CanCollide=false
+               end 
+            end
+         end 
+      end
+   end))
+   
    
    local CharCon=function(char)
       if not Reanim.Character then return end 
@@ -1745,6 +1758,17 @@ Reanim.Start=function(data)
          Internal.SetHumState(h, "Dead")
       end 
       Internal.Running=false
+      RemoveConnection("Anti Fling")
+      for _,v in plrs:GetPlayers() do
+         if v~=plr then
+         if not v.Character then continue end 
+            for _,b in v.Character:GetDescendants() do 
+               if b:IsA("BasePart") then
+                  b.CanCollide=true
+               end 
+            end
+         end 
+      end
       Reanim.DestroyCharacter()
       Reanim.ShiftlockScreenGui:Destroy()
       DisconnectConnection()
@@ -2390,10 +2414,21 @@ Reanim.Start=function(data)
          if h then
             Internal.SetHumState(h, "Dead")
          end 
+         RemoveConnection("Anti Fling")
+         for _,v in plrs:GetPlayers() do
+         if v~=plr then
+         if not v.Character then continue end 
+            for _,b in v.Character:GetDescendants() do 
+               if b:IsA("BasePart") then
+                  b.CanCollide=true
+               end 
+            end
+         end 
+      end
+         DisconnectConnection()
          Internal.Running=false
          Reanim.DestroyCharacter()
          Reanim.ShiftlockScreenGui:Destroy()
-         DisconnectConnection()
          pcall(function()
             for name,acc in Internal.Accessories do
                if Reanim.Character:FindFirstChild(name) then
