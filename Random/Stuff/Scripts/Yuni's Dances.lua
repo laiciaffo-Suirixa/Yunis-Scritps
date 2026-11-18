@@ -775,7 +775,7 @@ Functions:Add("GetFile", function(path,name,url)
    end
 end)
 
-local Override=false --// enable this if you wanna redownload utility assets again if theres an update(dev only)
+local Override=true --// enable this if you wanna redownload utility assets again if theres an update(dev only)
 local ToDownload={
    ["DanceModule"]={
       Path=Functions:Call("GetPath","DanceModule"),
