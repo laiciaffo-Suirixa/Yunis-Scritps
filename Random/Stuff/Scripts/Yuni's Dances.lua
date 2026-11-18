@@ -775,7 +775,7 @@ Functions:Add("GetFile", function(path,name,url)
    end
 end)
 
-local Override=true --// enable this if you wanna redownload utility assets again if theres an update(dev only)
+local Override=false --// enable this if you wanna redownload utility assets again if theres an update(dev only)
 local ToDownload={
    ["DanceModule"]={
       Path=Functions:Call("GetPath","DanceModule"),
@@ -1122,6 +1122,28 @@ Functions:Add("MainPart", function()
       Volume=1,
       Pitch=1,
    })
+   
+   --// Text Chat Event (Sourced From Uhhhh reanimate) simplified
+   local TextChatService=Functions:Call("GetProp","gs","TextChatService")
+   local Players=Functions:Call("GetProp","gs","Players")
+   local BindableEvent=Functions:Call("NewInstance","BindableEvent",UI:GetUI(),{
+      Name="TextChatEvent"
+   })
+   
+   Connections:Add("TextChatService_Event",TextChatService.MessageReceived:Connect(function(message)
+      if message.Status~=Enum.TextChatMessageStatus.Sending and message.TextSource and message.TextSource.UserId then
+         local plr,msg =Players:GetPlayerByUserId(message.TextSource.UserId), message.Text:gsub("&lt;", "<"):gsub("&gt;", ">"):gsub("&quot;", "\""):gsub("&apos;", "'"):gsub("&amp;", "&")
+         if plr then
+            BindableEvent:Fire(plr,msg)
+         end 
+      end
+   end))
+   
+   function Script:OnPlayerChatted()
+      return BindableEvent.Event
+   end
+   
+   
    Script.Sound=Sound
    Script.Sound1=Sound1
    function Script:GetFigureModel()
@@ -1654,6 +1676,7 @@ Functions:Add("MainPart", function()
                for _,m6 in Script:GetFigureModel():GetDescendants() do
                   if m6:IsA("Motor6D") then
                      m6.C0=OrigC0[m6.Name].Rotation+(OrigC0[m6.Name].Position*Script:GetFigureModel():GetScale())
+                     m6.Transform=CFrame.new()
                      m6.Enabled=true
                   end
                end
@@ -1887,6 +1910,7 @@ Functions:Add("MainPart", function()
          for _,m6 in Script:GetFigureModel():GetDescendants() do
             if m6:IsA("Motor6D") then
                m6.C0=OrigC0[m6.Name].Rotation+(OrigC0[m6.Name].Position*Script:GetFigureModel():GetScale())
+               m6.Transform=CFrame.new()
                m6.Enabled=true
             end
          end
@@ -1905,6 +1929,7 @@ Functions:Add("MainPart", function()
          local RunService=cloneref(game:GetService("RunService"))
          Script.UpdateConnection=RunService.PostSimulation:Connect(function(deltaTime)
             if module.UpdateTrack then
+               Script.Sound1:Stop()
                module.UpdateTrack(Script,deltaTime)
             end 
          end)
@@ -2046,7 +2071,6 @@ Functions:Add("MainPart", function()
       local Drift=0 
       local Limiter=0
       local RunServ=rs
-      local Players=Functions:Call("GetProp","gs","Players")
       local Workspace=Functions:Call("GetProp","gs","Workspace")
       local Lighting=Functions:Call("GetProp","gs","Lighting")
       
