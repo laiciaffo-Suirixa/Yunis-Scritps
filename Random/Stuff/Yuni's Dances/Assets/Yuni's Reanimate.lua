@@ -804,8 +804,6 @@ Reanim.Start=function(data)
    Reanim.CharacterScale=data.Scale or 1
    Reanim.ShiftlockEnabled=data.Shiftlock or false
    
-   
-   
    Reanim.ShiftlockScreenGui=Reanim.New("ScreenGui",nil,{
       IgnoreGuiInset=true,
       ZIndexBehavior=Enum.ZIndexBehavior.Sibling,
@@ -1012,6 +1010,7 @@ Reanim.Start=function(data)
       if a:IsA("BasePart") then
          if not table.find(Internal.BaseParts, a) then 
             table.insert(Internal.BaseParts, a)
+            if Internal.HatReanimed then return end
             a.CanCollide=false
             Reanim.Get("gpcs")(a, "CanCollide", function()
                if a.CanCollide then a.CanCollide=false end
@@ -1271,10 +1270,10 @@ Reanim.Start=function(data)
    Internal.HatClaimState={}
    Internal.SpawnTp=1
    -- ^ 1 In Void
-   -- ^ 2 Near reanimate character
+   -- ^ 2 Behind reanimate character
    -- ^ 3 Stay at spawn 
    
-   
+   --// Stable V1.1
    Internal.DoHatReanim=function(c)
       --// Will be set on char added
       if Internal.HatReanimed then
@@ -1422,12 +1421,12 @@ Reanim.Start=function(data)
          workspace["FallenPartsDestroyHeight"]=-500 
          fpdh=workspace["FallenPartsDestroyHeight"]
          local hrp=char:WaitForChild("HumanoidRootPart")
-         rs["PostSimulation"]:Wait(.01+(network/2))
          local Rhrp=Reanim.Character:FindFirstChild("HumanoidRootPart").CFrame 
-         local t=os.clock()+(.15+network) --// Should be enough to combat network ping 
+         local t=os.clock()+(.125+(network/1.5)) --// Should be enough to combat network ping 
          local flip=hrp.CFrame*CFrame.new(0,-3,0)*CFrame.Angles(-1.5707963267948966,0,0)
-         local void=hrp.CFrame*CFrame.new(0,fpdh+.5+(network/1.15),0)*CFrame.Angles(-1.5707963267948966,0,0)
+         local void=hrp.CFrame*CFrame.new(0,fpdh+.12+(network/5),0)*CFrame.Angles(-1.5707963267948966,0,0)
          while true do 
+            rs["PostSimulation"]:Wait(.01)
             if Internal.SpawnTp==1 then 
                hrp.CFrame=void
                hrp.AssemblyLinearVelocity=Vector3.new()
@@ -1441,9 +1440,9 @@ Reanim.Start=function(data)
                hrp.AssemblyLinearVelocity=Vector3.new()
                hrp.AssemblyAngularVelocity=Vector3.new() 
             end
-            rs["PostSimulation"]:Wait()
             if os.clock()>=t then break end
          end
+         
          local h=char:FindFirstChild("Humanoid")
          if hrp then
             if h then
@@ -1470,17 +1469,28 @@ Reanim.Start=function(data)
                end)
             end
          end
-         rs["PostSimulation"]:Wait(.01)
+         
+         rs["PostSimulation"]:Wait(.02)
          Internal.OnBreakJointsProcess=false 
+         hrp.Parent=nil
+         char.Torso.Parent=nil
          rs["PostSimulation"]:Wait(.05)
          Internal.IsBreakJoints=true
+         for _, v in Internal.Accessories do
+            if sethiddenproperty then
+               sethiddenproperty(v, "BackendAccoutrementState", 0)
+            elseif setscriptable then
+               setscriptable(v, "BacekndAccoutrementState", true)
+               v.BackendAccoutrementState=0
+            end
+         end
       end 
    end 
    
    
    Internal.YVel=30
-   
    --// By the power of patchmas netless...
+   --// Version 1.1
    Internal.Align=function(a,b,dt)
       a.RotVelocity=b.RotVelocity
       a.CanCollide=false
@@ -1519,8 +1529,8 @@ Reanim.Start=function(data)
          local safe=state.safe or Vector3.new(a.Position.X, destroy, a.Position.Z)
          local safeCF=CFrame.new(safe.X, destroy+10, safe.Z) * a.CFrame.Rotation
          a.CFrame=safeCF
-         local lift=math.max(0, destroy-handleY)
-         local YVel=math.max(Axis*2, lift*5)
+         local lift=math.max(0,destroy-handleY)
+         local YVel=math.max(Axis*2, lift*2.15)
          local curvel=a.AssemblyLinearVelocity
          a.AssemblyLinearVelocity=Vector3.new(curvel.X, YVel, curvel.Z)
          a.Massless=true
@@ -1538,8 +1548,8 @@ Reanim.Start=function(data)
                local Rhrp=Reanim.Character:FindFirstChild("HumanoidRootPart")
                if Rhrp then
                   local scale=Reanim.Character:GetScale()
-                  local rescueCF=Rhrp.CFrame * CFrame.new(TimeCos, 3*scale, TimeSin)
-                  a.CFrame=rescueCF
+                  local RCF=Rhrp.CFrame * CFrame.new(TimeCos, 3*scale, TimeSin)
+                  a.CFrame=RCF
                end
             end
             
@@ -1562,7 +1572,6 @@ Reanim.Start=function(data)
             Axis=Internal.YVel+(velm*math.max(velm+(age+velm),.01))
             TimeCos=.001*math.cos(os.clock()*15)+velm
             TimeSin=.001*math.sin(os.clock()*15)+velm
-            
             if claim and (clock-claim)<5.67 then 
                a.Massless=false
                a.CustomPhysicalProperties=nil
@@ -1570,24 +1579,23 @@ Reanim.Start=function(data)
                a.Massless=true
                a.CustomPhysicalProperties=PhysicalProperties.new(0.01, 0, 0, 0, 0)
             end 
-            
             --// We dont want to determine if the accessories velocity if it's greater than the netless velocity magnitude,
             --// We just let its velocity automatically settle in from where it's attached to.
             if claim then
-               if (clock-claim)<.51 then
+               if (clock-claim)<.5 then
                   local offsetpos=(claimpos-a.Position)
                   local offxz=(offsetpos*v3_101)
                   a.AssemblyLinearVelocity=Vector3.new(0,Axis,0)
                else
                   local fv=b.AssemblyLinearVelocity
                   local fxz=fv*v3_101
-                  a.AssemblyLinearVelocity=fxz+v3_010*(Axis*1.5)
+                  a.AssemblyLinearVelocity=fxz+v3_010*(Axis*1.25)
                end 
             else 
                state.claimed=clock
                local fv=b.AssemblyLinearVelocity
                local fxz=fv*v3_101
-               a.AssemblyLinearVelocity=fxz+v3_010*(Axis*1.5) --// Slightly increase Y velocity 
+               a.AssemblyLinearVelocity=fxz+v3_010*(Axis*1.25) --// Slightly increase Y velocity 
                --// also track x and z velocity from where its attached to
             end
          else
@@ -1599,7 +1607,7 @@ Reanim.Start=function(data)
                      local scale=Reanim.Character:GetScale()
                      a.CFrame=Rhrp.CFrame*CFrame.new(0, 3*scale, 0)
                   end
-                  a.AssemblyLinearVelocity=Vector3.new(0, Axis*1.5, 0)
+                  a.AssemblyLinearVelocity=Vector3.new(0, Axis*1.25, 0)
                   state.claimed=nil
                end
                state.claimboost=nil
@@ -1608,7 +1616,7 @@ Reanim.Start=function(data)
             local fv=b.AssemblyLinearVelocity
             local fxz=fv*v3_101
             if Internal.SpawnTp==2 or Internal.SpawnTp==3 then --// velocity isnt enough for these 2, we'll just increase it lol
-               a.AssemblyLinearVelocity=fxz+(v3_010*(Axis*1.5))
+               a.AssemblyLinearVelocity=fxz+(v3_010*(Axis*1.45))
             else
                a.AssemblyLinearVelocity=fxz+(v3_010*(Axis*1.085))
             end
@@ -1679,15 +1687,11 @@ Reanim.Start=function(data)
          end 
       end
    end))
-   
-   
    local CharCon=function(char)
       if not Reanim.Character then return end 
       if char.Name==plr.Name then
          Internal.Character=char
       end
-      
-      
       task.spawn(Internal.DoHatReanim,Internal.Character)
       task.spawn(Internal.DoBreakJoints,Internal.Character)
       Internal.LastRespawn=os.clock()
@@ -1735,9 +1739,9 @@ Reanim.Start=function(data)
    local IsBreaking=true 
    if Internal.HatReanimed then
       Reanim.CreateCharacter(Internal.IntPos)
-      task.delay(.05, function()
+      task.delay(.001, function()
          Internal.DoHatReanim(Internal.Character)
-         wait(.05)
+         wait(.1)
          IsBreaking=false
       end)
    else
@@ -1749,6 +1753,7 @@ Reanim.Start=function(data)
       task.spawn(Internal.DoBreakJoints,Internal.Character)
    end
    Reanim.Character:ScaleTo(1) 
+   
    
    AddConnection("FakeCharDestroying",Reanim.Character.Destroying:Connect(function()
       Internal.RespawnCon:Disconnect()
