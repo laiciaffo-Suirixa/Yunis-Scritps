@@ -94,6 +94,31 @@ local Hats={
       m="18640914129",t="18640914168",Limb={"Right Arm", "Left Arm"},Offset=cf()*angles(0,0,0)
    },
    
+   
+   --// Fedoras
+   
+   {
+      m="3030546036",t="3860099469",Limb="Left Arm",Offset=cf(0,-.15,.15)*angles(90,-90,0)
+   },
+   
+   {
+      m="3030546036",t="4622077774",Limb="Right Arm",Offset=cf(0,-.15,.15)*angles(90,90,0)
+   },
+   
+   
+   
+   {
+      m="4489232754",t="4584026407",Limb="Right Leg",Offset=cf(0,-.15,.15)*angles(90,90,0)
+   },
+   
+   {
+      m="4324138105",t="4381699432",Limb="Left Leg",Offset=cf(0,-.15,.15)*angles(90,-90,0)
+   },
+   
+   {
+      m="4819720316",t="4819722776",Limb="Torso",Offset=cf()*angles(0,0,15)
+   },
+   
 }
 
 return Hats, AccNames
