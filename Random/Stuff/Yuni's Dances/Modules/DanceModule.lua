@@ -3,9 +3,15 @@ PLEASE READ PLEASE READ PLEASE READ PLEASE READ
 PLEASE READ PLEASE READ PLEASE READ PLEASE READ 
 PLEASE READ PLEASE READ PLEASE READ PLEASE READ 
 
+NEVER PUT YOUR EMOTES HERE! IT'LL GET OVERWRITTEN NEVER PUT YOUR EMOTES HERE! IT'LL GET OVERWRITTEN NEVER PUT YOUR EMOTES HERE! IT'LL GET OVERWRITTEN 
+NEVER PUT YOUR EMOTES HERE! IT'LL GET OVERWRITTEN NEVER PUT YOUR EMOTES HERE! IT'LL GET OVERWRITTEN NEVER PUT YOUR EMOTES HERE! IT'LL GET OVERWRITTEN 
+NEVER PUT YOUR EMOTES HERE! IT'LL GET OVERWRITTEN NEVER PUT YOUR EMOTES HERE! IT'LL GET OVERWRITTEN NEVER PUT YOUR EMOTES HERE! IT'LL GET OVERWRITTEN 
+
+
 if your planning on moving your Uhhhh reanimate modules to my dance script, you must change its
 format in order for your module to fully load and play animations
 ]=]
+
 
 
 cloneref=cloneref or function(o) return o end
@@ -6578,5 +6584,122 @@ insert(function()
    end
    return m
 end)
+
+insert(function()
+   local m={}
+   m.Name="Spin"
+   m.Type="Emote"
+   m.Assets={
+      "Monster Mash.mp3@https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Audios/Monster Mash.mp3",
+   }
+   m.Info={
+      Title="Spin",
+      Author="Yuni",
+      Description="Speeen\n The only emote that has many options :D"
+   }
+   m.CanBeConfigured=true 
+   
+   local Settings={
+      Variant=1,
+      Speed=1,
+   }
+   m.LoadConfigs=function(s)
+      if s~=nil then
+         Settings=s
+      end 
+   end
+   
+   m.Configs=function(t,t1)
+      t1:AddOptionsList("Variant",{
+         "Normal",
+         "T Pose",
+         "Sit",
+         "Lay",
+         "Gyroscope V1",
+         "Gyroscope V2",
+      },Settings.Variant, function(sel,s)
+         Settings.Variant=sel
+      end)
+      t1:AddSlider("Speed",{Min=1, Max=10},Settings.Speed, .001, function(value)
+         Settings.Speed=value 
+      end)
+   end
+   
+   m.SavedConfigs=function()
+      return Settings
+   end
+   
+   local anim=nil
+   m.Init=function(t)
+      start=os.clock()
+      t:SetAudio("Monster Mash.mp3")
+   end
+   
+   m.UpdateTrack=function(t)
+      local deltaTime=.75 
+      sine=os.clock()
+      local figure=t:GetFigureModel()
+      local hum = figure:FindFirstChild("Humanoid")
+      if not hum then return end
+      local root = figure:FindFirstChild("HumanoidRootPart")
+      if not root then return end
+      local torso = figure:FindFirstChild("Torso")
+      if not torso then return end
+
+      local scale = figure:GetScale()
+      local cfMul=function(a,b) return a*b end
+      local cf=CFrame.new
+      local angles=CFrame.Angles
+      local Lerp=cf().Lerp
+      local sin=math.sin
+      local cos=math.cos
+      local rad=math.rad
+
+      local RootJoint = root:FindFirstChild("RootJoint")
+      local Neck = torso:FindFirstChild("Neck")
+      local RightShoulder = torso:FindFirstChild("Right Shoulder")
+      local LeftShoulder = torso:FindFirstChild("Left Shoulder")
+      local RightHip = torso:FindFirstChild("Right Hip")
+      local LeftHip = torso:FindFirstChild("Left Hip") 
+      local r=function(a,b) return math.random(a*1000,b*1000)/1000 end
+      if Settings.Variant==2 or Settings.Variant==6 then
+         RightShoulder.Transform=cf(0,0,.35*scale)*angles(-1.5707963267948966+0,0,0)
+         LeftShoulder.Transform=cf(0,0,.35*scale)*angles(-1.5707963267948966+0,0,0)
+      elseif Settings.Variant==3 then 
+         RightShoulder.Transform=cf()*angles(0,0,1.5707963267948966)
+         LeftShoulder.Transform=cf()*angles(0,0,-1.5707963267948966)
+      else
+         RightShoulder.Transform=cf()
+         LeftShoulder.Transform=cf()
+      end
+      if Settings.Variant==5 or Settings.Variant==6 then
+         RootJoint.Transform=cf()*angles(-1.5707963267948966+sine*Settings.Speed,-sine*Settings.Speed,sine*Settings.Speed) 
+         RightHip.Transform=cf()
+         LeftHip.Transform=cf()
+      elseif Settings.Variant==4 then
+         RootJoint.Transform=cf(0,0,-2.75*scale)*angles(-1.5707963267948966,-sine*Settings.Speed,0) 
+         RightHip.Transform=cf()
+         LeftHip.Transform=cf()
+      elseif Settings.Variant==3 then
+         RootJoint.Transform=cf(0,0,-2.05*scale)*angles(0,0,sine*Settings.Speed) 
+         RightHip.Transform=cf()*angles(0,0,1.5707963267948966)
+         LeftHip.Transform=cf()*angles(0,0,-1.5707963267948966)
+      elseif Settings.Variant<3 then 
+         RootJoint.Transform=cf(0,0,0)*angles(0,0,sine*Settings.Speed)
+         RightHip.Transform=cf()
+         LeftHip.Transform=cf()
+      end 
+   end
+   
+   m.StopTrack=function(AnimCharacter)
+      for _,v in AnimCharacter:GetDescendants() do
+         if v:IsA("Motor6D") then
+            v.Transform=CFrame.new()
+         end
+      end 
+   end
+   return m
+end)
+
 
 return modules
