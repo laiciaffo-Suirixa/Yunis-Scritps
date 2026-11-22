@@ -103,6 +103,7 @@ local Main={
       InfiniteJump=false,
       FloatOnVoid=true,
       UseShiftlock=true,
+      AntiFling=true,
       Permadeath=false,
       -- ^ only works on jab, up to you if you if wanna set this enabled=true,
       ModelScale=1,
@@ -118,6 +119,7 @@ Functions:Add("LoadData", function ()
       local YuniReanimate=Reanimator.ReanimByYuni
       Main.Reanimator.ReanimByYuni=YuniReanimate
       local HotBarPos=data.HotbarPosition
+      Main.HotbarPosition=HotBarPos
       local HotbarScale=data.HotbarScale
       Main.HotbarScale=HotbarScale
       local SetReanimatorData=function(d)
@@ -171,6 +173,7 @@ Functions:Add("LoadData", function ()
       SetReanimatorData("Permadeath")
       SetReanimatorData("ReanimType")
       SetReanimatorData("UseShiftlock")
+      SetReanimatorData("AntiFling")
       
       --// Hat Reanimate 
       SetHatReanimateData("NetlessVelocity")
@@ -533,6 +536,17 @@ Functions:Add("RefreshReanimTab", function(type)
          SetReanimatorData("def","UseShiftlock",v)
          Functions:Call("SaveConfig","ScriptConfigs",Main)
          Functions:Call("GetReanimate","shiftlock",v)
+      end,
+   })
+   
+   ReanimatorSettings:AddToggle({
+      Name="Anti Fling",
+      Description="Player Collisions",
+      Default=GetReanimatorData("def","AntiFling") or false,
+      Callback=function(v)
+         SetReanimatorData("def","AntiFling",v)
+         Functions:Call("SaveConfig","ScriptConfigs",Main)
+         Functions:Call("GetReanimate","setantifling",v)
       end,
    })
    
@@ -1675,9 +1689,18 @@ Functions:Add("MainPart", function()
             pcall(function()
                for _,m6 in Script:GetFigureModel():GetDescendants() do
                   if m6:IsA("Motor6D") then
+                     local OrigP0={
+                        ["Left Shoulder"]=Script:GetFigureModel().Torso,
+                        ["Right Shoulder"]=Script:GetFigureModel().Torso,
+                        ["Left Hip"]=Script:GetFigureModel().Torso,
+                        ["Right Hip"]=Script:GetFigureModel().Torso,
+                        ["Neck"]=Script:GetFigureModel().Torso,
+                        ["RootJoint"]=Script:GetFigureModel().HumanoidRootPart,
+                     }
                      m6.C0=OrigC0[m6.Name].Rotation+(OrigC0[m6.Name].Position*Script:GetFigureModel():GetScale())
                      m6.Transform=CFrame.new()
                      m6.Enabled=true
+                     m6.Part0=OrigP0[m6.Name]
                   end
                end
             end)
@@ -1746,20 +1769,6 @@ Functions:Add("MainPart", function()
          Script.Reanimator=StartReanim
          Script.ReanimatorData=Reanimate
          Script.InvUI=MainUI
-         local r=Script.Reanimator
-         r["InfJump"](Main.ReanimatorData.InfiniteJump)
-         r["EnableShiftlock"](Main.ReanimatorData.UseShiftlock)
-         r["NoClip"](Main.ReanimatorData.NoClip)
-         r["OverrideCamera"](Main.ReanimatorData.OverrideCamera)
-         r["SitOnSeats"](Main.ReanimatorData.SitOnSeats)
-         r["CollectTools"](Main.ReanimatorData.CollectTools)
-         r["GravityScale"](Main.ReanimatorData.GravityScale)
-         r["VoidFloat"](Main.ReanimatorData.FloatOnVoid)
-         r["RootPos"](Main.ReanimatorData.Limb.RootPosition)
-         r["Replicate10Fps"](Main.ReanimatorData.Limb.Replicate10FPS)
-         r["CharacterScale"](Main.ReanimatorData.ModelScale)
-         r["SetNetlessVel"](Main.ReanimatorData.Hat.NetlessVelocity)
-         r["SetSpawnTp"](Main.ReanimatorData.Hat.DeadbodyPos)
          isloading=false
          if Script.AnimModule.CurrentModule then
             Functions:Call("ApplyAnimModule",Script.AnimModule.CurrentModule)
@@ -1775,6 +1784,21 @@ Functions:Add("MainPart", function()
          end
          Script:GetFigureModel():SetAttribute("IsDancing",false)
          Script.ButtonsUI.Visible=true
+         local r=Script.Reanimator
+         r["InfJump"](Main.ReanimatorData.InfiniteJump)
+         r["EnableShiftlock"](Main.ReanimatorData.UseShiftlock)
+         r["NoClip"](Main.ReanimatorData.NoClip)
+         r["SetAntiFling"](Main.ReanimatorData.AntiFling)
+         r["OverrideCamera"](Main.ReanimatorData.OverrideCamera)
+         r["SitOnSeats"](Main.ReanimatorData.SitOnSeats)
+         r["CollectTools"](Main.ReanimatorData.CollectTools)
+         r["GravityScale"](Main.ReanimatorData.GravityScale)
+         r["VoidFloat"](Main.ReanimatorData.FloatOnVoid)
+         r["RootPos"](Main.ReanimatorData.Limb.RootPosition)
+         r["Replicate10Fps"](Main.ReanimatorData.Limb.Replicate10FPS)
+         r["CharacterScale"](Main.ReanimatorData.ModelScale)
+         r["SetNetlessVel"](Main.ReanimatorData.Hat.NetlessVelocity)
+         r["SetSpawnTp"](Main.ReanimatorData.Hat.DeadbodyPos)
       end)
       
       
@@ -1909,12 +1933,32 @@ Functions:Add("MainPart", function()
          wait(.01)
          for _,m6 in Script:GetFigureModel():GetDescendants() do
             if m6:IsA("Motor6D") then
+               local OrigP0={
+                  ["Left Shoulder"]=Script:GetFigureModel().Torso,
+                  ["Right Shoulder"]=Script:GetFigureModel().Torso,
+                  ["Left Hip"]=Script:GetFigureModel().Torso,
+                  ["Right Hip"]=Script:GetFigureModel().Torso,
+                  ["Neck"]=Script:GetFigureModel().Torso,
+                  ["RootJoint"]=Script:GetFigureModel().HumanoidRootPart,
+               }
                m6.C0=OrigC0[m6.Name].Rotation+(OrigC0[m6.Name].Position*Script:GetFigureModel():GetScale())
                m6.Transform=CFrame.new()
                m6.Enabled=true
+               m6.Part0=OrigP0[m6.Name]
             end
          end
          Script.IsPlayingEmote=true
+         if module.Info then
+            if module.Info.Title==nil then
+               module.Info.Title="Emote"
+            end 
+            if module.Info.Author==nil then
+               module.Info.Author="No Author"
+            end 
+            if module.Info.Description==nil then
+               module.Info.Title="No Description"
+            end 
+         end 
          MainUI:ChangeInfo(module.Info) --// Apply Emote Info
          if module.CanBeConfigured then
             local EmoteEntry=MainUI:Create()
@@ -2273,6 +2317,8 @@ Functions:Add("MainPart", function()
          Script.Reanimator["RefreshHatMap"]()
       elseif t=="setspawntp" then
          Script.Reanimator["SetSpawnTp"](state)
+      elseif t=="setantifling" then
+         Script.Reanimator["SetAntiFling"](state)
       end 
    end)
    Functions:Add("Stop", function()
