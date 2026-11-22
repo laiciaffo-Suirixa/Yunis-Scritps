@@ -1487,7 +1487,9 @@ Reanim.Start=function(data)
          rs["PostSimulation"]:Wait(.01)
          Internal.OnBreakJointsProcess=false 
          hrp.Parent=nil
-         char.Torso.Parent=nil
+         pcall(function()
+            char.Torso.Parent=nil
+         end)
          rs["PostSimulation"]:Wait(.01)
          Internal.IsBreakJoints=true
          for _, v in Internal.Accessories do
