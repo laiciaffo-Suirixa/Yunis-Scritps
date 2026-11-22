@@ -1274,7 +1274,7 @@ Reanim.Start=function(data)
    -- ^ 3 Stay at spawn 
    
    --// Stable V1.1
-   Internal.DoHatReanim=function(c)
+   Internal.DoHatReanim=function(c, first)
       --// Will be set on char added
       if Internal.HatReanimed then
          Internal.OnBreakJointsProcess=true
@@ -1325,7 +1325,7 @@ Reanim.Start=function(data)
          local MapEntryCounters={}
          local NameCounters={}
          --// Gelatek's Fake accessory v2 by me yayayayaya
-         local network=math.clamp(plr:GetNetworkPing(),.15,.275)
+         local network=math.clamp(plr:GetNetworkPing(),.1,.3)
          local MapThisAccessory=function(acc)
             if acc:IsDescendantOf(Reanim.Character) then return end
             local RealName=acc.Name
@@ -1383,9 +1383,8 @@ Reanim.Start=function(data)
                      DoWeld(Limb, C0) 
                   end 
                else
-                  repeat wait() until Handle:FindFirstChildOfClass("Attachment") or not Handle.Parent
+                  repeat rs["PostSimulation"]:Wait() until Handle:FindFirstChildOfClass("Attachment") or not Handle.Parent
                   if not Handle.Parent then return end
-                  
                   --// We clone the accessory to the reanim character then we just align from hat map
                   local Attachment=Handle:FindFirstChildOfClass("Attachment")
                   local Weld=Instance.new("Weld")
@@ -1422,11 +1421,26 @@ Reanim.Start=function(data)
          fpdh=workspace["FallenPartsDestroyHeight"]
          local hrp=char:WaitForChild("HumanoidRootPart")
          local Rhrp=Reanim.Character:FindFirstChild("HumanoidRootPart").CFrame 
-         local t=os.clock()+(.125+(network/1.5)) --// Should be enough to combat network ping 
+         local t=os.clock()+(.1+(network/1.5)) --// Should be enough to combat network ping 
          local flip=hrp.CFrame*CFrame.new(0,-3,0)*CFrame.Angles(-1.5707963267948966,0,0)
-         local void=hrp.CFrame*CFrame.new(0,fpdh+.12+(network/5),0)*CFrame.Angles(-1.5707963267948966,0,0)
+         local void=hrp.CFrame*CFrame.new(0,fpdh+.4+(network/5),0)*CFrame.Angles(-1.5707963267948966,0,0)
+         if first then
+           if Internal.SpawnTp==1 then 
+               hrp.CFrame=void
+               hrp.AssemblyLinearVelocity=Vector3.new()
+               hrp.AssemblyAngularVelocity=Vector3.new()
+            elseif Internal.SpawnTp==2 then 
+               hrp.CFrame=Rhrp*CFrame.new(1.5*(Reanim.Character:GetScale()+1),0-(Reanim.Character:GetScale()*2.75),4*(Reanim.Character:GetScale()+1))*CFrame.Angles(-1.5707963267948966,0,0)
+               hrp.AssemblyLinearVelocity=Vector3.new(0,10,0)
+               hrp.AssemblyAngularVelocity=Vector3.new()
+            elseif Internal.SpawnTp==3 then
+               hrp.CFrame=flip
+               hrp.AssemblyLinearVelocity=Vector3.new()
+               hrp.AssemblyAngularVelocity=Vector3.new() 
+            end
+         end 
          while true do 
-            rs["PostSimulation"]:Wait(.01)
+            rs["PostSimulation"]:Wait(.05)
             if Internal.SpawnTp==1 then 
                hrp.CFrame=void
                hrp.AssemblyLinearVelocity=Vector3.new()
@@ -1470,11 +1484,11 @@ Reanim.Start=function(data)
             end
          end
          
-         rs["PostSimulation"]:Wait(.02)
+         rs["PostSimulation"]:Wait(.01)
          Internal.OnBreakJointsProcess=false 
          hrp.Parent=nil
          char.Torso.Parent=nil
-         rs["PostSimulation"]:Wait(.05)
+         rs["PostSimulation"]:Wait(.01)
          Internal.IsBreakJoints=true
          for _, v in Internal.Accessories do
             if sethiddenproperty then
@@ -1518,8 +1532,8 @@ Reanim.Start=function(data)
       local idlemag=vmag(idleoff)
       
       
-      local TimeCos=.0001*math.cos(os.clock()*15)
-      local TimeSin=.0001*math.sin(os.clock()*15)
+      local TimeCos=.001*math.cos(os.clock()*15)
+      local TimeSin=.001*math.sin(os.clock()*15)
       
       local destroy=fpdh+4
       local handleY=a.Position.Y
@@ -1544,16 +1558,16 @@ Reanim.Start=function(data)
          if a.ReceiveAge~=0 then
             if not state.claimboost then state.claimboost=clock end
             local lostFor=clock-state.claimboost
-            if lostFor>0.3 then
+            if lostFor>0.15 then
                local Rhrp=Reanim.Character:FindFirstChild("HumanoidRootPart")
                if Rhrp then
                   local scale=Reanim.Character:GetScale()
-                  local RCF=Rhrp.CFrame * CFrame.new(TimeCos, 3*scale, TimeSin)
+                  local RCF=Rhrp.CFrame * CFrame.new(TimeCos,3*scale+TimeSin,0)
                   a.CFrame=RCF
                end
             end
             
-            local age=math.clamp(a.ReceiveAge,.15,.2)
+            local age=math.clamp(a.ReceiveAge,.15,.75)
             local curp=a.Position
             local last=state.last
             local vel=(curp-last)
@@ -1570,7 +1584,7 @@ Reanim.Start=function(data)
             local claim=state.claimed
             local velm=vmag(vel)/1000
             Axis=Internal.YVel+(velm*math.max(velm+(age+velm),.01))
-            TimeCos=.001*math.cos(os.clock()*15)+velm
+            TimeCos=.001*math.cos(os.clock()*15)
             TimeSin=.001*math.sin(os.clock()*15)+velm
             if claim and (clock-claim)<5.67 then 
                a.Massless=false
@@ -1582,20 +1596,20 @@ Reanim.Start=function(data)
             --// We dont want to determine if the accessories velocity if it's greater than the netless velocity magnitude,
             --// We just let its velocity automatically settle in from where it's attached to.
             if claim then
-               if (clock-claim)<.5 then
+               if (clock-claim)<.51 then
                   local offsetpos=(claimpos-a.Position)
                   local offxz=(offsetpos*v3_101)
                   a.AssemblyLinearVelocity=Vector3.new(0,Axis,0)
                else
                   local fv=b.AssemblyLinearVelocity
                   local fxz=fv*v3_101
-                  a.AssemblyLinearVelocity=fxz+v3_010*(Axis*1.25)
+                  a.AssemblyLinearVelocity=fxz+v3_010*(Axis*1.5)
                end 
             else 
                state.claimed=clock
                local fv=b.AssemblyLinearVelocity
                local fxz=fv*v3_101
-               a.AssemblyLinearVelocity=fxz+v3_010*(Axis*1.25) --// Slightly increase Y velocity 
+               a.AssemblyLinearVelocity=fxz+v3_010*(Axis*1.5) --// Slightly increase Y velocity 
                --// also track x and z velocity from where its attached to
             end
          else
@@ -1605,9 +1619,9 @@ Reanim.Start=function(data)
                   local Rhrp=Reanim.Character:FindFirstChild("HumanoidRootPart")
                   if Rhrp then
                      local scale=Reanim.Character:GetScale()
-                     a.CFrame=Rhrp.CFrame*CFrame.new(0, 3*scale, 0)
+                     a.CFrame=Rhrp.CFrame*CFrame.new(0, 4*scale, 0)
                   end
-                  a.AssemblyLinearVelocity=Vector3.new(0, Axis*1.25, 0)
+                  a.AssemblyLinearVelocity=Vector3.new(0, Axis*1.5, 0)
                   state.claimed=nil
                end
                state.claimboost=nil
@@ -1618,7 +1632,7 @@ Reanim.Start=function(data)
             if Internal.SpawnTp==2 or Internal.SpawnTp==3 then --// velocity isnt enough for these 2, we'll just increase it lol
                a.AssemblyLinearVelocity=fxz+(v3_010*(Axis*1.45))
             else
-               a.AssemblyLinearVelocity=fxz+(v3_010*(Axis*1.085))
+               a.AssemblyLinearVelocity=fxz+(v3_010*(Axis*1.045))
             end
             state.last=a.Position
          end
@@ -1660,10 +1674,10 @@ Reanim.Start=function(data)
          end 
       end)
       pcall(function()
-         for _,v in Internal.Character:GetDescendants() do
+         if Internal.HatReanimed then return end
+         if not Internal.LimbBreakJoints then return end
+         for _,v in Internal.Character:GetChildren() do
             if v:IsA("BasePart") then
-               if Internal.HatReanimed then break end
-               if not Internal.LimbBreakJoints then break end
                v.CanCollide=false
             end
          end
@@ -1671,17 +1685,19 @@ Reanim.Start=function(data)
    end))
    
    AddConnection("Idk",rs.PreSimulation:Connect(function()
-      Reanim.Get("shp")(plr, "MaximumSimulationRadius", 10e+5)
+      Reanim.Get("shp")(plr, "MaximumSimulationRadius", 10e+10)
       Reanim.Get("shp")(plr, "SimulationRadius", plr.MaximumSimulationRadius)
    end))
    
+   
+   Internal.AntiFling=true
    AddConnection("Anti Fling",rs.PreSimulation:Connect(function()
       for _,v in plrs:GetPlayers() do
          if v~=plr then
          if not v.Character then continue end 
             for _,b in v.Character:GetDescendants() do 
                if b:IsA("BasePart") then
-                  b.CanCollide=false
+                  b.CanCollide=not Internal.AntiFling
                end 
             end
          end 
@@ -1740,8 +1756,8 @@ Reanim.Start=function(data)
    if Internal.HatReanimed then
       Reanim.CreateCharacter(Internal.IntPos)
       task.delay(.001, function()
-         Internal.DoHatReanim(Internal.Character)
-         wait(.1)
+         Internal.DoHatReanim(Internal.Character, true)
+         wait(.05)
          IsBreaking=false
       end)
    else
@@ -2522,6 +2538,9 @@ Reanim.Start=function(data)
          if tonumber(v) then 
             Internal.SpawnTp=v
          end
+      end,
+      SetAntiFling=function(v)
+         Internal.AntiFling=v
       end,
    }
    return Data
