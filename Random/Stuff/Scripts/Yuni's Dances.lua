@@ -1912,12 +1912,23 @@ Functions:Add("MainPart", function()
             Description="Description Here",
          })
          Script.CurrentLoadedModule=nil
-         Script.IsPlayingEmote=false
-         for _,v in Script:GetFigureModel():GetDescendants() do
-            if v:IsA("Motor6D") then
-               v.Transform=CFrame.new()
+         for _,m6 in Script:GetFigureModel():GetDescendants() do
+            if m6:IsA("Motor6D") then
+               local OrigP0={
+                  ["Left Shoulder"]=Script:GetFigureModel().Torso,
+                  ["Right Shoulder"]=Script:GetFigureModel().Torso,
+                  ["Left Hip"]=Script:GetFigureModel().Torso,
+                  ["Right Hip"]=Script:GetFigureModel().Torso,
+                  ["Neck"]=Script:GetFigureModel().Torso,
+                  ["RootJoint"]=Script:GetFigureModel().HumanoidRootPart,
+               }
+               m6.C0=OrigC0[m6.Name].Rotation+(OrigC0[m6.Name].Position*Script:GetFigureModel():GetScale())
+               m6.Transform=CFrame.new()
+               m6.Enabled=true
+               m6.Part0=OrigP0[m6.Name]
             end
          end
+         Script.IsPlayingEmote=false
       end
      
       function Script:PlayAnimationTrack(module)
