@@ -789,7 +789,7 @@ Functions:Add("GetFile", function(path,name,url)
    end
 end)
 
-local Override=true --// enable this if you wanna redownload utility assets again if theres an update(dev only)
+local Override=false --// enable this if you wanna redownload utility assets again if theres an update(dev only)
 local ToDownload={
    ["DanceModule"]={
       Path=Functions:Call("GetPath","DanceModule"),
@@ -1170,6 +1170,23 @@ Functions:Add("MainPart", function()
    
    function Script:SetAudioTime(time)
       Sound.TimePosition=time
+   end
+   
+   function Script:GetContentFile(f,n)
+      local file=Functions:Call("GetPath",f).."/"..n
+      if not n then
+         Notify({
+            Text=file.." Not found.",
+            Size=18,
+            Color=Functions:Call("GetProp","rgb",255,255,0)
+         })
+         return
+      end
+      local k, id=pcall(getcustomasset,file)
+      if k and id then
+         return id
+      end
+      return ""
    end
    
    Functions:Add("ScaleModelTo", function(ToScale)
@@ -2261,6 +2278,7 @@ Functions:Add("MainPart", function()
          Script.AnimModule.Connection:Disconnect()
          Script.AnimModule.Connection=nil
       end
+      Script.AnimModule.CurModule.Destroy(Script,Script:GetFigureModel())
       Script.InvUI:DestroyUI()
       Script.Reanimator=nil
       Script.ReanimatorData=nil
