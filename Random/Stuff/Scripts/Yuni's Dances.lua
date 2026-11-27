@@ -371,7 +371,7 @@ Functions:Add("RefreshReanimTab", function(type)
    if Debounce then return end
    Debounce=true 
    task.spawn(function()
-      wait(.01)
+      wait(.05)
       Debounce=false 
    end)
    local GetReanimatorData=function(t,n)
@@ -415,7 +415,7 @@ Functions:Add("RefreshReanimTab", function(type)
          Main.ReanimatorData.ModelScale=value
          Functions:Call("ScaleModelTo",value)
          Functions:Call("SaveConfig","ScriptConfigs",Main)
-         Functions:Call("GetReanimate","scale",v)
+         Functions:Call("GetReanimate","scale",value)
       end,
    })
    ReanimatorSettings:AddDropdown({
@@ -789,7 +789,7 @@ Functions:Add("GetFile", function(path,name,url)
    end
 end)
 
-local Override=false --// enable this if you wanna redownload utility assets again if theres an update(dev only)
+local Override=true --// enable this if you wanna redownload utility assets again if theres an update(dev only)
 local ToDownload={
    ["DanceModule"]={
       Path=Functions:Call("GetPath","DanceModule"),
