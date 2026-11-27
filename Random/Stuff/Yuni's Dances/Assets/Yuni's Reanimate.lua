@@ -1426,7 +1426,12 @@ Reanim.Start=function(data)
          end 
          workspace["FallenPartsDestroyHeight"]=-500 
          fpdh=workspace["FallenPartsDestroyHeight"]
-         local hrp=char:WaitForChild("HumanoidRootPart")
+         if not char:FindFirstChild("HumanoidRootPart") then
+            repeat 
+               wait()
+            until char:FindFirstChild("HumanoidRootPart")
+         end 
+         local hrp=char:FindFirstChild("HumanoidRootPart")
          local Rhrp=Reanim.Character:FindFirstChild("HumanoidRootPart").CFrame 
          local t=os.clock()+(.1+(network/1.5)) --// Should be enough to combat network ping 
          local flip=hrp.CFrame*CFrame.new(0,-3,0)*CFrame.Angles(-1.5707963267948966,0,0)
