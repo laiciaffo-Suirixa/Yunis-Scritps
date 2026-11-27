@@ -1152,7 +1152,7 @@ Reanim.Start=function(data)
          table.clear(HatsNames)
          local Connect=Reanim.Get("da")(this, function(v)
             if v:IsDescendantOf(Reanim.Character) then return end
-            if v:IsA("Motor6D") then
+            if v:IsA("Motor6D") and v.Name~="Neck" then
                v:Destroy()
             elseif v:IsA("Script") then
                v.Enabled=false
@@ -1193,7 +1193,7 @@ Reanim.Start=function(data)
          end)
          for _,v in this:GetDescendants() do
             if v:IsDescendantOf(Reanim.Character) then return end
-            if v:IsA("Motor6D") then
+            if v:IsA("Motor6D") and v.Name~="Neck" then
                v:Destroy()
             elseif v:IsA("Script") then
                v.Enabled=false
@@ -1257,8 +1257,15 @@ Reanim.Start=function(data)
                continue 
             end
          end
+         local network=math.clamp(plr:GetNetworkPing(),.1,.3)
          Internal.IsBreakJoints=true
          Internal.OnBreakJointsProcess=false
+         task.delay(.1+network,function() 
+            local Hum=this:WaitForChild("Humanoid")
+            Hum.mFolder.Parent=this
+            rs.PreSimulation:Wait(.05)
+            Hum.Health=0 
+         end)
       end
    end
    
@@ -1423,9 +1430,53 @@ Reanim.Start=function(data)
          local Rhrp=Reanim.Character:FindFirstChild("HumanoidRootPart").CFrame 
          local t=os.clock()+(.1+(network/1.5)) --// Should be enough to combat network ping 
          local flip=hrp.CFrame*CFrame.new(0,-3,0)*CFrame.Angles(-1.5707963267948966,0,0)
-         local void=hrp.CFrame*CFrame.new(0,fpdh+.4+(network/5),0)*CFrame.Angles(-1.5707963267948966,0,0)
+         local void=hrp.CFrame*CFrame.new(0,fpdh+.3+(network/5),0)*CFrame.Angles(-1.5707963267948966,0,0)
+         
+         task.delay(.1+(network/2.1), function()
+            local h=char:FindFirstChild("Humanoid")
+            if hrp then
+               if h then
+                  replicatesignal(h["ServerBreakJoints"])
+               else
+                  char:BreakJoints()
+               end
+            end
+            pcall(function() h.mFolder.Parent=char end)
+            Reanim.Get("da")(char, function(v)
+               if v:IsDescendantOf(Reanim.Character) then return end
+               if not Internal.Running then Connect:Disconnect() return end
+               if v:IsA("Accessory") then
+                  MapThisAccessory(v)
+               end
+            end)
+            
+            for _,v in char:GetDescendants() do
+               if v:IsDescendantOf(Reanim.Character) then continue end
+               if v:IsA("Accessory") then
+                  task.spawn(function()
+                     MapThisAccessory(v)
+                  end)
+               end
+            end
+            rs["PostSimulation"]:Wait(.01)
+            Internal.OnBreakJointsProcess=false 
+            hrp.Parent=nil
+            pcall(function()
+               char.Torso.Parent=nil
+            end)
+            rs["PostSimulation"]:Wait(.01)
+            Internal.IsBreakJoints=true
+            for _, v in Internal.Accessories do
+               if sethiddenproperty then
+                  sethiddenproperty(v, "BackendAccoutrementState", 0)
+               elseif setscriptable then
+                  setscriptable(v, "BacekndAccoutrementState", true)
+                  v.BackendAccoutrementState=0
+               end
+            end
+         end)
          if first then
-           if Internal.SpawnTp==1 then 
+            if Internal.SpawnTp==1 then 
                hrp.CFrame=void
                hrp.AssemblyLinearVelocity=Vector3.new()
                hrp.AssemblyAngularVelocity=Vector3.new()
@@ -1440,7 +1491,7 @@ Reanim.Start=function(data)
             end
          end 
          while true do 
-            rs["PostSimulation"]:Wait(.05)
+            rs["PostSimulation"]:Wait(.01)
             if Internal.SpawnTp==1 then 
                hrp.CFrame=void
                hrp.AssemblyLinearVelocity=Vector3.new()
@@ -1455,50 +1506,6 @@ Reanim.Start=function(data)
                hrp.AssemblyAngularVelocity=Vector3.new() 
             end
             if os.clock()>=t then break end
-         end
-         
-         local h=char:FindFirstChild("Humanoid")
-         if hrp then
-            if h then
-               replicatesignal(h["ServerBreakJoints"])
-            else
-               char:BreakJoints()
-            end
-         end
-         
-         local Connect
-         Connect=Reanim.Get("da")(char, function(v)
-            if v:IsDescendantOf(Reanim.Character) then return end
-            if not Internal.Running then Connect:Disconnect() return end
-            if v:IsA("Accessory") then
-               MapThisAccessory(v)
-            end
-         end)
-         
-         for _,v in char:GetDescendants() do
-            if v:IsDescendantOf(Reanim.Character) then continue end
-            if v:IsA("Accessory") then
-               task.spawn(function()
-                  MapThisAccessory(v)
-               end)
-            end
-         end
-         
-         rs["PostSimulation"]:Wait(.01)
-         Internal.OnBreakJointsProcess=false 
-         hrp.Parent=nil
-         pcall(function()
-            char.Torso.Parent=nil
-         end)
-         rs["PostSimulation"]:Wait(.01)
-         Internal.IsBreakJoints=true
-         for _, v in Internal.Accessories do
-            if sethiddenproperty then
-               sethiddenproperty(v, "BackendAccoutrementState", 0)
-            elseif setscriptable then
-               setscriptable(v, "BacekndAccoutrementState", true)
-               v.BackendAccoutrementState=0
-            end
          end
       end 
    end 
@@ -2435,8 +2442,32 @@ Reanim.Start=function(data)
          Reanim.Character:ScaleTo(tonumber(v)) 
       end,
       Stop=function()
-         if Internal.RespawnCon then Internal.RespawnCon:Disconnect() Internal.RespawnCon=nil end
-         plr.Character=Internal.Character
+         local found=false
+         pcall(function()
+            local c=Internal.Character
+            local hum=Internal.Character:WaitForChild("Humanoid")
+            if c:FindFirstChild("mFolder") then
+               found=true
+               c.mFolder:Destroy()
+            end
+         end)
+         if found then
+            if Internal.RespawnCon then Internal.RespawnCon:Disconnect() Internal.RespawnCon=nil end
+            DisconnectConnection()
+            Internal.Running=false
+            Reanim.DestroyCharacter()
+            Reanim.ShiftlockScreenGui:Destroy()
+            pcall(function()
+               for name,acc in Internal.Accessories do
+                  if Reanim.Character:FindFirstChild(name) then
+                     Reanim.Get("destroy")(Reanim.Character[name])
+                  end
+               end
+            end)
+            Internal={}
+            Internal=nil
+            return 
+         end
          local char=plr.Character
          local h=Reanim.FindChildClass(char, "Humanoid")
          if h then
@@ -2444,15 +2475,15 @@ Reanim.Start=function(data)
          end 
          RemoveConnection("Anti Fling")
          for _,v in plrs:GetPlayers() do
-         if v~=plr then
-         if not v.Character then continue end 
-            for _,b in v.Character:GetDescendants() do 
-               if b:IsA("BasePart") then
-                  b.CanCollide=true
-               end 
-            end
-         end 
-      end
+            if v~=plr then
+            if not v.Character then continue end 
+               for _,b in v.Character:GetDescendants() do 
+                  if b:IsA("BasePart") then
+                     b.CanCollide=true
+                  end 
+               end
+            end 
+         end
          DisconnectConnection()
          Internal.Running=false
          Reanim.DestroyCharacter()
@@ -2479,6 +2510,13 @@ Reanim.Start=function(data)
                acc:Destroy()
             end
          end
+         pcall(function()
+            local c=Internal.Character
+            local hum=Internal.Character:WaitForChild("Humanoid")
+            if c:FindFirstChild("mFolder") then
+               c.mFolder:Destroy()
+            end
+         end)
          if plr.Character.Humanoid.Health<=10 then
             plr.CharacterAdded:Wait()
             wait(.15)
@@ -2510,6 +2548,13 @@ Reanim.Start=function(data)
          end
          IsBreaking=true
          Internal.HatReanimed=(v:lower()=="hat" and true or false)
+         pcall(function()
+            local c=Internal.Character
+            local hum=Internal.Character:WaitForChild("Humanoid")
+            if c:FindFirstChild("mFolder") then
+               c.mFolder:Destroy()
+            end
+         end)
          if Internal.HatReanimed then
             Reanim.Character:ScaleTo(1) 
             local char=plr.Character
