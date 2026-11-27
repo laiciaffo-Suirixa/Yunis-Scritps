@@ -1265,7 +1265,7 @@ Reanim.Start=function(data)
    
    
    --// Hat Reanim
-   local HatMap,HatNameMap=loadstring(game:HttpGet("https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/refs/heads/main/Random/Stuff/Yuni's%20Dances/Assets/HatMaps.lua"))()
+   local HatMap,HatNameMap=loadstring(readfile("Yuni's Dances/Content/Assets/HatMaps.lua"))()
    Internal.HatData=HatMap
    Internal.HatClaimState={}
    Internal.SpawnTp=1
@@ -1642,7 +1642,7 @@ Reanim.Start=function(data)
       if Internal.IsBreakJoints==false then --// position it above the character while the hrp is being teleported
          local Rhrp=Reanim.Character:FindFirstChild("HumanoidRootPart").CFrame 
          local scale=Reanim.Character:GetScale() 
-         a.CFrame=(Rhrp*CFrame.new(0,3*scale,0))*CFrame.new(TimeCos,TimeSin,0)
+         a.CFrame=(Rhrp*CFrame.new())*CFrame.new(TimeCos,TimeSin,0)
       else
          a.CFrame=b.CFrame*CFrame.new(TimeCos,TimeSin,0)
       end
@@ -1710,7 +1710,7 @@ Reanim.Start=function(data)
       if char.Name==plr.Name then
          Internal.Character=char
       end
-      task.spawn(Internal.DoHatReanim,Internal.Character)
+      task.spawn(Internal.DoHatReanim,Internal.Character,true)
       task.spawn(Internal.DoBreakJoints,Internal.Character)
       Internal.LastRespawn=os.clock()
       if Internal.LimbBreakJoints or Internal.HatReanimed then
@@ -2410,6 +2410,11 @@ Reanim.Start=function(data)
          end 
       end 
    end)
+   
+   Internal.GetFigureScale=function()
+      print(Reanim.CharacterScale)
+      return Reanim.CharacterScale
+   end
    local Data={
       InfJump=function(v) Reanim.InfiniteJump=v end,
       EnableShiftlock=function(v) Reanim.ShiftlockEnabled=v end,
@@ -2481,12 +2486,12 @@ Reanim.Start=function(data)
          if Internal.RespawnCon then Internal.RespawnCon:Disconnect() Internal.RespawnCon=nil end
          if Internal.LimbBreakJoints==false then
             Internal.RespawnCon=plr.CharacterAdded:Connect(CharCon) 
-            Reanim.Character:ScaleTo(Reanim.CharacterScale) 
+            Reanim.Character:ScaleTo(Internal.GetFigureScale()) 
          elseif Internal.LimbBreakJoints==true then
             Reanim.Character:ScaleTo(1) 
             pcall(Internal.DoBreakJoints)
             wait(.1)
-            Reanim.Character:ScaleTo(Reanim.CharacterScale) 
+            Reanim.Character:ScaleTo(Internal.GetFigureScale()) 
             Internal.RespawnCon=plr.CharacterAdded:Connect(CharCon)
          end
          
@@ -2512,17 +2517,20 @@ Reanim.Start=function(data)
             if h then
                Internal.DoHatReanim(Internal.Character)
                wait(.25)
-               Reanim.Character:ScaleTo(Reanim.CharacterScale) 
+               Reanim.Character:ScaleTo(Internal.GetFigureScale()) 
                Internal.SetHumState(h, "Dead")
                IsBreaking=false
             end 
          else
             workspace["FallenPartsDestroyHeight"]=fpdh 
+            if Internal.LimbBreakJoints then
+               Reanim.Character:ScaleTo(1)
+            end
             if plr.Character.Humanoid.Health<=10 then
                plr.CharacterAdded:Wait()
-               wait(.1)
+               wait(.2)
             end 
-            Reanim.Character:ScaleTo(Reanim.CharacterScale) 
+            Reanim.Character:ScaleTo(Internal.GetFigureScale()) 
          end
          IsBreaking=false
       end,
@@ -2533,7 +2541,7 @@ Reanim.Start=function(data)
       end,
       RefreshHatMap=function(v)
          Internal.HatData=nil
-         local HatMap,HatNameMap=loadstring(game:HttpGet("https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/refs/heads/main/Random/Stuff/Yuni's%20Dances/Assets/HatMaps.lua"))()
+         local HatMap,HatNameMap=loadstring(readfile("Yuni's Dances/Content/Assets/HatMaps.lua"))()
          Internal.HatData=HatMap
       end,
       SetSpawnTp=function(v)
