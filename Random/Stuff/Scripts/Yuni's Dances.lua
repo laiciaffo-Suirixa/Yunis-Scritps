@@ -1731,6 +1731,9 @@ Functions:Add("MainPart", function()
       if m.Init then
          workspace:WaitForChild("Gelatek Plexity") 
          if module~=Script.AnimModule.CurModule then return end
+         local data=Main.ScriptData["AnimModule_" ..m.Name]
+         pcall(m.LoadConfigs,data)
+         pcall(m.Configs,Script)
          m.Init(Script)
          isloaded=true
       end
@@ -2269,18 +2272,16 @@ Functions:Add("MainPart", function()
             writefile(Functions:Call("GetPath","Assets").."/Yuni's Reanimate.lua",game:HttpGet("https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/main/Random/Stuff/Yuni's Dances/Assets/Yuni's Reanimate.lua"))--// redownload the reanimate lol
          end
       end)
-      Script.ButtonsUI.Visible=false
-      Script:UnbindAllActions()
-      Script.IsRunning=false
-      Script:StopEmote()
-      Script.Reanimator["Stop"]()
       if Script.AnimModule.Connection then
          Script.AnimModule.Connection:Disconnect()
          Script.AnimModule.Connection=nil
       end
       Script.AnimModule.CurModule.Destroy(Script,Script:GetFigureModel())
+      Script.ButtonsUI.Visible=false
+      Script:UnbindAllActions()
+      Script.IsRunning=false
+      Script:StopEmote()
       Script.InvUI:DestroyUI()
-      Script.Reanimator=nil
       Script.ReanimatorData=nil
       Script.InvUI=nil
       Script.Sound:Stop()
@@ -2293,6 +2294,8 @@ Functions:Add("MainPart", function()
       Script.KeyboardCon=nil
       Script.CamAttach:Destroy()
       Script.Blur:Destroy()
+      Script.Reanimator["Stop"]()
+      Script.Reanimator=nil
       local rs=Functions:Call("GetProp","gs","RunService")
       rs:UnbindFromRenderStep("CameraSway")
       local cam=Workspace.CurrentCamera
@@ -2359,6 +2362,9 @@ Functions:Add("MainPart", function()
          })
          return
       end
+      Script:Stop()
+   end)
+   UI:GetUI().Destroying:Once(function()
       Script:Stop()
    end)
 end)
