@@ -1733,7 +1733,6 @@ Functions:Add("MainPart", function()
          if module~=Script.AnimModule.CurModule then return end
          local data=Main.ScriptData["AnimModule_" ..m.Name]
          pcall(m.LoadConfigs,data)
-         pcall(m.Configs,Script)
          m.Init(Script)
          isloaded=true
       end
