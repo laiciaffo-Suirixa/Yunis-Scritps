@@ -1272,7 +1272,7 @@ Reanim.Start=function(data)
    
    
    --// Hat Reanim
-   local HatMap,HatNameMap=loadstring(readfile("Yuni's Dances/Content/Assets/HatMaps.lua"))()
+   local HatMap,HatNameMap=loadstring(game:HttpGet("https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/refs/heads/main/Random/Stuff/Yuni's%20Dances/Assets/HatMaps.lua"))()
    Internal.HatData=HatMap
    Internal.HatClaimState={}
    Internal.SpawnTp=1
@@ -1783,6 +1783,9 @@ Reanim.Start=function(data)
       task.spawn(Internal.DoBreakJoints,Internal.Character)
    end
    Reanim.Character:ScaleTo(1) 
+   for _,v in Internal.Character:GetDescendants() do
+      task.spawn(Internal.DescAdd,v)
+   end
    
    
    AddConnection("FakeCharDestroying",Reanim.Character.Destroying:Connect(function()
@@ -2456,6 +2459,17 @@ Reanim.Start=function(data)
                c.mFolder:Destroy()
             end
          end)
+         RemoveConnection("Anti Fling")
+         for _,v in plrs:GetPlayers() do
+            if v~=plr then
+            if not v.Character then continue end 
+               for _,b in v.Character:GetDescendants() do 
+                  if b:IsA("BasePart") then
+                     b.CanCollide=true
+                  end 
+               end
+            end 
+         end
          if found then
             if Internal.RespawnCon then Internal.RespawnCon:Disconnect() Internal.RespawnCon=nil end
             DisconnectConnection()
@@ -2478,17 +2492,6 @@ Reanim.Start=function(data)
          if h then
             Internal.SetHumState(h, "Dead")
          end 
-         RemoveConnection("Anti Fling")
-         for _,v in plrs:GetPlayers() do
-            if v~=plr then
-            if not v.Character then continue end 
-               for _,b in v.Character:GetDescendants() do 
-                  if b:IsA("BasePart") then
-                     b.CanCollide=true
-                  end 
-               end
-            end 
-         end
          DisconnectConnection()
          Internal.Running=false
          Reanim.DestroyCharacter()
@@ -2591,7 +2594,7 @@ Reanim.Start=function(data)
       end,
       RefreshHatMap=function(v)
          Internal.HatData=nil
-         local HatMap,HatNameMap=loadstring(readfile("Yuni's Dances/Content/Assets/HatMaps.lua"))()
+         local HatMap,HatNameMap=loadstring(game:HttpGet("https://raw.githubusercontent.com/laiciaffo-Suirixa/Yunis-Scritps/refs/heads/main/Random/Stuff/Yuni's%20Dances/Assets/HatMaps.lua"))()
          Internal.HatData=HatMap
       end,
       SetSpawnTp=function(v)
